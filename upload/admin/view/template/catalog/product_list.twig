@@ -164,7 +164,14 @@
                       <input type="checkbox" name="selected[]" value="{{ product.product_id }}" />
                       {% endif %}</td>
                     <td class="text-center">{% if product.image %} <img src="{{ product.image }}" alt="{{ product.name }}" class="img-thumbnail" /> {% else %} <span class="img-thumbnail list"><i class="fa fa-camera fa-2x"></i></span> {% endif %}</td>
-                    <td class="text-left">{{ product.name }}</td>
+                    <td class="text-left">
+                      <p><b>{{ product.name }}</b></p>
+                      <p>
+                        {% for store in stores %}
+                          <span class="badge {% if store.store_id in product.stores %} alert-success {% endif %}">{{ store.name }}</span>
+                        {% endfor %}
+                      </p>
+                    </td>
                     <td class="text-left">{{ product.model }}</td>
                     <td class="text-right">{% if product.special %} <span style="text-decoration: line-through;">{{ product.price }}</span><br/>
                       <div class="text-danger">{{ product.special }}</div>
