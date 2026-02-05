@@ -184,6 +184,10 @@ class ControllerCatalogAttribute extends Controller {
 			);
 		}
 
+		$this->load->model('setting/store');
+		$data['stores'] = $this->model_setting_store->getMultistores();
+		
+
 		if (isset($this->error['warning'])) {
 			$data['error_warning'] = $this->error['warning'];
 		} else {
