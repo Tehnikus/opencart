@@ -334,6 +334,13 @@ class ControllerCatalogFilter extends Controller {
 			$data['filters'] = array();
 		}
 
+		// Filter group to store association
+		$this->load->model('setting/store');
+		$data['stores'] = $this->model_setting_store->getMultistores();
+		$data['currentStore'] = $this->session->data['store_id'];
+		$data['stores_association'] = $this->request->post['stores_association'] ?? $this->model_catalog_filter->getStoresAssociation($this->request->get['filter_group_id'] ?? null) ?? [];
+		// End store association
+
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['footer'] = $this->load->controller('common/footer');
