@@ -1032,3 +1032,21 @@ html[dir="rtl"] .text-right {
     }
   }
 }
+
+.input-group-addon {
+    display: flex;
+    min-width: 40px;
+    align-items: center;
+    justify-content: center;
+}
+
+.input-group {
+    display: flex;
+    & .input-group-btn {
+        width: auto;
+    }
+}
+
+table td p {
+    margin: 3px 0;
+}
