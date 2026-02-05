@@ -404,29 +404,15 @@ class ControllerCatalogCategory extends Controller {
 		}
 
 		$this->load->model('setting/store');
-
-		$data['stores'] = array();
-
-		$data['stores'][] = array(
-			'store_id' => 0,
-			'name'     => $this->language->get('text_default')
-		);
-
-		$stores = $this->model_setting_store->getStores();
-
-		foreach ($stores as $store) {
-			$data['stores'][] = array(
-				'store_id' => $store['store_id'],
-				'name'     => $store['name']
-			);
-		}
+		$data['stores'] = $this->model_setting_store->getMultistores();
+		$data['currentStore'] = $this->session->data['store_id'];
 
 		if (isset($this->request->post['category_store'])) {
 			$data['category_store'] = $this->request->post['category_store'];
 		} elseif (isset($this->request->get['category_id'])) {
 			$data['category_store'] = $this->model_catalog_category->getCategoryStores($this->request->get['category_id']);
 		} else {
-			$data['category_store'] = array(0);
+			$data['category_store'] = array();
 		}
 
 		if (isset($this->request->post['image'])) {
