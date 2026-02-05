@@ -173,11 +173,14 @@ class ControllerCatalogAttribute extends Controller {
 
 		foreach ($results as $result) {
 			$data['attributes'][] = array(
-				'attribute_id'    => $result['attribute_id'],
-				'name'            => $result['name'],
-				'attribute_group' => $result['attribute_group'],
-				'sort_order'      => $result['sort_order'],
-				'edit'            => $this->url->link('catalog/attribute/edit', 'user_token=' . $this->session->data['user_token'] . '&attribute_id=' . $result['attribute_id'] . $url, true)
+				'attribute_id'    				=> $result['attribute_id'],
+				'name'            				=> $result['name'],
+				'attribute_group' 				=> $result['attribute_group'],
+				'sort_order'      				=> $result['sort_order'],
+				'stores' 									=> $result['stores'],
+				'attribute_group_stores' 	=> $result['attribute_group_stores'],
+				'product_count' 					=> $result['product_count'],
+				'edit'            				=> $this->url->link('catalog/attribute/edit', 'user_token=' . $this->session->data['user_token'] . '&attribute_id=' . $result['attribute_id'] . $url, true)
 			);
 		}
 
