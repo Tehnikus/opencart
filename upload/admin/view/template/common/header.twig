@@ -71,3 +71,19 @@
     </p>
   {% endfor %}
 </div>
+
+{# Set store on tab switch #}
+<script>
+  document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState === 'visible') {
+      const currentStoreId = document.getElementById('storeSwitch')?.dataset?.currentStoreId;
+      const userToken = "{{ user_token }}"
+      try {
+        const response = await fetch(`index.php?route=setting/store/fetchSetCurrentStoreId&user_token=${userToken}&store_id=${currentStoreId}`).then(r => r.json());
+        console.log(response);
+      } catch(e) {
+        console.error(e)
+      }
+    }
+  });
+</script>

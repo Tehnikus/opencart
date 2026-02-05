@@ -718,4 +718,11 @@ class ControllerSettingStore extends Controller {
 
 		return !$this->error;
 	}
+	public function fetchSetCurrentStoreId() : void {
+		if (isset($this->request->get['store_id'])) {
+			$this->session->data['store_id'] = (int)$this->request->get['store_id'];
+		}
+		$this->response->addHeader('Content-Type: application/json');
+		$this->response->setOutput(json_encode(['store_id' => $this->session->data['store_id']]));
+	}
 }
