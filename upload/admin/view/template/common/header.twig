@@ -57,3 +57,17 @@
     </ul>
     {% endif %} </div>
 </header>
+{# Store switch #}
+<div id="storeSwitch" data-current-store-id="{{ currentStoreId }}">
+  {% for store in stores %}
+    <p>
+      {% if store.storeId == currentStoreId %}
+        <span class="h2 storeLink currentStore alert-success">{{ store.name }}</span>
+      {% else %}
+        <a href="{{ store.storeSwitchLink }}">
+          <span class="h2 storeLink">{{ store.name }}</span>
+        </a>
+      {% endif %}
+    </p>
+  {% endfor %}
+</div>
