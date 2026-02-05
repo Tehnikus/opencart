@@ -105,4 +105,26 @@ class ModelSettingStore extends Model {
 
 		return $query->row['total'];
 	}
+
+	public function getMultistores() {
+		$stores = [];
+
+		$stores[0] = [
+			'store_id' => 0,
+			'name'     => $this->config->get('config_name'),
+			'url'	     => HTTPS_CATALOG
+		];
+
+		$multiStores = $this->getStores();
+
+		foreach ($multiStores as $store) {
+			$stores[(int) $store['store_id']] = [
+				'store_id' => (int) $store['store_id'],
+				'name'     => $store['name'],
+				'url'	     => $this->request->server['HTTPS'] ? $store['ssl'] : $store['url'],
+			];
+		}
+
+		return $stores;
+	}
 }
