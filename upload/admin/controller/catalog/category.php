@@ -593,7 +593,7 @@ class ControllerCatalogCategory extends Controller {
 			foreach ($results as $result) {
 				$json[] = array(
 					'category_id' => $result['category_id'],
-					'name'        => strip_tags(html_entity_decode($result['name'], ENT_QUOTES, 'UTF-8'))
+					'name'        => strip_tags(html_entity_decode($result['name'] ?? '', ENT_QUOTES, 'UTF-8'))
 				);
 			}
 		}
