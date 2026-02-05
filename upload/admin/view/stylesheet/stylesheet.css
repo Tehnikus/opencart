@@ -1016,3 +1016,19 @@ html[dir="rtl"] .text-right {
         float: left !important;
     }
 }
+
+
+#storeSwitch {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px 0 0 255px;
+  gap: 2rem;
+  & .storeLink {
+    padding: 10px 15px;
+    border-radius: 5px;
+    &.currentStore {
+        font-weight: bold;
+    }
+  }
+}
