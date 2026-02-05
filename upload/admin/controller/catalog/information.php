@@ -332,21 +332,7 @@ class ControllerCatalogInformation extends Controller {
 
 		$this->load->model('setting/store');
 
-		$data['stores'] = array();
-
-		$data['stores'][] = array(
-			'store_id' => 0,
-			'name'     => $this->language->get('text_default')
-		);
-
-		$stores = $this->model_setting_store->getStores();
-
-		foreach ($stores as $store) {
-			$data['stores'][] = array(
-				'store_id' => $store['store_id'],
-				'name'     => $store['name']
-			);
-		}
+		$data['stores'] = $this->model_setting_store->getMultistores();
 
 		if (isset($this->request->post['information_store'])) {
 			$data['information_store'] = $this->request->post['information_store'];
