@@ -335,7 +335,7 @@ class ControllerCatalogAttribute extends Controller {
 
 		$this->load->model('catalog/attribute_group');
 
-		$data['attribute_groups'] = $this->model_catalog_attribute_group->getAttributeGroups();
+		$data['attribute_groups'] = $this->model_catalog_attribute_group->getAttributeGroups(['store_id' => $this->session->data['store_id']]);
 
 		if (isset($this->request->post['sort_order'])) {
 			$data['sort_order'] = $this->request->post['sort_order'];
