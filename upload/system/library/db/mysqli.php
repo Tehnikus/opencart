@@ -20,7 +20,12 @@ class MySQLi {
 			throw new \Exception('Error: Could not make a database link using ' . $username . '@' . $hostname . '!');
 		}
 	}
-
+	/**
+	 * Summary of query
+	 * @param mixed $sql
+	 * @throws \Exception
+	 * @return bool|\stdClass
+	 */
 	public function query($sql) {
 		$query = $this->connection->query($sql);
 
