@@ -157,6 +157,17 @@ $_['error_upload_8']                = 'Warning: File upload stopped by extension
 $_['error_upload_999']              = 'Warning: No error code available!';
 $_['error_curl']                    = 'CURL: Error Code(%s): %s';
 
+// Additional translations
+// Form entries
+$_['entry_store_association']       = 'Store association';
+// Table columns
+$_['column_image']                  = 'Image';
+$_['column_product_count']          = 'Product count';
+$_['column_status']                 = 'Status';
+$_['column_filters']                = 'Filters';
+$_['column_attributes']             = 'Attributes';
+$_['column_options']                = 'Options';
+
 /* When doing translations only include the matching language code */
 
 // Summernote
