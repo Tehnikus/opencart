@@ -112,7 +112,7 @@
                     {% for store in stores %}
                     <div class="checkbox">
                       <label>
-                        {% if store.store_id in category_store %}
+                        {% if store.store_id in category_store or store.store_id == currentStore %}
                         <input type="checkbox" name="category_store[]" value="{{ store.store_id }}" checked="checked" />
                         {{ store.name }}
                         {% else %}
