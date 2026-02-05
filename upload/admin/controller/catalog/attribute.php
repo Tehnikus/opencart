@@ -345,6 +345,15 @@ class ControllerCatalogAttribute extends Controller {
 			$data['sort_order'] = '';
 		}
 
+		// Attribute to store association
+		$this->load->model('setting/store');
+		$data['stores'] = $this->model_setting_store->getMultistores();
+		// Current store_id to check current store checkbox in stores list
+		$data['currentStore'] = $this->session->data['store_id']; 
+		// Store association data
+		$data['stores_association'] = $this->request->post['stores_association'] ?? $this->model_catalog_attribute->getStoresAssociation($this->request->get['attribute_id'] ?? null) ?? [];
+		// End store association
+
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['footer'] = $this->load->controller('common/footer');
