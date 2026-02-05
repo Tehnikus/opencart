@@ -358,13 +358,13 @@ class ControllerCatalogAttributeGroup extends Controller {
 
 		$this->load->model('catalog/attribute');
 
-		foreach ($this->request->post['selected'] as $attribute_group_id) {
-			$attribute_total = $this->model_catalog_attribute->getTotalAttributesByAttributeGroupId($attribute_group_id);
+		// foreach ($this->request->post['selected'] as $attribute_group_id) {
+		// 	$attribute_total = $this->model_catalog_attribute->getTotalAttributesByAttributeGroupId($attribute_group_id);
 
-			if ($attribute_total) {
-				$this->error['warning'] = sprintf($this->language->get('error_attribute'), $attribute_total);
-			}
-		}
+		// 	if ($attribute_total) {
+		// 		$this->error['warning'] = sprintf($this->language->get('error_attribute'), $attribute_total);
+		// 	}
+		// }
 
 		return !$this->error;
 	}
