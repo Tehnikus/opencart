@@ -57,7 +57,14 @@
                     {% else %}
                     <input type="checkbox" name="selected[]" value="{{ attribute_group.attribute_group_id }}" />
                     {% endif %}</td>
-                  <td class="text-left">{{ attribute_group.name }}</td>
+                  <td class="text-left">
+                    <p><b>{{ attribute_group.name }}</b></p>
+                    <p>
+                      {% for store in stores %}
+                        <span class="badge {% if store.store_id in attribute_group.stores %} alert-success {% endif %}">{{ store.name }}</span>
+                      {% endfor %}
+                    </p>
+                  </td>
                   <td class="text-right">{{ attribute_group.sort_order }}</td>
                   <td class="text-right"><a href="{{ attribute_group.edit }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a></td>
                 </tr>
