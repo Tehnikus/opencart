@@ -176,9 +176,14 @@ class ControllerCatalogAttributeGroup extends Controller {
 				'attribute_group_id' => $result['attribute_group_id'],
 				'name'               => $result['name'],
 				'sort_order'         => $result['sort_order'],
+				'stores' 						 => $result['stores'],
 				'edit'               => $this->url->link('catalog/attribute_group/edit', 'user_token=' . $this->session->data['user_token'] . '&attribute_group_id=' . $result['attribute_group_id'] . $url, true)
 			);
 		}
+
+		$this->load->model('setting/store');
+		$data['stores'] = $this->model_setting_store->getMultistores();
+
 
 		if (isset($this->error['warning'])) {
 			$data['error_warning'] = $this->error['warning'];
