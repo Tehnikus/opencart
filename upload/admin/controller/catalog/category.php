@@ -581,10 +581,11 @@ class ControllerCatalogCategory extends Controller {
 
 			$filter_data = array(
 				'filter_name' => $this->request->get['filter_name'],
+				'store_id'		=> (int) $this->session->data['store_id'],
 				'sort'        => 'name',
 				'order'       => 'ASC',
 				'start'       => 0,
-				'limit'       => 5
+				'limit'       => 20
 			);
 
 			$results = $this->model_catalog_category->getCategories($filter_data);
