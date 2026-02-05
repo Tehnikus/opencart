@@ -57,7 +57,14 @@
                     {% else %}
                     <input type="checkbox" name="selected[]" value="{{ category.category_id }}" />
                     {% endif %}</td>
-                  <td class="text-left">{{ category.name }}</td>
+                  <td class="text-left">
+                    <p><b>{{ category.name }}</b></p>
+                    <p>
+                      {% for store in stores %}
+                        <span class="badge {% if store.store_id in category.stores %} alert-success {% endif %}">{{ store.name }}</span>
+                      {% endfor %}
+                    </p>
+                  </td>
                   <td class="text-right">{{ category.sort_order }}</td>
                   <td class="text-right"><a href="{{ category.edit }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a></td>
                 </tr>
