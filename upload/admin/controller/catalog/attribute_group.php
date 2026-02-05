@@ -310,6 +310,13 @@ class ControllerCatalogAttributeGroup extends Controller {
 			$data['attribute_group_description'] = array();
 		}
 
+		// Store association
+		$this->load->model('setting/store');
+		$data['stores'] = $this->model_setting_store->getMultistores();
+		$data['currentStore'] = $this->session->data['store_id'];
+		$data['stores_association'] = $this->request->post['stores_association'] ?? $this->model_catalog_attribute_group->getStoresAssociation($this->request->get['attribute_group_id'] ?? null) ?? [];
+		// End store association
+
 		if (isset($this->request->post['sort_order'])) {
 			$data['sort_order'] = $this->request->post['sort_order'];
 		} elseif (!empty($attribute_group_info)) {
