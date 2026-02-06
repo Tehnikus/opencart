@@ -207,10 +207,13 @@ class ControllerCatalogCategory extends Controller {
 		foreach ($results as $result) {
 			$data['categories'][] = array(
 				'category_id' 		=> $result['category_id'],
+				'image' 					=> ($result['image'] && is_file(DIR_IMAGE . $result['image'])) ? HTTPS_CATALOG . 'image/' . $result['image'] : HTTPS_CATALOG . 'image/no_image.webp',
 				'name'        		=> $result['name'],
 				'sort_order'  		=> $result['sort_order'],
 				'stores'  				=> $result['stores'],
 				'product_count'  	=> $result['product_count'],
+				'top' 						=> $result['top'],
+				'status' 					=> $result['status'],
 				'edit'        		=> $this->url->link('catalog/category/edit', 'user_token=' . $this->session->data['user_token'] . '&category_id=' . $result['category_id'] . $url, true),
 				'delete'      		=> $this->url->link('catalog/category/delete', 'user_token=' . $this->session->data['user_token'] . '&category_id=' . $result['category_id'] . $url, true)
 			);
