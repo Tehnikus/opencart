@@ -318,6 +318,7 @@ class ControllerCatalogAttributeGroup extends Controller {
 		// Store association
 		$this->load->model('setting/store');
 		$data['stores'] = $this->model_setting_store->getMultistores();
+		// Current store_id to check current store checkbox in stores list
 		$data['currentStore'] = $this->session->data['store_id'];
 		$data['stores_association'] = $this->request->post['stores_association'] ?? $this->model_catalog_attribute_group->getStoresAssociation($this->request->get['attribute_group_id'] ?? null) ?? [];
 		// End store association
