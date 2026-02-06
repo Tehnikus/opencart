@@ -105,29 +105,29 @@ CREATE TABLE `oc_api_session` (
 
 DROP TABLE IF EXISTS `oc_attribute`;
 CREATE TABLE `oc_attribute` (
-  `attribute_id` INT NOT NULL AUTO_INCREMENT,
-  `store_id` INT NOT NULL DEFAULT '0',
-  `attribute_group_id` INT NOT NULL,
-  `sort_order` INT NOT NULL,
+  `attribute_id`        INT NOT NULL AUTO_INCREMENT,
+  `attribute_group_id`  INT NOT NULL,
+  `sort_order`          INT NOT NULL,
   PRIMARY KEY (`attribute_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 DROP TABLE IF EXISTS `oc_attribute_description`;
 CREATE TABLE `oc_attribute_description` (
-  `attribute_id` INT NOT NULL,
-  `language_id` INT NOT NULL,
-  `store_id` INT NOT NULL DEFAULT '0',
-  `name` VARCHAR(255) NOT NULL,
+  `attribute_id`  INT NOT NULL,
+  `language_id`   INT NOT NULL,
+  `store_id`      INT NOT NULL DEFAULT '0',
+  `name`          VARCHAR(255) NOT NULL,
   PRIMARY KEY (`attribute_id`,`language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 DROP TABLE IF EXISTS `oc_attribute_to_store`;
 CREATE TABLE `oc_attribute_to_store` (
-  `attribute_id`  INT NOT NULL,
-  `store_id`      INT NOT NULL DEFAULT '0',
-  `sort_order`    INT NOT NULL DEFAULT '0',
+  `attribute_id`        INT NOT NULL,
+  `store_id`            INT NOT NULL DEFAULT '0',
+  `sort_order`          INT NOT NULL DEFAULT '0',
+  `attribute_group_id`  INT NOT NULL,
   PRIMARY KEY (`attribute_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
