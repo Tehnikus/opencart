@@ -362,10 +362,14 @@ class ControllerCatalogProduct extends Controller {
 				}
 			}
 
+		$this->load->model('setting/store');
+		$data['stores'] = $this->model_setting_store->getMultistores();
+
 			$data['products'][] = array(
 				'product_id' => $result['product_id'],
 				'image'      => $image,
 				'name'       => $result['name'],
+				'stores'		 => $result['stores'],
 				'model'      => $result['model'],
 				'price'      => $this->currency->format($result['price'], $this->config->get('config_currency')),
 				'special'    => $special,
