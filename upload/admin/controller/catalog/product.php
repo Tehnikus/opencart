@@ -666,29 +666,15 @@ class ControllerCatalogProduct extends Controller {
 		}
 
 		$this->load->model('setting/store');
-
-		$data['stores'] = array();
-
-		$data['stores'][] = array(
-			'store_id' => 0,
-			'name'     => $this->language->get('text_default')
-		);
-
-		$stores = $this->model_setting_store->getStores();
-
-		foreach ($stores as $store) {
-			$data['stores'][] = array(
-				'store_id' => $store['store_id'],
-				'name'     => $store['name']
-			);
-		}
+		$data['stores'] = $this->model_setting_store->getMultistores();
+		$data['currentStore'] = $this->session->data['store_id'];
 
 		if (isset($this->request->post['product_store'])) {
 			$data['product_store'] = $this->request->post['product_store'];
 		} elseif (isset($this->request->get['product_id'])) {
 			$data['product_store'] = $this->model_catalog_product->getProductStores($this->request->get['product_id']);
 		} else {
-			$data['product_store'] = array(0);
+			$data['product_store'] = array();
 		}
 
 		if (isset($this->request->post['shipping'])) {
