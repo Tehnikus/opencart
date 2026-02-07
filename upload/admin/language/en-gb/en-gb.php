@@ -167,6 +167,10 @@ $_['column_status']                 = 'Status';
 $_['column_filters']                = 'Filters';
 $_['column_attributes']             = 'Attributes';
 $_['column_options']                = 'Options';
+$_['column_option_type']            = 'Type';
+$_['column_option_values_list']     = 'Values';
+$_['column_option_count']           = 'Values count';
+$_['column_top_category']           = 'Top menu';
 
 /* When doing translations only include the matching language code */
 
