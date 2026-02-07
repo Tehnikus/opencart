@@ -431,8 +431,9 @@ class ControllerCatalogOption extends Controller {
 
 			$filter_data = array(
 				'filter_name' => $this->request->get['filter_name'],
+				'store_id'		=> (int) $this->session->data['store_id'],
 				'start'       => 0,
-				'limit'       => 5
+				'limit'       => 20
 			);
 
 			$options = $this->model_catalog_option->getOptions($filter_data);
