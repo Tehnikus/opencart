@@ -415,7 +415,13 @@ class ModelCatalogOption extends Model {
 	public function getOptionDescriptions($option_id) {
 		$option_data = array();
 
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "option_description WHERE option_id = '" . (int)$option_id . "'");
+		$query = $this->db->query("
+			SELECT 
+				* 
+			FROM " . DB_PREFIX . "option_description 
+			WHERE option_id = '" . (int) $option_id . "'
+				AND store_id 	= '" . (int) $this->session->data['store_id'] . "'
+		");
 
 		foreach ($query->rows as $result) {
 			$option_data[$result['language_id']] = array('name' => $result['name']);
