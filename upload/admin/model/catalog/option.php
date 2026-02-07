@@ -204,10 +204,102 @@ class ModelCatalogOption extends Model {
 	}
 
 	public function deleteOption($option_id) {
-		$this->db->query("DELETE FROM `" . DB_PREFIX . "option` WHERE option_id = '" . (int)$option_id . "'");
-		$this->db->query("DELETE FROM " . DB_PREFIX . "option_description WHERE option_id = '" . (int)$option_id . "'");
-		$this->db->query("DELETE FROM " . DB_PREFIX . "option_value WHERE option_id = '" . (int)$option_id . "'");
-		$this->db->query("DELETE FROM " . DB_PREFIX . "option_value_description WHERE option_id = '" . (int)$option_id . "'");
+
+		$this->db->query("START TRANSACTION");
+
+		try {
+			$this->db->query("
+				DELETE FROM " . DB_PREFIX . "option_description 
+				WHERE option_id = '" . (int) $option_id . "'
+					AND store_id  = '" . (int) $this->session->data['store_id'] . "'
+			");
+
+			// Delete product options
+			$this->db->query("
+				DELETE FROM " . DB_PREFIX . "product_option
+				WHERE option_id = '" . (int) $option_id . "'
+					AND store_id 	= '" . (int) $this->session->data['store_id'] . "'
+			");
+
+			// Delete product option values in current store
+			$this->db->query("
+				DELETE FROM " . DB_PREFIX . "product_option_value pov
+				WHERE pov.option_value_id IN (
+					SELECT
+						option_value ov
+					FROM " . DB_PREFIX . "option_value ov
+					WHERE ov.option_id 	= '" . (int) $option_id . "'
+						AND ov.store_id 	= '" . (int) $this->session->data['store_id'] . "'
+				)
+					AND pov.store_id = '" . (int) $this->session->data['store_id'] . "'
+			");
+			
+			// Then delete option values
+			$this->db->query("
+				DELETE FROM " . DB_PREFIX . "option_value 
+				WHERE option_id = '" . (int) $option_id . "'
+					AND store_id = '" . (int) $this->session->data['store_id'] . "'
+			");
+
+			$this->db->query("
+				DELETE FROM " . DB_PREFIX . "option_value_description 
+				WHERE option_id = '" . (int) $option_id . "'
+					AND store_id  = '" . (int) $this->session->data['store_id'] . "'
+			");
+
+			$this->db->query("
+				DELETE FROM " . DB_PREFIX . "option_to_store 
+				WHERE option_id = '" . (int) $option_id . "'
+					AND store_id  = '" . (int) $this->session->data['store_id'] . "'
+			");
+
+			// Check if option exists in other stores
+			$optionsInOtherStores = $this->db->query("
+				SELECT
+					option_id
+				FROM " . DB_PREFIX . "option_to_store
+				WHERE store_id <> '" . (int) $this->session->data['store_id'] . "'
+			")->num_rows;
+
+			// If option doesn't exist in other stores then delete it from main table where autoincrement is
+			if (!$optionsInOtherStores) {
+				$tables = [
+					'option',
+					'option_value',
+					'option_value_description',
+					'option_description',
+					'option_to_store',
+					'product_option',
+				];
+
+			// Delete product option values in all stores
+			$this->db->query("
+				DELETE FROM " . DB_PREFIX . "product_option_value pov
+				WHERE pov.option_value_id IN (
+					SELECT
+						option_value ov
+					FROM " . DB_PREFIX . "option_value ov
+					WHERE ov.option_id 	= '" . (int) $option_id . "'
+				)
+			");
+
+				// Remove all redundant data if present 
+				foreach ($tables as $table) {
+					$this->db->query("
+						DELETE FROM " . DB_PREFIX . $table . "
+						WHERE option_id = " . (int) $option_id
+					);
+				}
+			}
+			
+			$this->db->query("COMMIT");
+
+		} catch (\Throwable $e) {
+
+			$this->db->query("ROLLBACK");
+
+			throw $e;
+		}
 	}
 
 	public function getOption($option_id) {
