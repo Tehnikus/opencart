@@ -308,7 +308,7 @@ class ControllerDesignLayout extends Controller {
 
 		$this->load->model('setting/store');
 
-		$data['stores'] = $this->model_setting_store->getStores();
+		$data['stores'] = $this->model_setting_store->getMultistores();
 
 		if (isset($this->request->post['layout_route'])) {
 			$data['layout_routes'] = $this->request->post['layout_route'];
