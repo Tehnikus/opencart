@@ -173,12 +173,19 @@ class ControllerCatalogOption extends Controller {
 
 		foreach ($results as $result) {
 			$data['options'][] = array(
-				'option_id'  => $result['option_id'],
-				'name'       => $result['name'],
-				'sort_order' => $result['sort_order'],
-				'edit'       => $this->url->link('catalog/option/edit', 'user_token=' . $this->session->data['user_token'] . '&option_id=' . $result['option_id'] . $url, true)
+				'option_id'  		=> $result['option_id'],
+				'name'       		=> $result['name'],
+				'values_list'   => $result['values_list'],
+				'option_count' 	=> $result['option_count'],
+				'type' 					=> $result['type'],
+				'sort_order' 		=> $result['sort_order'],
+				'stores' 				=> $result['stores'],
+				'edit'       		=> $this->url->link('catalog/option/edit', 'user_token=' . $this->session->data['user_token'] . '&option_id=' . $result['option_id'] . $url, true)
 			);
 		}
+
+		$this->load->model('setting/store');
+		$data['stores'] = $this->model_setting_store->getMultistores();
 
 		if (isset($this->error['warning'])) {
 			$data['error_warning'] = $this->error['warning'];
