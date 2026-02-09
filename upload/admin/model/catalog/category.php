@@ -358,7 +358,7 @@ class ModelCatalogCategory extends Model {
 			$this->db->query("
 				DELETE FROM " . DB_PREFIX . "category_to_store 
 				WHERE category_id 	= '" . (int)$category_id . "'
-					AND store_id 			= '" . (int) $this->session->data['store_id'] . "'
+					-- AND store_id 			= '" . (int) $this->session->data['store_id'] . "'
 			");
 	
 			if (isset($data['category_store'])) {
