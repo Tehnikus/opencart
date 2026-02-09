@@ -1197,7 +1197,7 @@ class ModelCatalogProduct extends Model {
 
 	// Get product description for product edit form
 	// Should always rely on store_id
-	public function getProductDescriptions($product_id) {
+	public function getProductDescriptions($product_id) : array {
 		$product_description_data = array();
 
 		$query = $this->db->query("
@@ -1222,7 +1222,12 @@ class ModelCatalogProduct extends Model {
 		return $product_description_data;
 	}
 
-	public function getProductCategories($product_id) {
+	// Get product associated categories
+	// Used in admin/controller/catalog/product/getForm() to show product form data 
+	// and in admin/model/catalog/copyProduct() to duplicate product
+	// Should always rely on store_id context
+	// Returns only ids, so no lang context needed here
+	public function getProductCategories($product_id) : array {
 		$product_category_data = array();
 
 		$query = $this->db->query("
@@ -1240,7 +1245,12 @@ class ModelCatalogProduct extends Model {
 		return $product_category_data;
 	}
 
-	public function getProductFilters($product_id) {
+	// Get product associated filters
+	// Used in admin/controller/catalog/product/getForm() to show product form data 
+	// and in admin/model/catalog/copyProduct() to duplicate product
+	// Should always rely on store_id context
+	// Returns only ids, so no lang context needed here
+	public function getProductFilters($product_id) : array {
 		$product_filter_data = array();
 
 		$query = $this->db->query("
@@ -1258,7 +1268,12 @@ class ModelCatalogProduct extends Model {
 		return $product_filter_data;
 	}
 
-	public function getProductAttributes($product_id) {
+	// Get product associated attributes and attribute descriptions
+	// Used in admin/controller/catalog/product/getForm() to show product form data 
+	// and in admin/model/catalog/copyProduct() to duplicate product
+	// Should always rely on store_id context
+	// Returns all languages data, so no lang context needed here
+	public function getProductAttributes($product_id) : array {
 		$product_attribute_data = array();
 
 		$product_attribute_query = $this->db->query("
@@ -1295,7 +1310,12 @@ class ModelCatalogProduct extends Model {
 		return $product_attribute_data;
 	}
 
-	public function getProductOptions($product_id) {
+	// Get product associated options
+	// Used in admin/controller/catalog/product/getForm() to show product form data 
+	// and in admin/model/catalog/copyProduct() to duplicate product
+	// Should always rely on store_id context
+	// Returns only non-language data
+	public function getProductOptions($product_id) : array {
 		$product_option_data = array();
 
 		$product_option_query = $this->db->query("
