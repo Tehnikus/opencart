@@ -438,7 +438,7 @@ class ModelCatalogProduct extends Model {
 			$this->db->query("
 				DELETE FROM " . DB_PREFIX . "product_to_store 
 				WHERE product_id 	= '" . (int) $product_id . "'
-					AND store_id 		= '" . (int) $this->session->data['store_id'] . "'
+					-- AND store_id 		= '" . (int) $this->session->data['store_id'] . "'
 			");
 	
 			if (isset($data['product_store'])) {
