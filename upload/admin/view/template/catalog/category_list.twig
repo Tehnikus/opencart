@@ -72,7 +72,15 @@
                     <p><b>{{ category.name }}</b></p>
                     <p>
                       {% for store in stores %}
-                        <span class="badge {% if store.store_id in category.stores %} alert-success {% endif %}">{{ store.name }}</span>
+                        {% if store.store_id in category.stores %}
+                          {% if category.status_to_store[store.store_id] == 1 %}
+                            <span class="badge alert-success"><i class="fa fa-play"></i>&nbsp;{{ store.name }}</span>
+                          {% else %}
+                            <span class="badge"><i class="fa fa-pause"></i>&nbsp;{{ store.name }}</span>
+                          {% endif %}
+                        {% else %}
+                          <span class="badge alert-danger"><i class="fa fa-times"></i>&nbsp;{{ store.name }}</span>
+                        {% endif %}
                       {% endfor %}
                     </p>
                   </td>

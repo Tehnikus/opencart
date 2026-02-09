@@ -214,6 +214,7 @@ class ControllerCatalogCategory extends Controller {
 				'product_count'  	=> $result['product_count'],
 				'top' 						=> $result['top'],
 				'status' 					=> $result['status'],
+				'status_to_store' => $result['status_to_store'],
 				'edit'        		=> $this->url->link('catalog/category/edit', 'user_token=' . $this->session->data['user_token'] . '&category_id=' . $result['category_id'] . $url, true),
 				'delete'      		=> $this->url->link('catalog/category/delete', 'user_token=' . $this->session->data['user_token'] . '&category_id=' . $result['category_id'] . $url, true)
 			);

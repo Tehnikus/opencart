@@ -685,6 +685,7 @@ class ModelCatalogCategory extends Model {
 						)
 					) t
 				) AS `name`,
+				(SELECT JSON_OBJECTAGG(c2s.store_id, c2s.status) FROM " . DB_PREFIX . "category_to_store c2s WHERE c2s.category_id = c.category_id) AS status_to_store,
 				(SELECT COUNT(p2c.product_id) FROM " . DB_PREFIX . "product_to_category p2c WHERE p2c.category_id = c.category_id AND p2c.store_id = '" . (int) $this->session->data['store_id'] . "') AS product_count,
 				(SELECT JSON_ARRAYAGG(c2s.store_id) FROM " . DB_PREFIX . "category_to_store c2s WHERE c.category_id = c2s.category_id) AS stores
 			FROM " . DB_PREFIX . "category c
@@ -737,7 +738,8 @@ class ModelCatalogCategory extends Model {
 		$query = $this->db->query($sql);
 
 		foreach ($query->rows ?? [] as $row) {
-			$row['stores'] = json_decode($row['stores'] ?? '[]');
+			$row['stores'] 					= json_decode($row['stores'] ?? '[]');
+			$row['status_to_store'] = json_decode($row['status_to_store'] ?? '[]', true);
 			$result[] = $row;
 		}
 
