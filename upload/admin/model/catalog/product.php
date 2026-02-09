@@ -931,8 +931,44 @@ class ModelCatalogProduct extends Model {
 		return $query->row;
 	}
 
+	// Get product list
+	// Used in admin product list and product autocomplete
+	// Should get all products if no $data['store_id'] is set OR only store specific products otherwise 
 	public function getProducts($data = array()) {
-		$sql = "SELECT * FROM " . DB_PREFIX . "product p LEFT JOIN " . DB_PREFIX . "product_description pd ON (p.product_id = pd.product_id) WHERE pd.language_id = '" . (int)$this->config->get('config_language_id') . "'";
+		$result = [];
+		$sql = "
+			SELECT 
+				*,
+				p.product_id,
+				p2s.image,
+				p2s.status,
+				p2s.sort_order,
+				p2s.date_modified,
+				(
+					SELECT 
+						pd.name 
+					FROM " . DB_PREFIX . "product_description pd 
+					WHERE pd.product_id = p.product_id 
+					ORDER BY 
+						FIELD(pd.store_id, '" . (int) $this->session->data['store_id'] ."') DESC,
+						FIELD(pd.language_id, '" . (int) $this->config->get('config_language_id') . "') DESC
+						LIMIT 1
+				) AS `name`,
+				(SELECT JSON_ARRAYAGG(p2s.store_id) FROM " . DB_PREFIX . "product_to_store p2s WHERE p2s.product_id = p.product_id) AS stores,
+				(SELECT JSON_OBJECTAGG(p2s.store_id, p2s.status) FROM " . DB_PREFIX . "product_to_store p2s WHERE p2s.product_id = p.product_id) AS status_to_store,
+				(SELECT COUNT(po.product_option_id) FROM " . DB_PREFIX . "product_option po WHERE po.product_id = p.product_id AND po.store_id = p2s.store_id) AS product_options,
+				(SELECT COUNT(pf.filter_id) FROM " . DB_PREFIX . "product_filter pf WHERE pf.product_id = p.product_id AND pf.store_id = p2s.store_id) AS product_filters,
+				(SELECT COUNT(pa.attribute_id) FROM " . DB_PREFIX . "product_attribute pa WHERE pa.product_id = p.product_id AND pa.store_id = p2s.store_id) AS product_attributes
+				
+			FROM " . DB_PREFIX . "product p 
+			LEFT JOIN " . DB_PREFIX . "product_description pd 
+				ON (p.product_id = pd.product_id) 
+			LEFT JOIN " . DB_PREFIX . "product_to_store p2s 
+				ON p2s.product_id = p.product_id
+				AND p2s.store_id = '" . (int) $this->session->data['store_id'] . "'
+			WHERE pd.language_id = '" . (int)$this->config->get('config_language_id') . "'
+				
+		";
 
 		if (!empty($data['filter_name'])) {
 			$sql .= " AND pd.name LIKE '" . $this->db->escape($data['filter_name']) . "%'";
