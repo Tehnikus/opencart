@@ -1098,7 +1098,13 @@ class ModelCatalogProduct extends Model {
 	public function getProductCategories($product_id) {
 		$product_category_data = array();
 
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_to_category WHERE product_id = '" . (int)$product_id . "'");
+		$query = $this->db->query("
+			SELECT 
+				* 
+			FROM " . DB_PREFIX . "product_to_category 
+			WHERE product_id  = '" . (int) $product_id . "' 
+				AND store_id 		= '" . (int) $this->session->data['store_id'] . "'
+		");
 
 		foreach ($query->rows as $result) {
 			$product_category_data[] = $result['category_id'];
