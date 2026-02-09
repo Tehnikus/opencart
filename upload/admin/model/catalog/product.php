@@ -1068,10 +1068,18 @@ class ModelCatalogProduct extends Model {
 		return $query->rows;
 	}
 
+	// Get product description for product edit form
+	// Should always rely on store_id
 	public function getProductDescriptions($product_id) {
 		$product_description_data = array();
 
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_description WHERE product_id = '" . (int)$product_id . "'");
+		$query = $this->db->query("
+			SELECT 
+				* 
+			FROM " . DB_PREFIX . "product_description 
+			WHERE product_id = '" . (int)$product_id . "' 
+				AND store_id 	 = '" . (int) $this->session->data['store_id'] . "'
+		");
 
 		foreach ($query->rows as $result) {
 			$product_description_data[$result['language_id']] = array(
