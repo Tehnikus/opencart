@@ -1015,9 +1015,9 @@ class ModelCatalogProduct extends Model {
 		);
 
 		if (isset($data['sort']) && in_array($data['sort'], $sort_data)) {
-			$sql .= " ORDER BY " . $data['sort'];
+			$sql .= " ORDER BY FIELD(p2s.store_id, '" . (int) $this->session->data['store_id'] ."') DESC, " . $data['sort'];
 		} else {
-			$sql .= " ORDER BY pd.name";
+			$sql .= " ORDER BY FIELD(p2s.store_id, '" . (int) $this->session->data['store_id'] ."') DESC, pd.name";
 		}
 
 		if (isset($data['order']) && ($data['order'] == 'DESC')) {
