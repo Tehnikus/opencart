@@ -930,15 +930,47 @@ class ModelCatalogProduct extends Model {
 	public function getProduct($product_id) {
 		$query = $this->db->query("
 			SELECT 
-				* 
+				p.`product_id`,
+				p.`model`,
+				p.`sku`,
+				p.`upc`,
+				p.`ean`,
+				p.`jan`,
+				p.`isbn`,
+				p.`mpn`,
+				p.`location`,
+				p.`quantity`,
+				p.`stock_status_id`,
+				p.`manufacturer_id`,
+				p.`shipping`,
+				p.`price`,
+				p.`points`,
+				p.`tax_class_id`,
+				p.`date_available`,
+				p.`weight`,
+				p.`weight_class_id`,
+				p.`length`,
+				p.`width`,
+				p.`height`,
+				p.`length_class_id`,
+				p.`subtract`,
+				p.`minimum`,
+				p.`viewed`,
+				p.`date_added`,
+				p2s.`store_id`,
+				p2s.`sort_order`,
+				p2s.`parent_id`,
+				p2s.`status`,
+				p2s.`image`,
+				p2s.`date_modified`
 			FROM " . DB_PREFIX . "product p 
-			JOIN " . DB_PREFIX . "product_to_store p2s
+			LEFT JOIN " . DB_PREFIX . "product_to_store p2s
 				ON p.product_id = p2s.product_id
-			JOIN " . DB_PREFIX . "product_description pd 
-				ON p.product_id = pd.product_id AND pd.store_id = p2s.store_id
-			WHERE p.product_id 		= '" . (int) $product_id . "' 
-				AND pd.language_id 	= '" . (int) $this->config->get('config_language_id') . "'
 				AND p2s.store_id 		=	'" . (int) $this->session->data['store_id'] . "' 
+			LEFT JOIN " . DB_PREFIX . "product_description pd 
+				ON p.product_id = pd.product_id AND pd.store_id = p2s.store_id
+				AND pd.language_id 	= '" . (int) $this->config->get('config_language_id') . "'
+			WHERE p.product_id 		= '" . (int) $product_id . "' 
 		");
 
 		return $query->row;
