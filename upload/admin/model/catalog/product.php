@@ -1403,7 +1403,14 @@ class ModelCatalogProduct extends Model {
 	}
 
 	public function getProductImages($product_id) {
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_image WHERE product_id = '" . (int)$product_id . "' ORDER BY sort_order ASC");
+		$query = $this->db->query("
+			SELECT 
+				* 
+			FROM " . DB_PREFIX . "product_image 
+			WHERE product_id  = '" . (int) $product_id . "' 
+				AND store_id 		= '" . (int) $this->session->data['store_id'] . "'
+			ORDER BY sort_order ASC
+		");
 
 		return $query->rows;
 	}
