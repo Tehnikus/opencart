@@ -212,6 +212,7 @@ class ControllerCatalogCategory extends Controller {
 				'sort_order'  		=> $result['sort_order'],
 				'stores'  				=> $result['stores'],
 				'product_count'  	=> $result['product_count'],
+				'filter_count'  	=> $result['filter_count'],
 				'top' 						=> $result['top'],
 				'status' 					=> $result['status'],
 				'status_to_store' => $result['status_to_store'],

@@ -42,6 +42,8 @@
                     <a href="{{ sort_name }}">{{ column_name }}</a>
                     {% endif %}
                   </td>
+                  <td style="width: 50px" class="text-center">{{ column_top_category }}</td>
+                  <td style="width: 50px" class="text-center">{{ column_filters }}</td>
                   <td style="width: 50px" class="text-center">{{ column_product_count }}</td>
                   <td style="width: 50px" class="text-center">
                     {% if sort == 'sort_order' %}
@@ -84,8 +86,7 @@
                       {% endfor %}
                     </p>
                   </td>
-                  <td class="text-center">{{ category.product_count }}</td>
-                  <td class="text-center">{{ category.sort_order }}</td>
+                  <td class="text-center"><b>{{ category.filter_count }}</b></td>
                   <td class="text-center">{{ category.status }}</td>
                   <td class="text-center"><a href="{{ category.edit }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a></td>
                 </tr>
