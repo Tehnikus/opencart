@@ -877,6 +877,7 @@ class ModelCatalogProduct extends Model {
 			// Delete main product table row if product is not present in any other store
 			if (empty($productInOtherStores)) {
 				$tables = [
+					'product',
 					'product_attribute',
 					'product_description',
 					'product_discount',
