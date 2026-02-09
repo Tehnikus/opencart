@@ -1116,7 +1116,13 @@ class ModelCatalogProduct extends Model {
 	public function getProductFilters($product_id) {
 		$product_filter_data = array();
 
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_filter WHERE product_id = '" . (int)$product_id . "'");
+		$query = $this->db->query("
+			SELECT 
+				* 
+			FROM " . DB_PREFIX . "product_filter 
+			WHERE product_id  = '" . (int) $product_id . "'
+				AND store_id 		= '" . (int) $this->session->data['store_id'] . "'
+		");
 
 		foreach ($query->rows as $result) {
 			$product_filter_data[] = $result['filter_id'];
