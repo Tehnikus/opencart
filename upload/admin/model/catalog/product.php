@@ -925,8 +925,21 @@ class ModelCatalogProduct extends Model {
 		
 	}
 
+	// Get product basic data in various admin controllers
+	// Should always rely on store_id, not involved in product lists
 	public function getProduct($product_id) {
-		$query = $this->db->query("SELECT DISTINCT * FROM " . DB_PREFIX . "product p LEFT JOIN " . DB_PREFIX . "product_description pd ON (p.product_id = pd.product_id) WHERE p.product_id = '" . (int)$product_id . "' AND pd.language_id = '" . (int)$this->config->get('config_language_id') . "'");
+		$query = $this->db->query("
+			SELECT 
+				* 
+			FROM " . DB_PREFIX . "product p 
+			JOIN " . DB_PREFIX . "product_to_store p2s
+				ON p.product_id = p2s.product_id
+			JOIN " . DB_PREFIX . "product_description pd 
+				ON p.product_id = pd.product_id AND pd.store_id = p2s.store_id
+			WHERE p.product_id 		= '" . (int) $product_id . "' 
+				AND pd.language_id 	= '" . (int) $this->config->get('config_language_id') . "'
+				AND p2s.store_id 		=	'" . (int) $this->session->data['store_id'] . "' 
+		");
 
 		return $query->row;
 	}
