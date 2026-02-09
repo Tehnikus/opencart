@@ -629,6 +629,10 @@ class ModelCatalogCategory extends Model {
 		return $query->row;
 	}
 
+	// Get categories list
+	// Used in admin category list AND autocomplete
+	// Regular list should show categories in all stores with related to store
+	// Autocomplete should always have parameter store_id to filter categories by store id
 	public function getCategories($data = array()) {
 		$result = [];
 		$where = [];
