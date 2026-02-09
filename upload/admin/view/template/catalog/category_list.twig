@@ -86,7 +86,10 @@
                       {% endfor %}
                     </p>
                   </td>
+                  <td class="text-center"><b>{% if category.top %}<i class="fa fa-check text-success"></i>{% else %}<i class="fa fa-times text-muted"></i>{% endif %}</b></td>
                   <td class="text-center"><b>{{ category.filter_count }}</b></td>
+                  <td class="text-center"><b>{{ category.product_count }}</b></td>
+                  <td class="text-center"><b>{{ category.sort_order }}</b></td>
                   <td class="text-center">{{ category.status }}</td>
                   <td class="text-center"><a href="{{ category.edit }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a></td>
                 </tr>
