@@ -100,7 +100,7 @@ class ModelCatalogProduct extends Model {
 						$this->db->query("
 							DELETE FROM " . DB_PREFIX . "product_attribute 
 							WHERE `product_id` 		= '" . (int) $product_id . "' 
-								AND `attribute_id` 	= '" . (int) $product_attribute['attribute_id'] . "',
+								AND `attribute_id` 	= '" . (int) $product_attribute['attribute_id'] . "'
 								AND `store_id` 			= '" . (int) $this->session->data['store_id'] . "'
 						");
 	
@@ -109,7 +109,7 @@ class ModelCatalogProduct extends Model {
 								DELETE FROM " . DB_PREFIX . "product_attribute 
 								WHERE `product_id` 		= '" . (int) $product_id . "' 
 									AND `attribute_id` 	= '" . (int) $product_attribute['attribute_id'] . "' 
-									AND `language_id`		= '" . (int) $language_id . "',
+									AND `language_id`		= '" . (int) $language_id . "'
 									AND `store_id` 			= '" . (int) $this->session->data['store_id'] . "'
 							");
 	
@@ -185,7 +185,7 @@ class ModelCatalogProduct extends Model {
 						FROM `" . DB_PREFIX . "product_recurring` 
 						WHERE `product_id` 				= '" . (int) $product_id . "' 
 							AND `customer_group_id` = '" . (int) $recurring['customer_group_id'] . "' 
-							AND `recurring_id` 			= '" . (int) $recurring['recurring_id'] . "',
+							AND `recurring_id` 			= '" . (int) $recurring['recurring_id'] . "'
 							AND `store_id` 						= '" . (int) $this->session->data['store_id'] . "'
 					");
 	
