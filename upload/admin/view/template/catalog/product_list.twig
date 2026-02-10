@@ -191,8 +191,33 @@
                         {% endfor %}
                       </p>
                     </td>
-                    <td class="text-center"><b>{{ product.product_options }}</b></td>
-                    <td class="text-center"><b>{{ product.product_filters }}</b></td>
+                    <td class="text-left">
+                      <div style="max-height: 100px; overflow-y: auto">
+                        {% set count = 0 %}
+                        {% for groupId, group in product.product_filters %}
+                          <p style="cursor: default" title="{{ group.name }}">
+                            {% for itemId, item in group.values %}
+                              <a href="index.php?route=catalog/filter/edit&user_token={{ user_token }}&filter_group_id={{ groupId }}" title="{{ edit_filter_group|format(group.name) }}" target="_blank"><span class="badge badge-sm">{{ item }}</span></a>
+                              {% set count = count + 1 %}
+                            {% endfor %}
+                          </p>
+                        {% endfor %}
+                      </div>
+                    </td>
+                    <td class="text-left">
+                      <div style="max-height: 100px; overflow-y: auto">
+                        {% set count = 0 %}
+                        {% for groupId, group in product.product_options %}
+                          <p style="cursor: default">
+                            {% for itemId, item in group.values %}
+                              <a href="index.php?route=catalog/option/edit&user_token={{ user_token }}&option_id={{ groupId }}" title="{{ edit_option_group|format(group.name) }}" target="_blank"><span class="badge badge-sm">{{ item }}</span>
+                              {% set count = count + 1 %}
+                            {% endfor %}
+                          </p>
+                        {% endfor %}
+                      </div>
+                    </td>
+                    {# <td class="text-center"><b>{{ product.product_options }}</b></td> #}
                     <td class="text-center"><b>{{ product.product_attributes }}</b></td>
                     <td class="text-right">{% if product.special %} <span style="text-decoration: line-through;">{{ product.price }}</span><br/>
                       <div class="text-danger"><b>{{ product.special }}</b></div>
