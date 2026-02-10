@@ -114,7 +114,7 @@ class ControllerCatalogFilter extends Controller {
 		if (isset($this->request->get['sort'])) {
 			$sort = $this->request->get['sort'];
 		} else {
-			$sort = 'fgd.name';
+			$sort = 'name';
 		}
 
 		if (isset($this->request->get['order'])) {
@@ -219,8 +219,8 @@ class ControllerCatalogFilter extends Controller {
 			$url .= '&page=' . $this->request->get['page'];
 		}
 
-		$data['sort_name'] = $this->url->link('catalog/filter', 'user_token=' . $this->session->data['user_token'] . '&sort=fgd.name' . $url, true);
-		$data['sort_sort_order'] = $this->url->link('catalog/filter', 'user_token=' . $this->session->data['user_token'] . '&sort=fg.sort_order' . $url, true);
+		$data['sort_name'] = $this->url->link('catalog/filter', 'user_token=' . $this->session->data['user_token'] . '&sort=name' . $url, true);
+		$data['sort_sort_order'] = $this->url->link('catalog/filter', 'user_token=' . $this->session->data['user_token'] . '&sort=fg2s.sort_order' . $url, true);
 
 		$url = '';
 
