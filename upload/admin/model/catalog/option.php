@@ -226,7 +226,7 @@ class ModelCatalogOption extends Model {
 				DELETE FROM " . DB_PREFIX . "product_option_value pov
 				WHERE pov.option_value_id IN (
 					SELECT
-						option_value ov
+						option_value_id ov
 					FROM " . DB_PREFIX . "option_value ov
 					WHERE ov.option_id 	= '" . (int) $option_id . "'
 						AND ov.store_id 	= '" . (int) $this->session->data['store_id'] . "'
@@ -277,7 +277,7 @@ class ModelCatalogOption extends Model {
 				DELETE FROM " . DB_PREFIX . "product_option_value pov
 				WHERE pov.option_value_id IN (
 					SELECT
-						option_value ov
+						option_value_id ov
 					FROM " . DB_PREFIX . "option_value ov
 					WHERE ov.option_id 	= '" . (int) $option_id . "'
 				)
@@ -293,6 +293,8 @@ class ModelCatalogOption extends Model {
 			}
 			
 			$this->db->query("COMMIT");
+
+			return true;
 
 		} catch (\Throwable $e) {
 
