@@ -74,6 +74,15 @@
                       {% endfor %}
                     </p>
                   </td>
+                  <td class="text-left">
+                    <p><b>{{ attribute.attribute_group }}</p></b>
+                    <p>
+                      {% for store in stores %}
+                        {% if store.store_id in attribute.attribute_group_stores %}
+                          <a href="index.php?route=catalog/attribute_group/edit&user_token={{ user_token }}&attribute_group_id={{ attribute.attribute_group_id }}" title="{{ edit_attribute_group|format(attribute.attribute_group) }}" target="_blank"><span class="badge alert-success"><i class="fa fa-check"></i>&nbsp;{{ store.name }}</span></a>
+                        {% else %}
+                          <a href="index.php?route=catalog/attribute_group/edit&user_token={{ user_token }}&attribute_group_id={{ attribute.attribute_group_id }}" title="{{ edit_attribute_group|format(attribute.attribute_group) }}" target="_blank"><span class="badge alert-danger "><i class="fa fa-times"></i>&nbsp;{{ store.name }}</span></a>
+                        {% endif %}
                       {% endfor %}
                     </p>
                   </td>

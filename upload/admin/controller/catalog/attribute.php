@@ -174,6 +174,7 @@ class ControllerCatalogAttribute extends Controller {
 		foreach ($results as $result) {
 			$data['attributes'][] = array(
 				'attribute_id'    				=> $result['attribute_id'],
+				'attribute_group_id'			=> $result['attribute_group_id'],
 				'name'            				=> $result['name'],
 				'attribute_group' 				=> $result['attribute_group'],
 				'sort_order'      				=> $result['sort_order'],
@@ -183,6 +184,8 @@ class ControllerCatalogAttribute extends Controller {
 				'edit'            				=> $this->url->link('catalog/attribute/edit', 'user_token=' . $this->session->data['user_token'] . '&attribute_id=' . $result['attribute_id'] . $url, true)
 			);
 		}
+
+		$data['user_token'] = $this->session->data['user_token'];
 
 		$this->load->model('setting/store');
 		$data['stores'] = $this->model_setting_store->getMultistores();
