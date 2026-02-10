@@ -972,7 +972,9 @@ class ModelCatalogProduct extends Model {
 				p2s.`parent_id`,
 				p2s.`status`,
 				p2s.`image`,
-				p2s.`date_modified`
+				p2s.`date_modified`,
+				pd.`name`,
+				pd.`description`
 			FROM " . DB_PREFIX . "product p 
 			LEFT JOIN " . DB_PREFIX . "product_to_store p2s
 				ON p.product_id = p2s.product_id
