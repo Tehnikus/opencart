@@ -650,6 +650,8 @@ class ModelCatalogCategory extends Model {
 		$where[] = "
 			cd.language_id = '" . (int) $this->config->get('config_language_id') . "'
 		";
+
+		// Connect to external table
 		$where[] = "
 			cd.category_id = c.category_id
 		";
@@ -723,13 +725,14 @@ class ModelCatalogCategory extends Model {
 			'sort_order',
 			'parent_id',
 			'stores',
-			'product_count'
+			'product_count',
+			'c2s.date_modified'
 		);
 
 		if (isset($data['sort']) && in_array($data['sort'], $sort_data)) {
-			$sql .= " ORDER BY " . $data['sort'];
+			$sql .= " ORDER BY FIELD(c2s.store_id, '" . (int) $this->session->data['store_id'] ."') DESC, " . $data['sort'];
 		} else {
-			$sql .= " ORDER BY sort_order";
+			$sql .= " ORDER BY FIELD(ag2s.store_id, '" . (int) $this->session->data['store_id'] ."') DESC, c2s.sort_order";
 		}
 
 		if (isset($data['order']) && ($data['order'] == 'DESC')) {
