@@ -1050,3 +1050,12 @@ html[dir="rtl"] .text-right {
 table td p {
     margin: 3px 0;
 }
+
+.badge {
+    border-radius: 3px;
+    padding: 5px 7px;
+    &.badge-sm {
+        font-weight: normal;
+        padding: 3px 7px;
+    }
+}
