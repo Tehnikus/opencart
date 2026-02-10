@@ -1527,7 +1527,13 @@ class ModelCatalogProduct extends Model {
 	public function getProductRelated($product_id) {
 		$product_related_data = array();
 
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_related WHERE product_id = '" . (int)$product_id . "'");
+		$query = $this->db->query("
+			SELECT 
+				* 
+			FROM " . DB_PREFIX . "product_related 
+			WHERE product_id  = '" . (int)$product_id . "'
+				AND store_id 		= '" . (int) $this->session->data['store_id'] . "'
+		");
 
 		foreach ($query->rows as $result) {
 			$product_related_data[] = $result['related_id'];
