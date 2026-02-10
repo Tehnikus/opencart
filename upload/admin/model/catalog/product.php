@@ -1543,7 +1543,13 @@ class ModelCatalogProduct extends Model {
 	}
 
 	public function getRecurrings($product_id) {
-		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "product_recurring` WHERE product_id = '" . (int)$product_id . "'");
+		$query = $this->db->query("
+			SELECT 
+				* 
+			FROM `" . DB_PREFIX . "product_recurring` 
+			WHERE product_id = '" . (int)$product_id . "'
+				AND store_id 		= '" . (int) $this->session->data['store_id'] . "'
+		");
 
 		return $query->rows;
 	}
