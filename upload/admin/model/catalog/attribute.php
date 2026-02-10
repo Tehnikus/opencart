@@ -54,19 +54,89 @@ class ModelCatalogAttribute extends Model {
 		
 	}
 
-	public function editAttribute($attribute_id, $data) {
-		$this->db->query("UPDATE " . DB_PREFIX . "attribute SET attribute_group_id = '" . (int)$data['attribute_group_id'] . "', sort_order = '" . (int)$data['sort_order'] . "' WHERE attribute_id = '" . (int)$attribute_id . "'");
+	public function editAttribute($attribute_id, $data) : int {
 
-		$this->db->query("DELETE FROM " . DB_PREFIX . "attribute_description WHERE attribute_id = '" . (int)$attribute_id . "'");
+		$this->db->query("START TRANSACTION");
 
-		foreach ($data['attribute_description'] as $language_id => $value) {
-			$this->db->query("INSERT INTO " . DB_PREFIX . "attribute_description SET attribute_id = '" . (int)$attribute_id . "', language_id = '" . (int)$language_id . "', name = '" . $this->db->escape($value['name']) . "'");
+		try {
+			$this->db->query("
+				UPDATE " . DB_PREFIX . "attribute 
+				SET 
+					`attribute_group_id` 	= '" . (int)$data['attribute_group_id'] . "', 
+					`sort_order` 					= '" . (int)$data['sort_order'] . "' 
+				WHERE `attribute_id` 	= '" . (int)$attribute_id . "' 
+			");
+	
+			$this->db->query("
+				DELETE FROM " . DB_PREFIX . "attribute_description 
+				WHERE `attribute_id` 	= '" . (int)$attribute_id . "' 
+					AND `store_id` 			= '" . (int) $this->session->data['store_id'] . "'
+			");
+	
+			foreach ($data['attribute_description'] as $language_id => $value) {
+				$this->db->query("
+					INSERT INTO " . DB_PREFIX . "attribute_description SET 
+						`attribute_id` 	= '" . (int)$attribute_id . "', 
+						`language_id` 	= '" . (int)$language_id . "', 
+						`store_id` 			= '" . (int) $this->session->data['store_id'] . "', 
+						`name` 					= '" . $this->db->escape($value['name']) . "'
+				");
+			}
+
+			// Stores association
+			// Remove all unselected stores
+			$this->db->query("
+			DELETE FROM " . DB_PREFIX . "attribute_to_store
+			WHERE `attribute_id` 	= '" . (int) $attribute_id . "'
+				AND `store_id` NOT IN (" . implode(',', array_map('intval', $data['stores_association'])) . ")
+			");
+			
+			// Remove only current store no matter if it's selected
+			$this->db->query("
+				DELETE FROM " . DB_PREFIX . "attribute_to_store
+				WHERE `attribute_id` 	= '" . (int) $attribute_id . "'
+					AND `store_id`			= '" . (int) $this->session->data['store_id'] . "'
+			");
+
+			// Write store association and store related data
+			if (isset($data['stores_association']) && !empty($data['stores_association'])) {
+				foreach ($data['stores_association'] as $store_id) {
+					if (((int) $store_id) === ((int) $this->session->data['store_id'])) {
+						// Set data for current store
+						$this->db->query("
+							INSERT INTO " . DB_PREFIX . "attribute_to_store
+							SET
+								`attribute_id` 				= '" . (int) $attribute_id . "', 
+								`attribute_group_id` 	= '" . (int) $data['attribute_group_id'] . "', 
+								`store_id` 		 				= '" . (int) $store_id . "',
+								`sort_order` 	 				= '" . (int) $data['sort_order'] . "'
+						");
+					} else {
+						// Skip if data for other stores already exists
+						$this->db->query("
+							INSERT IGNORE INTO " . DB_PREFIX . "attribute_to_store
+							SET
+								`attribute_id` 				= '" . (int) $attribute_id . "', 
+								`attribute_group_id` 	= '" . (int) $data['attribute_group_id'] . "', 
+								`store_id` 		 				= '" . (int) $store_id . "',
+								`sort_order` 	 				= '" . (int) $data['sort_order'] . "'
+						");
+					}
+				}
+			}
+
+			$this->db->query("COMMIT");
+			
+			return (int) $attribute_id;
+
+		} catch (\Throwable $e) {
+			
+			$this->db->query("ROLLBACK");
+
+			throw $e;
 		}
 	}
 
-	public function deleteAttribute($attribute_id) {
-		$this->db->query("DELETE FROM " . DB_PREFIX . "attribute WHERE attribute_id = '" . (int)$attribute_id . "'");
-		$this->db->query("DELETE FROM " . DB_PREFIX . "attribute_description WHERE attribute_id = '" . (int)$attribute_id . "'");
 	}
 
 	public function getAttribute($attribute_id) {
