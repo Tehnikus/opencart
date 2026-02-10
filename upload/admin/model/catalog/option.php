@@ -332,6 +332,11 @@ class ModelCatalogOption extends Model {
 		$result = [];
 		$where  = [];
 
+		// Connect to external table
+		$where[] = "
+			o2s.option_id = o.option_id
+		";
+		// Set current language
 		$where[] = "
 			od.language_id = '" . (int) $this->config->get('config_language_id') . "'
 		";
@@ -375,7 +380,7 @@ class ModelCatalogOption extends Model {
 				(SELECT JSON_ARRAYAGG(o2s.store_id) FROM " . DB_PREFIX . "option_to_store o2s WHERE o2s.option_id = o.option_id) AS stores,
 				(SELECT JSON_ARRAYAGG(ovd.name) FROM " . DB_PREFIX . "option_value_description ovd WHERE ovd.option_id = o.option_id AND ovd.language_id = '" . (int) $this->config->get('config_language_id') . "' AND ovd.store_id = '" . (int) $this->session->data['store_id'] . "') AS values_list
 			FROM `" . DB_PREFIX . "option` o 
-			JOIN " . DB_PREFIX . "option_to_store o2s
+			LEFT JOIN " . DB_PREFIX . "option_to_store o2s
 			 	ON o2s.option_id = o.option_id
 				AND o2s.store_id = '" . (int) $this->session->data['store_id'] . "'
 			WHERE EXISTS (
@@ -393,9 +398,9 @@ class ModelCatalogOption extends Model {
 		);
 
 		if (isset($data['sort']) && in_array($data['sort'], $sort_data)) {
-			$sql .= " ORDER BY " . $data['sort'];
+			$sql .= " ORDER BY FIELD(o2s.store_id, '" . (int) $this->session->data['store_id'] ."') DESC, " . $data['sort'];
 		} else {
-			$sql .= " ORDER BY name";
+			$sql .= " ORDER BY FIELD(o2s.store_id, '" . (int) $this->session->data['store_id'] ."') DESC, name";
 		}
 
 		if (isset($data['order']) && ($data['order'] == 'DESC')) {
