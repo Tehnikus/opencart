@@ -240,13 +240,13 @@ class ModelCatalogAttribute extends Model {
 		$sort_data = array(
 			'name',
 			'a2s.attribute_group_id',
-			'a.sort_order'
+			'a2s.sort_order'
 		);
 
 		if (isset($data['sort']) && in_array($data['sort'], $sort_data)) {
-			$orderClause .= " ORDER BY " . $data['sort'];
+			$orderClause .= " ORDER BY FIELD(a2s.store_id, '" . (int) $this->session->data['store_id'] ."') DESC, " . $data['sort'];
 		} else {
-			$orderClause .= " ORDER BY a.attribute_group_id, name";
+			$orderClause .= " ORDER BY FIELD(a2s.store_id, '" . (int) $this->session->data['store_id'] ."') DESC, a2s.attribute_group_id, name";
 		}
 
 		if (isset($data['order']) && ($data['order'] == 'DESC')) {
