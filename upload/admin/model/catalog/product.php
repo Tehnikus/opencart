@@ -1473,7 +1473,13 @@ class ModelCatalogProduct extends Model {
 	public function getProductDownloads($product_id) {
 		$product_download_data = array();
 
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_to_download WHERE product_id = '" . (int)$product_id . "'");
+		$query = $this->db->query("
+			SELECT 
+				* 
+			FROM " . DB_PREFIX . "product_to_download 
+			WHERE product_id  = '" . (int)$product_id . "'
+				AND store_id 		= '" . (int) $this->session->data['store_id'] . "'
+		");
 
 		foreach ($query->rows as $result) {
 			$product_download_data[] = $result['download_id'];
