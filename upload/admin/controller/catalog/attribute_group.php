@@ -114,7 +114,7 @@ class ControllerCatalogAttributeGroup extends Controller {
 		if (isset($this->request->get['sort'])) {
 			$sort = $this->request->get['sort'];
 		} else {
-			$sort = 'agd.name';
+			$sort = 'name';
 		}
 
 		if (isset($this->request->get['order'])) {
@@ -181,6 +181,8 @@ class ControllerCatalogAttributeGroup extends Controller {
 			);
 		}
 
+		$data['user_token'] = $this->session->data['user_token'];
+
 		$this->load->model('setting/store');
 		$data['stores'] = $this->model_setting_store->getMultistores();
 
@@ -217,8 +219,8 @@ class ControllerCatalogAttributeGroup extends Controller {
 			$url .= '&page=' . $this->request->get['page'];
 		}
 
-		$data['sort_name'] = $this->url->link('catalog/attribute_group', 'user_token=' . $this->session->data['user_token'] . '&sort=agd.name' . $url, true);
-		$data['sort_sort_order'] = $this->url->link('catalog/attribute_group', 'user_token=' . $this->session->data['user_token'] . '&sort=ag.sort_order' . $url, true);
+		$data['sort_name'] = $this->url->link('catalog/attribute_group', 'user_token=' . $this->session->data['user_token'] . '&sort=name' . $url, true);
+		$data['sort_sort_order'] = $this->url->link('catalog/attribute_group', 'user_token=' . $this->session->data['user_token'] . '&sort=ag2s.sort_order' . $url, true);
 
 		$url = '';
 
