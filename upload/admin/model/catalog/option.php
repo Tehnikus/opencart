@@ -203,7 +203,7 @@ class ModelCatalogOption extends Model {
 		}
 	}
 
-	public function deleteOption($option_id) {
+	public function deleteOption($option_id) : bool {
 
 		$this->db->query("START TRANSACTION");
 
