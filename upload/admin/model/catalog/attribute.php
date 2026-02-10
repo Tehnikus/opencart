@@ -339,7 +339,9 @@ class ModelCatalogAttribute extends Model {
 	public function getAttributeDescriptions($attribute_id) {
 		$attribute_data = array();
 
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "attribute_description WHERE attribute_id = '" . (int)$attribute_id . "'");
+		$query = $this->db->query("
+			SELECT * FROM " . DB_PREFIX . "attribute_description WHERE attribute_id = '" . (int)$attribute_id . "' AND store_id = '" . (int) $this->session->data['store_id'] . "'
+		");
 
 		foreach ($query->rows as $result) {
 			$attribute_data[$result['language_id']] = array('name' => $result['name']);
