@@ -57,9 +57,18 @@
                     {% else %}
                     <input type="checkbox" name="selected[]" value="{{ option.option_id }}" />
                     {% endif %}</td>
-                  <td class="text-left">{{ option.name }}</td>
-                  <td class="text-right">{{ option.sort_order }}</td>
-                  <td class="text-right"><a href="{{ option.edit }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a></td>
+                  <td class="text-left">
+                    <p><b>{{ option.name }}</b></p>
+                    <p>
+                      {% for store in stores %}
+                        {% if store.store_id in option.stores %}
+                          <span class="badge alert-success"><i class="fa fa-check"></i>&nbsp;{{ store.name }}</span>
+                        {% else %}
+                          <span class="badge alert-danger "><i class="fa fa-times"></i>&nbsp;{{ store.name }}</span>
+                        {% endif %}
+                      {% endfor %}
+                    </p>
+                  </td>
                 </tr>
                 {% endfor %}
                 {% else %}
