@@ -1455,7 +1455,13 @@ class ModelCatalogProduct extends Model {
 	public function getProductRewards($product_id) {
 		$product_reward_data = array();
 
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_reward WHERE product_id = '" . (int)$product_id . "'");
+		$query = $this->db->query("
+			SELECT 
+				* 
+			FROM " . DB_PREFIX . "product_reward 
+			WHERE product_id  = '" . (int) $product_id . "'
+				AND store_id 		= '" . (int) $this->session->data['store_id'] . "'
+		");
 
 		foreach ($query->rows as $result) {
 			$product_reward_data[$result['customer_group_id']] = array('points' => $result['points']);
