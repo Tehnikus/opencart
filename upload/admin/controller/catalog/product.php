@@ -670,7 +670,9 @@ class ControllerCatalogProduct extends Controller {
 		}
 
 		$this->load->model('setting/store');
+		// Store association data
 		$data['stores'] = $this->model_setting_store->getMultistores();
+		// Current store_id to check current store checkbox in stores list
 		$data['currentStore'] = $this->session->data['store_id'];
 
 		if (isset($this->request->post['product_store'])) {
