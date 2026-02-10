@@ -448,7 +448,7 @@ class ControllerCatalogOption extends Controller {
 				'filter_name' 							=> $this->request->get['filter_name'],
 				'store_id'									=> (int) $this->session->data['store_id'],
 				'start'      								=> 0,
-				'value_count_greater_then' 	=> 0, // Filter by option value count to hide options that have values in one store and don't have values in other stores 
+				'has_values' 								=> true, // Filter by option value count to hide options that have values in one store and don't have values in other stores 
 				'limit'      								=> 20
 			);
 
