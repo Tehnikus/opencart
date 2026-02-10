@@ -160,6 +160,10 @@ $_['error_curl']                    = 'CURL: Error Code(%s): %s';
 // Additional translations
 // Form entries
 $_['entry_store_association']       = 'Store association';
+// List entries
+$_['edit_filter_group']             = 'Edit %s filter group';
+$_['edit_option_group']             = 'Edit %s option group';
+$_['edit_attribute_group']          = 'Edit %s attribute group';
 // Table columns
 $_['column_image']                  = 'Image';
 $_['column_product_count']          = 'Product count';
