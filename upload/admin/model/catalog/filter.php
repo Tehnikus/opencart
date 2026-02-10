@@ -451,7 +451,13 @@ class ModelCatalogFilter extends Model {
 	public function getFilterGroupDescriptions($filter_group_id) {
 		$filter_group_data = array();
 
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "filter_group_description WHERE filter_group_id = '" . (int)$filter_group_id . "'");
+		$query = $this->db->query("
+			SELECT 
+				* 
+			FROM " . DB_PREFIX . "filter_group_description 
+			WHERE filter_group_id = '" . (int)$filter_group_id . "'
+				AND store_id = '" . (int) $this->session->data['store_id'] . "'
+		");
 
 		foreach ($query->rows as $result) {
 			$filter_group_data[$result['language_id']] = array('name' => $result['name']);
