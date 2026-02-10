@@ -335,19 +335,23 @@ class ModelCatalogOption extends Model {
 		$where[] = "
 			od.language_id = '" . (int) $this->config->get('config_language_id') . "'
 		";
-
+		// Filter by name
 		if (isset($data['filter_name'])) {
 			$where[] = " od.`name` LIKE '%" . $this->db->escape($data['filter_name']) . "%'";
 		}
-
+		// FIlter by store
 		if (isset($data['store_id'])) {
 			$where[] = " o2s.store_id = '" . (int) $data['store_id'] . "'";
 		}
 
-		// Filter by option value count to hide options that have values in one store and don't have values in other stores 
-		if (isset($data['value_count_greater_then'])) {
-			$where[] = " 
-				(SELECT COUNT(ov.option_value_id) FROM " . DB_PREFIX . "option_value ov WHERE ov.option_id = o.option_id AND ov.store_id = '" . (int) $this->session->data['store_id'] . "') > '" . (int) $data['value_count_greater_then'] . "'
+		if (!empty($data['has_values'])) {
+			$where[] = "
+				EXISTS (
+					SELECT 1
+					FROM " . DB_PREFIX . "option_value ov
+					WHERE ov.option_id = o.option_id
+						AND ov.store_id = '" . (int) $this->session->data['store_id'] . "'
+				)
 			";
 		}
 
@@ -376,9 +380,8 @@ class ModelCatalogOption extends Model {
 				AND o2s.store_id = '" . (int) $this->session->data['store_id'] . "'
 			WHERE EXISTS (
 				SELECT 1
-				FROM " . DB_PREFIX . "option o
-				LEFT JOIN " . DB_PREFIX . "option_to_store o2s ON o2s.option_id = o.option_id
-				LEFT JOIN " . DB_PREFIX . "option_description od ON od.option_id = o.option_id
+				FROM " . DB_PREFIX . "option_to_store o2s
+				JOIN " . DB_PREFIX . "option_description od ON od.option_id = o.option_id
 				WHERE " . implode(' AND ', $where) . "
 			) 
 		";
