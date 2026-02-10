@@ -435,16 +435,26 @@ class ModelCatalogProduct extends Model {
 				");
 			}
 	
+			// Stores association
+			// Remove all not selected stores
 			$this->db->query("
-				DELETE FROM " . DB_PREFIX . "product_to_store 
-				WHERE product_id 	= '" . (int) $product_id . "'
-					-- AND store_id 		= '" . (int) $this->session->data['store_id'] . "'
+				DELETE FROM " . DB_PREFIX . "product_to_store
+				WHERE `product_id` = '" . (int) $product_id . "'
+					AND `store_id` NOT IN (" . implode(',', array_map('intval', $data['product_store'])) . ")
+			");
+
+			// Remove only current store no matter if it's selected
+			$this->db->query("
+				DELETE FROM " . DB_PREFIX . "product_to_store
+				WHERE `product_id` = '" . (int) $product_id . "'
+					AND `store_id` 	 = '" . (int) $this->session->data['store_id'] . "'
 			");
 	
+			// Write store association and store related data
 			if (isset($data['product_store'])) {
 				foreach ($data['product_store'] as $store_id) {
 					if (((int) $store_id) === ((int) $this->session->data['store_id'])) {
-						// Write data for current store
+						// Set data for current store
 						$this->db->query("
 							INSERT INTO " . DB_PREFIX . "product_to_store 
 							SET 
@@ -456,7 +466,7 @@ class ModelCatalogProduct extends Model {
 								`image` 				= '" . (isset($data['image']) ? ($this->db->escape($data['image'])) : '') . "'
 						");
 					} else {
-						// Set association for other selected stores
+						// Skip if data for other stores already exists
 						$this->db->query("
 							INSERT IGNORE INTO " . DB_PREFIX . "product_to_store 
 							SET 
