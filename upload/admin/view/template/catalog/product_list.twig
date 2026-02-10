@@ -93,8 +93,8 @@
                           <a href="{{ sort_model }}" class="{{ order|lower }}">{{ column_model }}</a> {% else %} <a href="{{ sort_model }}">{{ column_model }}</a> 
                         {% endif %}
                       </td>
-                      <td style="width: 50px" class="text-center">{{ column_options }}</td>
-                      <td style="width: 50px" class="text-center">{{ column_filters }}</td>
+                      <td style="width: 200px" class="text-center" data-collapse-selector="filterColumn" >{{ column_filters }}<button type="button" class="collapseColumn pull-right">&harr;</button></td>
+                      <td style="width: 200px" class="text-center" data-collapse-selector="optionColumn" >{{ column_options }}<button type="button" class="collapseColumn pull-right">&harr;</button></td>
                       <td style="width: 50px" class="text-center">{{ column_attributes }}</td>
                       <td style="width: 50px" class="text-center">{% if sort == 'p.price' %} <a href="{{ sort_price }}" class="{{ order|lower }}">{{ column_price }}</a> {% else %} <a href="{{ sort_price }}">{{ column_price }}</a> {% endif %}</td>
                       <td style="width: 50px" class="text-center">{% if sort == 'p.quantity' %} <a href="{{ sort_quantity }}" class="{{ order|lower }}">{{ column_quantity }}</a> {% else %} <a href="{{ sort_quantity }}">{{ column_quantity }}</a> {% endif %}</td>
