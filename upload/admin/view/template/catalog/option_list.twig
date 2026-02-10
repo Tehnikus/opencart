@@ -38,9 +38,7 @@
                   <td class="text-left">{% if sort == 'od.name' %}
                     <a href="{{ sort_name }}" class="{{ order|lower }}">{{ column_name }}</a>
                     {% else %}
-                    <a href="{{ sort_name }}">{{ column_name }}</a>
-                    {% endif %}</td>
-                  <td class="text-right">{% if sort == 'o.sort_order' %}
+                  <td style="width: 50%"  class="text-left">{{ column_option_values_list }}</td>
                     <a href="{{ sort_sort_order }}" class="{{ order|lower }}">{{ column_sort_order }}</a>
                     {% else %}
                     <a href="{{ sort_sort_order }}">{{ column_sort_order }}</a>
@@ -69,6 +67,7 @@
                       {% endfor %}
                     </p>
                   </td>
+                  <td class="text-left"><p>{% for value in option.values_list %}<span class="badge">{{ value }}</span> {% endfor %}</p></td>
                 </tr>
                 {% endfor %}
                 {% else %}
