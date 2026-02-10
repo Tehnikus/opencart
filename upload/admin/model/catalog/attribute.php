@@ -137,6 +137,64 @@ class ModelCatalogAttribute extends Model {
 		}
 	}
 
+	public function deleteAttribute($attribute_id) : bool {
+		
+		$this->db->query("START TRANSACTION");
+
+		try {
+
+			$this->db->query("
+				DELETE FROM " . DB_PREFIX . "attribute_description 
+				WHERE `attribute_id` 	= '" . (int) $attribute_id . "'
+					AND `store_id` 			= '" . (int) $this->session->data['store_id'] . "'
+			");
+			$this->db->query("
+				DELETE FROM " . DB_PREFIX . "attribute_to_store 
+				WHERE `attribute_id` 	= '" . (int) $attribute_id . "'
+					AND `store_id` 			= '" . (int) $this->session->data['store_id'] . "'
+			");
+			$this->db->query("
+				DELETE FROM " . DB_PREFIX . "product_attribute
+				WHERE `attribute_id` 	= '" . (int) $attribute_id . "'
+					AND `store_id` 			= '" . (int) $this->session->data['store_id'] . "'		
+			");
+
+			// Check if attribute exists in other stores
+			$attributeInOtherStores = $this->db->query("
+				SELECT
+					attribute_id
+				FROM " . DB_PREFIX . "attribute_to_store
+				WHERE attribute_id  = '" . (int) $attribute_id . "'
+					AND store_id 			<> '" . (int) $this->session->data['store_id'] . "' 
+			")->num_rows;
+			// Delete all attribute data row if attribute group is not present in any other store
+			if (!$attributeInOtherStores) {
+				$tables = [
+					'attribute',
+					'attribute_description',
+					'product_attribute',
+				];
+
+				// Remove all redundant data if present 
+				foreach ($tables as $table) {
+					$this->db->query("
+						DELETE FROM " . DB_PREFIX . $table . "
+						WHERE attribute_id = " . (int) $attribute_id
+					);
+				}
+			}
+
+			$this->db->query("COMMIT");
+			
+			return true;
+
+		} catch (\Throwable $e) {
+
+			$this->db->query("ROLLBACK");
+			
+			throw $e;
+		}
+		
 	}
 
 	public function getAttribute($attribute_id) {
