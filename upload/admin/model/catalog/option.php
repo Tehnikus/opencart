@@ -357,7 +357,7 @@ class ModelCatalogOption extends Model {
 						FIELD(od.language_id, '" . (int) $this->config->get('config_language_id') . "') DESC
 					LIMIT 1
 				) AS `name`,
-				(SELECT COUNT(ov.option_value_id) FROM " . DB_PREFIX . "option_value ov WHERE ov.option_id = o.option_id) AS option_count,
+				(SELECT COUNT(ov.option_value_id) FROM " . DB_PREFIX . "option_value ov WHERE ov.option_id = o.option_id AND ov.store_id = '" . (int) $this->session->data['store_id'] . "') AS option_count,
 				(SELECT JSON_ARRAYAGG(o2s.store_id) FROM " . DB_PREFIX . "option_to_store o2s WHERE o2s.option_id = o.option_id) AS stores,
 				(SELECT JSON_ARRAYAGG(ovd.name) FROM " . DB_PREFIX . "option_value_description ovd WHERE ovd.option_id = o.option_id AND ovd.language_id = '" . (int) $this->config->get('config_language_id') . "' AND ovd.store_id = '" . (int) $this->session->data['store_id'] . "') AS values_list
 			FROM `" . DB_PREFIX . "option` o 
