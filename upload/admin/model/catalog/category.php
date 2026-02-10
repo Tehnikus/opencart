@@ -355,16 +355,25 @@ class ModelCatalogCategory extends Model {
 			}
 	
 			// Store related data
+			// Remove all unselected stores
 			$this->db->query("
-				DELETE FROM " . DB_PREFIX . "category_to_store 
-				WHERE category_id 	= '" . (int)$category_id . "'
-					-- AND store_id 			= '" . (int) $this->session->data['store_id'] . "'
+				DELETE FROM " . DB_PREFIX . "category_to_store
+				WHERE `category_id` = '" . (int) $category_id . "'
+					AND `store_id` NOT IN (" . implode(',', array_map('intval', $data['category_store'])) . ")
+			");
+
+			// Remove only current store no matter if it's selected
+			$this->db->query("
+				DELETE FROM " . DB_PREFIX . "category_to_store
+				WHERE `category_id` = '" . (int) $category_id . "'
+					AND `store_id` 		= '" . (int) $this->session->data['store_id'] . "'
 			");
 	
+			// Write store association and store related data
 			if (isset($data['category_store'])) {
 				foreach ($data['category_store'] as $store_id) {
 					if (((int) $store_id) === ((int) $this->session->data['store_id'])) {
-						// Write data for current store
+						// Set data for current store
 						$this->db->query("
 							INSERT INTO " . DB_PREFIX . "category_to_store 
 							SET 
@@ -378,11 +387,12 @@ class ModelCatalogCategory extends Model {
 								`image` 				= '" . (isset($data['image']) ? ($this->db->escape($data['image'])) : '') . "'
 						");
 					} else {
+						// Skip if data for other stores already exists
 						$this->db->query("
 							INSERT IGNORE INTO " . DB_PREFIX . "category_to_store
 							SET 
-								category_id = '" . (int)$category_id . "',
-								store_id    = '" . (int) $store_id . "'
+								`category_id` = '" . (int)$category_id . "',
+								`store_id`    = '" . (int) $store_id . "'
 						");
 					}
 				}
