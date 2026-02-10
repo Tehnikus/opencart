@@ -1428,7 +1428,13 @@ class ModelCatalogProduct extends Model {
 	}
 
 	public function getProductDiscounts($product_id) {
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_discount WHERE product_id = '" . (int)$product_id . "' ORDER BY quantity, priority, price");
+		$query = $this->db->query("
+			SELECT 
+				* 
+			FROM " . DB_PREFIX . "product_discount 
+			WHERE product_id  = '" . (int) $product_id . "' 
+				AND store_id 		= '" . (int) $this->session->data['store_id'] . "'
+			ORDER BY quantity, priority, price");
 
 		return $query->rows;
 	}
