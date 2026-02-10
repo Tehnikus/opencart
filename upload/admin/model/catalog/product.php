@@ -1620,12 +1620,14 @@ class ModelCatalogProduct extends Model {
 		return $query->row['total'];
 	}
 
+	// Used to prevent attribute deleting if it is associated with any product. Not used now
 	public function getTotalProductsByAttributeId($attribute_id) {
 		$query = $this->db->query("SELECT COUNT(*) AS total FROM " . DB_PREFIX . "product_attribute WHERE attribute_id = '" . (int)$attribute_id . "'");
 
 		return $query->row['total'];
 	}
 
+	// Used to prevent option deleting if it is associated with any product. Not used now
 	public function getTotalProductsByOptionId($option_id) {
 		$query = $this->db->query("SELECT COUNT(*) AS total FROM " . DB_PREFIX . "product_option WHERE option_id = '" . (int)$option_id . "'");
 
