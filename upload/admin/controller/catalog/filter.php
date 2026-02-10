@@ -169,15 +169,22 @@ class ControllerCatalogFilter extends Controller {
 
 		$filter_total = $this->model_catalog_filter->getTotalFilterGroups();
 
+		$this->load->model('setting/store');
+		$data['stores'] = $this->model_setting_store->getMultistores();
 		$results = $this->model_catalog_filter->getFilterGroups($filter_data);
 
-		foreach ($results as $result) {
-			$data['filters'][] = array(
+		foreach ($results as &$result) {
+			$result['edit'] = $this->url->link('catalog/filter/edit', 'user_token=' . $this->session->data['user_token'] . '&filter_group_id=' . $result['filter_group_id'] . $url, true);
+			$data['filters'][] = [
 				'filter_group_id' => $result['filter_group_id'],
-				'name'            => $result['name'],
-				'sort_order'      => $result['sort_order'],
-				'edit'            => $this->url->link('catalog/filter/edit', 'user_token=' . $this->session->data['user_token'] . '&filter_group_id=' . $result['filter_group_id'] . $url, true)
-			);
+        'name' 						=> $result['name'],
+        'values_list' 		=> $result['values_list'],
+        'filter_count' 		=> $result['filter_count'],
+        'sort_order' 			=> $result['sort_order'],
+        'stores' 					=> $result['stores'],
+        'product_count' 	=> $result['product_count'],
+				'edit' 						=> $this->url->link('catalog/filter/edit', 'user_token=' . $this->session->data['user_token'] . '&filter_group_id=' . $result['filter_group_id'] . $url, true),
+			];
 		}
 
 		if (isset($this->error['warning'])) {
