@@ -95,8 +95,17 @@ if ($config->get('db_autostart')) {
 }
 
 // Session
-$session = new Session($config->get('session_engine'), $registry);
-$registry->set('session', $session);
+
+if (!isBot($config)) {
+    $session = new Session($config->get('session_engine'), $registry);
+    $session->start();
+    $registry->set('session', $session);
+} else {
+    // Empty class fallback, so bots can see site, but session is not created
+    $registry->set('session', new stdClass());
+}
+// $session = new Session($config->get('session_engine'), $registry);
+// $registry->set('session', $session);
 
 if ($config->get('session_autostart')) {
 	/*
@@ -180,3 +189,44 @@ $route->dispatch(new Action($config->get('action_router')), new Action($config->
 
 // Output
 $response->output();
+
+
+// Prevent bots from creating emtpy sessions
+function isBot($config = null) : bool {
+
+	// No user agent - almost certainly bot
+	if (empty($_SERVER['HTTP_USER_AGENT'])) {
+		return true;
+	}
+
+	// If session cookie already exists � this is a real user
+	$sessionName = ($config && $config->get('session_name'))
+		? $config->get('session_name')
+		: 'OCSESSID';
+
+	if (isset($_COOKIE[$sessionName])) {
+		return false;
+	}
+
+	// Default minimal bot list
+	$defaultBots = [
+		'bot','crawl','spider','slurp',
+		'ahrefs','semrush','seranking','mj12','dotbot',
+		'linkpad','seokicks','serpstat',
+		'facebookexternalhit','facebot','twitterbot','linkedinbot','pinterest',
+		'bingpreview','externalagent','uptimerobot','dataprovider','bingbot','GPTBot','Bytespider'
+	];
+
+	$bots = $defaultBots;
+
+	if ($config) {
+		$cfgBots = $config->get('session_bot_agents');
+		if (is_array($cfgBots) && $cfgBots) {
+			$bots = $cfgBots;
+		}
+	}
+
+	$pattern = '/(' . implode('|', array_map('preg_quote', $bots)) . ')/i';
+
+	return (bool) preg_match($pattern, $_SERVER['HTTP_USER_AGENT']);
+}

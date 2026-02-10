@@ -60,3 +60,12 @@ $_['action_event'] = array(
 	//	'event/debug/after'
 //	)
 );
+
+// Bot list to avoid empty session creation
+$_['session_bot_agents'] = [
+	'bot','crawl','spider','slurp',
+	'ahrefs','semrush','seranking','mj12','dotbot',
+	'linkpad','seokicks','serpstat',
+	'facebookexternalhit','facebot','twitterbot','linkedinbot','pinterest',
+	'bingpreview','externalagent','uptimerobot','dataprovider'
+];
