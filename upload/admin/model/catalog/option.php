@@ -159,18 +159,27 @@ class ModelCatalogOption extends Model {
 					}
 				}
 			}
+			
+			// Stores association
+			// Remove all unselected stores
+			$this->db->query("
+				DELETE FROM " . DB_PREFIX . "option_to_store 
+				WHERE `option_id` = '" . (int) $option_id . "'
+					AND `store_id` NOT IN (" . implode(',', array_map('intval', $data['stores_association'])) . ")
+			");
 
+			// Remove only current store no matter if it's selected
 			$this->db->query("
 				DELETE FROM " . DB_PREFIX . "option_to_store 
 				WHERE option_id = '" . (int) $option_id . "'
 					AND store_id 	= '" . (int) $this->session->data['store_id'] . "'
 			");
 			
-
-			// Stores association
+			// Write store association and store related data
 			if (isset($data['stores_association']) && !empty($data['stores_association'])) {
 				foreach ($data['stores_association'] as $store_id) {
 					if (((int) $store_id) === ((int) $this->session->data['store_id'])) {
+						// Set data for current store
 						$this->db->query("
 							INSERT INTO " . DB_PREFIX . "option_to_store
 							SET
@@ -179,6 +188,7 @@ class ModelCatalogOption extends Model {
 								`sort_order` 		= '" . (int) $data['sort_order'] . "'
 						");
 					} else {
+						// Skip if data for other stores already exists
 						$this->db->query("
 							INSERT IGNORE INTO " . DB_PREFIX . "option_to_store
 							SET
