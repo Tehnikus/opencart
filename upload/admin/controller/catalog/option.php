@@ -114,7 +114,7 @@ class ControllerCatalogOption extends Controller {
 		if (isset($this->request->get['sort'])) {
 			$sort = $this->request->get['sort'];
 		} else {
-			$sort = 'od.name';
+			$sort = 'name';
 		}
 
 		if (isset($this->request->get['order'])) {
@@ -219,8 +219,8 @@ class ControllerCatalogOption extends Controller {
 			$url .= '&page=' . $this->request->get['page'];
 		}
 
-		$data['sort_name'] = $this->url->link('catalog/option', 'user_token=' . $this->session->data['user_token'] . '&sort=od.name' . $url, true);
-		$data['sort_sort_order'] = $this->url->link('catalog/option', 'user_token=' . $this->session->data['user_token'] . '&sort=o.sort_order' . $url, true);
+		$data['sort_name'] = $this->url->link('catalog/option', 'user_token=' . $this->session->data['user_token'] . '&sort=name' . $url, true);
+		$data['sort_sort_order'] = $this->url->link('catalog/option', 'user_token=' . $this->session->data['user_token'] . '&sort=o2s.sort_order' . $url, true);
 
 		$url = '';
 
