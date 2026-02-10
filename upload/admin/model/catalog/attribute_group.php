@@ -204,7 +204,11 @@ class ModelCatalogAttributeGroup extends Model {
 	}
 
 	public function getAttributeGroup($attribute_group_id) {
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "attribute_group WHERE attribute_group_id = '" . (int)$attribute_group_id . "'");
+
+		$query = $this->db->query("
+			SELECT * FROM " . DB_PREFIX . "attribute_group 
+			WHERE attribute_group_id = '" . (int)$attribute_group_id . "'
+		");
 
 		return $query->row;
 	}
