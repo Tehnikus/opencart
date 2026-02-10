@@ -38,10 +38,7 @@
                   <td class="text-left">{% if sort == 'fgd.name' %}
                     <a href="{{ sort_name }}" class="{{ order|lower }}">{{ column_group }}</a>
                     {% else %}
-                    <a href="{{ sort_name }}">{{ column_group }}</a>
-                    {% endif %}</td>
-                  <td class="text-right">{% if sort == 'fg.sort_order' %}
-                    <a href="{{ sort_sort_order }}" class="{{ order|lower }}">{{ column_sort_order }}</a>
+                  <td style="width: 50%" class="text-left">{{ column_filters }}</td>
                     {% else %}
                     <a href="{{ sort_sort_order }}">{{ column_sort_order }}</a>
                     {% endif %}</td>
@@ -65,8 +62,10 @@
                       {% endfor %}
                     </p>
                   </td>
-                  <td class="text-right">{{ filter.sort_order }}</td>
-                  <td class="text-right"><a href="{{ filter.edit }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a></td>
+                  <td class="text-left"><p>{% for value in filter.values_list %}<span class="badge">{{ value }}</span> {% endfor %}</p></td>
+                  <td class="text-center"><b>{{ filter.product_count }}</b></td>
+                  <td class="text-center"><b>{{ filter.sort_order }}</b></td>
+                  <td class="text-center"><a href="{{ filter.edit }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a></td>
                 </tr>
                 {% endfor %}
                 {% else %}
