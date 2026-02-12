@@ -114,7 +114,7 @@ class ControllerCatalogInformation extends Controller {
 		if (isset($this->request->get['sort'])) {
 			$sort = $this->request->get['sort'];
 		} else {
-			$sort = 'id.title';
+			$sort = 'title';
 		}
 
 		if (isset($this->request->get['order'])) {
@@ -176,9 +176,14 @@ class ControllerCatalogInformation extends Controller {
 				'information_id' => $result['information_id'],
 				'title'          => $result['title'],
 				'sort_order'     => $result['sort_order'],
+				'stores'     		 => $result['stores'],
+				'bottom'     		 => $result['bottom'],
 				'edit'           => $this->url->link('catalog/information/edit', 'user_token=' . $this->session->data['user_token'] . '&information_id=' . $result['information_id'] . $url, true)
 			);
 		}
+
+		$this->load->model('setting/store');
+		$data['stores'] = $this->model_setting_store->getMultistores();
 
 		if (isset($this->error['warning'])) {
 			$data['error_warning'] = $this->error['warning'];
@@ -212,8 +217,9 @@ class ControllerCatalogInformation extends Controller {
 			$url .= '&page=' . $this->request->get['page'];
 		}
 
-		$data['sort_title'] = $this->url->link('catalog/information', 'user_token=' . $this->session->data['user_token'] . '&sort=id.title' . $url, true);
-		$data['sort_sort_order'] = $this->url->link('catalog/information', 'user_token=' . $this->session->data['user_token'] . '&sort=i.sort_order' . $url, true);
+		$data['sort_bottom'] = $this->url->link('catalog/information', 'user_token=' . $this->session->data['user_token'] . '&sort=i2s.bottom' . $url, true);
+		$data['sort_title'] = $this->url->link('catalog/information', 'user_token=' . $this->session->data['user_token'] . '&sort=title' . $url, true);
+		$data['sort_sort_order'] = $this->url->link('catalog/information', 'user_token=' . $this->session->data['user_token'] . '&sort=i2s.sort_order' . $url, true);
 
 		$url = '';
 
@@ -339,8 +345,10 @@ class ControllerCatalogInformation extends Controller {
 		} elseif (isset($this->request->get['information_id'])) {
 			$data['information_store'] = $this->model_catalog_information->getInformationStores($this->request->get['information_id']);
 		} else {
-			$data['information_store'] = array(0);
+			$data['information_store'] = array();
 		}
+
+		$data['currentStore'] = $this->session->data['store_id'];
 
 		if (isset($this->request->post['bottom'])) {
 			$data['bottom'] = $this->request->post['bottom'];
