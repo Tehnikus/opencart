@@ -42,9 +42,9 @@
                     <a href="{{ sort_name }}">{{ column_name }}</a>
                     {% endif %}
                   </td>
-                  <td style="width: 50px" class="text-center">{{ column_top_category }}</td>
+                  <td style="width: 50px" class="text-center"><a href="{{ sort_top }}" {% if sort == 'c2s.top' %}class="{{ order|lower }}"{% endif %}>{{ column_top_category }}</a></td>
                   <td style="width: 50px" class="text-center">{{ column_filters }}</td>
-                  <td style="width: 50px" class="text-center">{{ column_product_count }}</td>
+                  <td style="width: 50px" class="text-center"><a href="{{ sort_product_count }}" {% if sort == 'product_count' %}class="{{ order|lower }}"{% endif %}>{{ column_product_count }}</a></td>
                   <td style="width: 50px" class="text-center">
                     {% if sort == 'c2s.sort_order' %}
                       <a href="{{ sort_sort_order }}" class="{{ order|lower }}">{{ column_sort_order }}</a>
