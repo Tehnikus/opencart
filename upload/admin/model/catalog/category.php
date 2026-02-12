@@ -391,7 +391,7 @@ class ModelCatalogCategory extends Model {
 						$this->db->query("
 							INSERT IGNORE INTO " . DB_PREFIX . "category_to_store
 							SET 
-								`category_id` = '" . (int)$category_id . "',
+								`category_id` = '" . (int) $category_id . "',
 								`store_id`    = '" . (int) $store_id . "'
 						");
 					}
@@ -722,17 +722,18 @@ class ModelCatalogCategory extends Model {
 
 		$sort_data = array(
 			'name',
-			'sort_order',
-			'parent_id',
 			'stores',
 			'product_count',
+			'c2s.top',
+			'c2s.parent_id',
+			'c2s.sort_order',
 			'c2s.date_modified'
 		);
 
 		if (isset($data['sort']) && in_array($data['sort'], $sort_data)) {
 			$sql .= " ORDER BY FIELD(c2s.store_id, '" . (int) $this->session->data['store_id'] ."') DESC, " . $data['sort'];
 		} else {
-			$sql .= " ORDER BY FIELD(ag2s.store_id, '" . (int) $this->session->data['store_id'] ."') DESC, c2s.sort_order";
+			$sql .= " ORDER BY FIELD(c2s.store_id, '" . (int) $this->session->data['store_id'] ."') DESC, c2s.sort_order";
 		}
 
 		if (isset($data['order']) && ($data['order'] == 'DESC')) {
