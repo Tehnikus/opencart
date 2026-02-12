@@ -319,7 +319,13 @@ class ModelCatalogInformation extends Model {
 	public function getInformationDescriptions($information_id) {
 		$information_description_data = array();
 
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "information_description WHERE information_id = '" . (int)$information_id . "'");
+		$query = $this->db->query("
+			SELECT 
+				* 
+			FROM " . DB_PREFIX . "information_description id
+			WHERE id.information_id = '" . (int) $information_id . "'
+				AND id.store_id 			= '" . (int) $this->session->data['store_id'] . "'
+		");
 
 		foreach ($query->rows as $result) {
 			$information_description_data[$result['language_id']] = array(
