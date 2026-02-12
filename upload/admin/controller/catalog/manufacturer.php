@@ -174,11 +174,17 @@ class ControllerCatalogManufacturer extends Controller {
 		foreach ($results as $result) {
 			$data['manufacturers'][] = array(
 				'manufacturer_id' => $result['manufacturer_id'],
+				'image' 					=> ($result['image'] && is_file(DIR_IMAGE . $result['image'])) ? HTTPS_CATALOG . 'image/' . $result['image'] : HTTPS_CATALOG . 'image/no_image.webp',
 				'name'            => $result['name'],
 				'sort_order'      => $result['sort_order'],
+				'stores'      		=> $result['stores'],
+				'product_count'   => $result['product_count'],
 				'edit'            => $this->url->link('catalog/manufacturer/edit', 'user_token=' . $this->session->data['user_token'] . '&manufacturer_id=' . $result['manufacturer_id'] . $url, true)
 			);
 		}
+
+		$this->load->model('setting/store');
+		$data['stores'] = $this->model_setting_store->getMultistores();
 
 		if (isset($this->error['warning'])) {
 			$data['error_warning'] = $this->error['warning'];
@@ -213,7 +219,8 @@ class ControllerCatalogManufacturer extends Controller {
 		}
 
 		$data['sort_name'] = $this->url->link('catalog/manufacturer', 'user_token=' . $this->session->data['user_token'] . '&sort=name' . $url, true);
-		$data['sort_sort_order'] = $this->url->link('catalog/manufacturer', 'user_token=' . $this->session->data['user_token'] . '&sort=sort_order' . $url, true);
+		$data['product_count'] = $this->url->link('catalog/manufacturer', 'user_token=' . $this->session->data['user_token'] . '&sort=product_count' . $url, true);
+		$data['sort_sort_order'] = $this->url->link('catalog/manufacturer', 'user_token=' . $this->session->data['user_token'] . '&sort=m2s.sort_order' . $url, true);
 
 		$url = '';
 
