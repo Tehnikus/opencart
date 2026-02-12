@@ -224,7 +224,7 @@ class ControllerCatalogAttribute extends Controller {
 		}
 
 		$data['sort_name'] = $this->url->link('catalog/attribute', 'user_token=' . $this->session->data['user_token'] . '&sort=name' . $url, true);
-		$data['sort_attribute_group'] = $this->url->link('catalog/attribute', 'user_token=' . $this->session->data['user_token'] . '&sort=attribute_group' . $url, true);
+		$data['sort_attribute_group'] = $this->url->link('catalog/attribute', 'user_token=' . $this->session->data['user_token'] . '&sort=attribute_group_id' . $url, true);
 		$data['sort_sort_order'] = $this->url->link('catalog/attribute', 'user_token=' . $this->session->data['user_token'] . '&sort=a2s.sort_order' . $url, true);
 
 		$url = '';
