@@ -317,14 +317,9 @@ class ControllerCatalogManufacturer extends Controller {
 		$this->load->model('setting/store');
 
 		$data['stores'] = $this->model_setting_store->getMultistores();
-
-		if (isset($this->request->post['manufacturer_store'])) {
-			$data['manufacturer_store'] = $this->request->post['manufacturer_store'];
-		} elseif (isset($this->request->get['manufacturer_id'])) {
-			$data['manufacturer_store'] = $this->model_catalog_manufacturer->getManufacturerStores($this->request->get['manufacturer_id']);
-		} else {
-			$data['manufacturer_store'] = array(0);
-		}
+		$data['currentStore'] = $this->session->data['store_id'];
+		$data['manufacturer_store'] = $this->request->post['manufacturer_store'] ?? $this->model_catalog_manufacturer->getManufacturerStores($this->request->get['manufacturer_id'] ?? null) ?? [];
+		$data['manufacturer_description'] = $this->request->post['manufacturer_description'] ?? $this->model_catalog_manufacturer->getManufacturerDescriptions($this->request->get['manufacturer_id'] ?? null) ?? [];
 
 		if (isset($this->request->post['image'])) {
 			$data['image'] = $this->request->post['image'];
