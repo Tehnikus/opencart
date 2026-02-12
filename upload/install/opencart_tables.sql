@@ -1358,10 +1358,10 @@ INSERT INTO `oc_geo_zone` (`geo_zone_id`, `name`, `description`, `date_modified`
 
 DROP TABLE IF EXISTS `oc_information`;
 CREATE TABLE `oc_information` (
-  `information_id` INT NOT NULL AUTO_INCREMENT,
-  `bottom` int(1) NOT NULL DEFAULT '0',
-  `sort_order` INT NOT NULL DEFAULT '0',
-  `status` TINYINT NOT NULL DEFAULT '1',
+  `information_id`  INT NOT NULL AUTO_INCREMENT,
+  `bottom`          INT NOT NULL DEFAULT '0',
+  `sort_order`      INT NOT NULL DEFAULT '0',
+  `status`          TINYINT NOT NULL DEFAULT '1',
   PRIMARY KEY (`information_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1374,14 +1374,16 @@ CREATE TABLE `oc_information` (
 
 DROP TABLE IF EXISTS `oc_information_description`;
 CREATE TABLE `oc_information_description` (
-  `information_id` INT NOT NULL,
-  `language_id` INT NOT NULL,
-  `title` VARCHAR(255) NOT NULL,
-  `description` TEXT NOT NULL,
-  `meta_title` VARCHAR(255) NOT NULL,
-  `meta_description` VARCHAR(255) NOT NULL,
-  `meta_keyword` VARCHAR(255) NOT NULL,
-  PRIMARY KEY (`information_id`,`language_id`)
+  `information_id`    INT NOT NULL,
+  `language_id`       INT NOT NULL,
+  `store_id`          INT NOT NULL DEFAULT '0',
+  `title`             VARCHAR(255) NOT NULL,
+  `description`       TEXT NOT NULL,
+  `meta_title`        VARCHAR(255) NOT NULL,
+  `meta_description`  VARCHAR(255) NOT NULL,
+  `meta_keyword`      VARCHAR(255) NOT NULL,
+  `date_modified`     DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+  PRIMARY KEY (`information_id`, `language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -1406,8 +1408,11 @@ CREATE TABLE `oc_information_to_layout` (
 
 DROP TABLE IF EXISTS `oc_information_to_store`;
 CREATE TABLE `oc_information_to_store` (
-  `information_id` INT NOT NULL,
-  `store_id` INT NOT NULL,
+  `information_id`  INT NOT NULL
+  `store_id`        INT NOT NULL DEFAULT '0',
+  `sort_order`   	  INT NOT NULL DEFAULT '0',
+  `bottom`       	  INT NOT NULL DEFAULT '0',
+  `status`       	  INT NOT NULL DEFAULT '0',
   PRIMARY KEY (`information_id`,`store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
