@@ -997,6 +997,7 @@ class ModelCatalogProduct extends Model {
 		$where = [];
 
 		// Where clause
+		// Connect to external table
 		$where[] = "
 			p2.product_id = p.product_id
 		";
@@ -1089,7 +1090,8 @@ class ModelCatalogProduct extends Model {
 					) t
 				 	JOIN " . DB_PREFIX . "option_description od
 				 		ON od.option_id = t.option_id
-				 		AND od.language_id = '" . (int)$this->config->get('config_language_id') . "'
+				 		AND od.language_id = '" . (int) $this->config->get('config_language_id') . "'
+						AND od.store_id 	 = '" . (int) $this->session->data['store_id'] . "'
 				) AS product_options,
 
 				-- Product filters list
@@ -1111,14 +1113,15 @@ class ModelCatalogProduct extends Model {
 							ON f.filter_id = pf.filter_id
 						JOIN " . DB_PREFIX . "filter_description fd
 							ON 	fd.filter_id 		= f.filter_id
-							AND fd.language_id 	= '" . (int)$this->config->get('config_language_id') . "'
+							AND fd.language_id 	= '" . (int) $this->config->get('config_language_id') . "'
 						WHERE pf.product_id = p.product_id
 							AND pf.store_id 	= p2s.store_id
 						GROUP BY f.filter_group_id
 					) t
 					JOIN " . DB_PREFIX . "filter_group_description fgd
 						ON fgd.filter_group_id = t.filter_group_id
-					AND fgd.language_id = '" . (int)$this->config->get('config_language_id') . "'
+						AND fgd.language_id = '" . (int) $this->config->get('config_language_id') . "'
+						AND fgd.store_id 		= '" . (int) $this->session->data['store_id'] . "'
 				) AS product_filters
 
 			FROM " . DB_PREFIX . "product p 
