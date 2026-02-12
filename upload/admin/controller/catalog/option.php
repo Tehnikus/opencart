@@ -220,6 +220,8 @@ class ControllerCatalogOption extends Controller {
 		}
 
 		$data['sort_name'] = $this->url->link('catalog/option', 'user_token=' . $this->session->data['user_token'] . '&sort=name' . $url, true);
+		$data['sort_type'] = $this->url->link('catalog/option', 'user_token=' . $this->session->data['user_token'] . '&sort=o.type' . $url, true);
+		$data['sort_option_count'] = $this->url->link('catalog/option', 'user_token=' . $this->session->data['user_token'] . '&sort=option_count' . $url, true);
 		$data['sort_sort_order'] = $this->url->link('catalog/option', 'user_token=' . $this->session->data['user_token'] . '&sort=o2s.sort_order' . $url, true);
 
 		$url = '';

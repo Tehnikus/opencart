@@ -43,13 +43,23 @@
                     {% endif %}
                   </td>
                   <td style="width: 50%"  class="text-left">{{ column_option_values_list }}</td>
-                  <td style="width: 50px" class="text-center">{{ column_option_type }}</td>
-                  <td style="width: 50px" class="text-center">{{ column_option_count }}</td>
-                  <td style="width: 50px" class="text-center">{% if sort == 'o2s.sort_order' %}
-                    <a href="{{ sort_sort_order }}" class="{{ order|lower }}">{{ column_sort_order }}</a>
+                  <td style="width: 50px" class="text-center">
+                    <a href="{{ sort_type }}" {% if sort == 'o.type' %} class="{{ order|lower }}" {% endif %}>
+                      {{ column_option_type }}
+                    </a>
+                  </td>
+                  <td style="width: 50px" class="text-center">
+                    <a href="{{ sort_option_count }}" {% if sort == 'option_count' %} class="{{ order|lower }}" {% endif %}>
+                      {{ column_option_count }}
+                    </a>
+                  </td>
+                  <td style="width: 50px" class="text-center">
+                    {% if sort == 'o2s.sort_order' %}
+                      <a href="{{ sort_sort_order }}" class="{{ order|lower }}">{{ column_sort_order }}</a>
                     {% else %}
-                    <a href="{{ sort_sort_order }}">{{ column_sort_order }}</a>
-                    {% endif %}</td>
+                      <a href="{{ sort_sort_order }}">{{ column_sort_order }}</a>
+                    {% endif %}
+                  </td>
                   <td style="width: 50px" class="text-center">{{ column_action }}</td>
                 </tr>
               </thead>
