@@ -249,60 +249,65 @@ class ModelCatalogFilter extends Model {
 
 			$groupFiltersByStore = $this->db->query("
 				SELECT 
-					filter_id
+					`filter_id`
 				FROM " . DB_PREFIX . "filter
 				WHERE filter_group_id =  " . (int) $filter_group_id . "
-					AND store_id 				= " . (int) $this->session->data['store_id'] . "
+					AND `store_id` 				= " . (int) $this->session->data['store_id'] . "
 			")->rows;
 
 			$groupFiltersAll = $this->db->query("
 				SELECT 
-					filter_id
+					`filter_id`
 				FROM " . DB_PREFIX . "filter
-				WHERE filter_group_id =  " . (int) $filter_group_id . "
+				WHERE `filter_group_id` =  " . (int) $filter_group_id . "
 			")->rows;
 			
 			$this->db->query("
 				DELETE FROM `" . DB_PREFIX . "filter_group_description` 
-				WHERE filter_group_id = '" . (int)$filter_group_id . "' 
-					AND store_id = '" . $this->session->data['store_id'] . "'
+				WHERE `filter_group_id` = '" . (int)$filter_group_id . "' 
+					AND `store_id` = '" . (int) $this->session->data['store_id'] . "'
 			");
 			$this->db->query("
 				DELETE FROM `" . DB_PREFIX . "filter` 
-				WHERE filter_group_id = '" . (int)$filter_group_id . "' 
-					AND store_id = '" . $this->session->data['store_id'] . "'
+				WHERE `filter_group_id` = '" . (int)$filter_group_id . "' 
+					AND `store_id` = '" . (int) $this->session->data['store_id'] . "'
 			");
 			$this->db->query("
 				DELETE FROM `" . DB_PREFIX . "filter_description` 
-				WHERE filter_group_id = '" . (int)$filter_group_id . "' 
-					AND store_id = '" . $this->session->data['store_id'] . "'
+				WHERE `filter_group_id` = '" . (int)$filter_group_id . "' 
+					AND `store_id` = '" . (int) $this->session->data['store_id'] . "'
 			");
 			$this->db->query("
 				DELETE FROM " . DB_PREFIX . "filter_group_to_store
-				WHERE filter_group_id = '" . (int) $filter_group_id . "'
-					AND store_id = '" . (int) $this->session->data['store_id'] . "'
+				WHERE `filter_group_id` = '" . (int) $filter_group_id . "'
+					AND `store_id` = '" . (int) $this->session->data['store_id'] . "'
 			");
 
 			foreach ($groupFiltersByStore as $filter) {
 				$this->db->query("
 					DELETE FROM " . DB_PREFIX . "product_filter
-					WHERE filter_id = '" . (int) $filter['filter_id'] . "'
-						AND store_id 	= '" . (int) $this->session->data['store_id'] . "'
+					WHERE `filter_id` = '" . (int) $filter['filter_id'] . "'
+						AND `store_id` 	= '" . (int) $this->session->data['store_id'] . "'
 				");
 				$this->db->query("
 					DELETE FROM " . DB_PREFIX . "category_filter
-					WHERE filter_id = '" . (int) $filter['filter_id'] . "'
-						AND store_id 	= '" . (int) $this->session->data['store_id'] . "'
+					WHERE `filter_id` = '" . (int) $filter['filter_id'] . "'
+						AND `store_id` 	= '" . (int) $this->session->data['store_id'] . "'
+				");
+				$this->db->query("
+					DELETE FROM " . DB_PREFIX . "seo_url
+					WHERE `query` 	= 'filter_id=" . (int) $filter['filter_id'] . "'
+						AND `store_id` 	= '" . (int) $this->session->data['store_id'] . "'
 				");
 			}
 			
 			// Check if filter group is present in other stores
 			$filterGroupInOtherStores = $this->db->query("
 				SELECT
-					filter_group_id
+					`filter_group_id`
 				FROM " . DB_PREFIX . "filter_group_to_store
-				WHERE filter_group_id  = '" . (int) $filter_group_id . "'
-					AND store_id 		<> '" . (int) $this->session->data['store_id'] . "' 
+				WHERE `filter_group_id`  = '" . (int) $filter_group_id . "'
+					AND `store_id` 		<> '" . (int) $this->session->data['store_id'] . "' 
 			")->num_rows;
 
 			// Delete all filter group data if filter group is not present in any other store
@@ -326,11 +331,15 @@ class ModelCatalogFilter extends Model {
 				foreach ($groupFiltersAll as $filter) {
 					$this->db->query("
 						DELETE FROM " . DB_PREFIX . "product_filter
-						WHERE filter_id = '" . (int) $filter['filter_id'] . "'
+						WHERE `filter_id` = '" . (int) $filter['filter_id'] . "'
 					");
 					$this->db->query("
 						DELETE FROM " . DB_PREFIX . "category_filter
-						WHERE filter_id = '" . (int) $filter['filter_id'] . "'
+						WHERE `filter_id` = '" . (int) $filter['filter_id'] . "'
+					");
+					$this->db->query("
+						DELETE FROM " . DB_PREFIX . "seo_url
+						WHERE `query` = 'filter_id=" . (int) $filter['filter_id'] . "'
 					");
 				}
 			}
