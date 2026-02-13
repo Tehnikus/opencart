@@ -58,6 +58,7 @@
 /upload/.idea
 /.cache/cache
 /tools
+/.vscode
 
 # Root storage
 /storage
