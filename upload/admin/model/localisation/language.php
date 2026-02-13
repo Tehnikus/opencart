@@ -7,6 +7,9 @@ class ModelLocalisationLanguage extends Model {
 		$this->cache->delete('admin.language');
 
 		$language_id = $this->db->getLastId();
+		$source_language_id = $this->config->get('config_language_id');
+		return $this->cloneLanguage($language_id, $source_language_id);
+
 
 		// Attribute
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "attribute_description WHERE language_id = '" . (int)$this->config->get('config_language_id') . "'");
@@ -303,5 +306,89 @@ class ModelLocalisationLanguage extends Model {
 		$query = $this->db->query("SELECT COUNT(*) AS total FROM " . DB_PREFIX . "language");
 
 		return $query->row['total'];
+	}
+
+	public function cloneLanguage($new_language_id, $source_language_id) {
+
+		$tables = [
+			'attribute_description',
+			'attribute_group_description',
+			'banner_image',
+			'category_description',
+			'customer_group_description',
+			'custom_field_description',
+			'custom_field_value_description',
+			'download_description',
+			'filter_description',
+			'filter_group_description',
+			'information_description',
+			'length_class_description',
+			'option_description',
+			'option_value_description',
+			'order_status',
+			'product_attribute',
+			'product_description',
+			'recurring_description',
+			'return_action',
+			'return_reason',
+			'return_status',
+			'stock_status',
+			'voucher_theme_description',
+			'weight_class_description',
+			// New tables 
+			'manufacturer_description',
+			// 'blog_category_description',
+			// 'blog_article_description',
+			// 'seo_page_description',
+			// 'tag_page_description',
+			// 'supplier_description',
+		];
+
+		$this->db->query("START TRANSACTION");
+
+		try {
+
+			foreach ($tables as $table) {
+
+				$result = $this->db->query("
+					SHOW COLUMNS FROM `" . DB_PREFIX . $table . "`
+				");
+
+				$columns = [];
+				$select_columns = [];
+
+				foreach ($result->rows as $row) {
+					$column = $row['Field'];
+
+					$columns[] = "`$column`";
+
+					if ($column === 'language_id') {
+						$select_columns[] = (int)$new_language_id . " AS `language_id`";
+					} else {
+						$select_columns[] = "`$column`";
+					}
+				}
+
+				$column_list = implode(',', $columns);
+				$select_list = implode(',', $select_columns);
+
+				$sql = "
+					INSERT IGNORE INTO `" . DB_PREFIX . $table . "` ($column_list)
+					SELECT $select_list
+					FROM `" . DB_PREFIX . $table . "`
+					WHERE `language_id` = '" . (int) $source_language_id . "'
+				";
+
+				$this->db->query($sql);
+			}
+
+			$this->db->query("COMMIT");
+
+			return $new_language_id;
+
+		} catch (\Throwable $e) {
+			$this->db->query("ROLLBACK");
+			throw $e;
+		}
 	}
 }
