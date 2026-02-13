@@ -58,3 +58,6 @@
 /upload/.idea
 /.cache/cache
 /tools
+
+# Root storage
+/storage
