@@ -199,7 +199,7 @@ function isBot($config = null) : bool {
 		return true;
 	}
 
-	// If session cookie already exists ï¿½ this is a real user
+	// If session cookie already exists — this is a real user
 	$sessionName = ($config && $config->get('session_name'))
 		? $config->get('session_name')
 		: 'OCSESSID';
