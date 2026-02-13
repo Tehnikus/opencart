@@ -941,12 +941,20 @@ class ControllerSettingSetting extends Controller {
 	}
 
 	protected function validate() {
+		$this->load->model('localisation/language');
+		$languages = $this->model_localisation_language->getLanguages();
+
 		if (!$this->user->hasPermission('modify', 'setting/setting')) {
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
 
-		if (!$this->request->post['config_meta_title']) {
-			$this->error['meta_title'] = $this->language->get('error_meta_title');
+		foreach ($languages as $language) {
+			if (!$this->request->post['config_meta_title'][$language['language_id']]) {
+				$this->error['meta_title'] = $this->language->get('error_meta_title');
+			}
+			if ((utf8_strlen($this->request->post['config_address'][$language['language_id']]) < 3) || (utf8_strlen($this->request->post['config_address'][$language['language_id']]) > 256)) {
+				$this->error['address'] = $this->language->get('error_address');
+			}
 		}
 
 		if (!$this->request->post['config_name']) {
@@ -955,10 +963,6 @@ class ControllerSettingSetting extends Controller {
 
 		if ((utf8_strlen($this->request->post['config_owner']) < 3) || (utf8_strlen($this->request->post['config_owner']) > 64)) {
 			$this->error['owner'] = $this->language->get('error_owner');
-		}
-
-		if ((utf8_strlen($this->request->post['config_address']) < 3) || (utf8_strlen($this->request->post['config_address']) > 256)) {
-			$this->error['address'] = $this->language->get('error_address');
 		}
 
 		if ((utf8_strlen($this->request->post['config_email']) > 96) || !filter_var($this->request->post['config_email'], FILTER_VALIDATE_EMAIL)) {
