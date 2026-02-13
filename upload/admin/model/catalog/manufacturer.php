@@ -1,34 +1,67 @@
 <?php
 class ModelCatalogManufacturer extends Model {
-	public function addManufacturer($data) {
-		$this->db->query("INSERT INTO " . DB_PREFIX . "manufacturer SET name = '" . $this->db->escape($data['name']) . "', sort_order = '" . (int)$data['sort_order'] . "'");
+	public function addManufacturer($data) : int {
 
-		$manufacturer_id = $this->db->getLastId();
+		$this->db->query("START TRANSACTION");
+		
+		try {
 
-		if (isset($data['image'])) {
-			$this->db->query("UPDATE " . DB_PREFIX . "manufacturer SET image = '" . $this->db->escape($data['image']) . "' WHERE manufacturer_id = '" . (int)$manufacturer_id . "'");
-		}
+			$this->db->query("
+				INSERT INTO " . DB_PREFIX . "manufacturer 
+				SET 
+					`name` 				= '" . $this->db->escape($data['manufacturer_description'][(int) $this->config->get('config_language_id')]['name']) . "', 
+					`sort_order` 	= '" . (int) $data['sort_order'] . "',
+					`image` 			= '" . (isset($data['image']) ? ($this->db->escape($data['image'])) : '') . "'
+			");
 
-		if (isset($data['manufacturer_store'])) {
-			foreach ($data['manufacturer_store'] as $store_id) {
-				$this->db->query("INSERT INTO " . DB_PREFIX . "manufacturer_to_store SET manufacturer_id = '" . (int)$manufacturer_id . "', store_id = '" . (int)$store_id . "'");
+			$manufacturer_id = $this->db->getLastId();
+
+			if (isset($data['manufacturer_store'])) {
+				foreach ($data['manufacturer_store'] as $store_id) {
+					$this->db->query("
+						INSERT INTO " . DB_PREFIX . "manufacturer_to_store 
+						SET 
+							`manufacturer_id` = '" . (int) $manufacturer_id . "', 
+							`store_id` 				= '" . (int) $store_id . "',
+							`sort_order` 			= '" . (int) $data['sort_order'] . "',
+							`image` 					= '" . (isset($data['image']) ? ($this->db->escape($data['image'])) : '') . "'
+					");
+				}
 			}
-		}
-				
-		// SEO URL
-		if (isset($data['manufacturer_seo_url'])) {
-			foreach ($data['manufacturer_seo_url'] as $store_id => $language) {
-				foreach ($language as $language_id => $keyword) {
-					if (!empty($keyword)) {
-						$this->db->query("INSERT INTO " . DB_PREFIX . "seo_url SET store_id = '" . (int)$store_id . "', language_id = '" . (int)$language_id . "', query = 'manufacturer_id=" . (int)$manufacturer_id . "', keyword = '" . $this->db->escape($keyword) . "'");
+
+			foreach ($data['manufacturer_description'] as $language_id => $value) {
+				$this->db->query("
+					INSERT INTO " . DB_PREFIX . "manufacturer_description 
+					SET 
+						`manufacturer_id` 	= '" . (int) $manufacturer_id . "', 
+						`language_id` 			= '" . (int) $language_id . "', 
+						`store_id` 					= '" . (int) $this->session->data['store_id'] . "',
+						`name` 							= '" . $this->db->escape($value['name']) . "', 
+						`description` 			= '" . $this->db->escape($value['description']) . "', 
+						`meta_title` 				= '" . $this->db->escape($value['meta_title']) . "', 
+						`meta_description` 	= '" . $this->db->escape($value['meta_description']) . "', 
+						`meta_keyword` 			= '" . $this->db->escape($value['meta_keyword']) . "'
+				");
+			}
+					
+			// SEO URL
+			if (isset($data['manufacturer_seo_url'])) {
+				foreach ($data['manufacturer_seo_url'] as $store_id => $language) {
+					foreach ($language as $language_id => $keyword) {
+						if (!empty($keyword)) {
+							$this->db->query("INSERT INTO " . DB_PREFIX . "seo_url SET store_id = '" . (int)$store_id . "', language_id = '" . (int)$language_id . "', query = 'manufacturer_id=" . (int)$manufacturer_id . "', keyword = '" . $this->db->escape($keyword) . "'");
+						}
 					}
 				}
 			}
-		}
-		
-		$this->cache->delete('manufacturer');
 
-		return $manufacturer_id;
+			$this->db->query("COMMIT");
+			
+			return $manufacturer_id;
+		} catch (\Throwable $e) {
+			$this->db->query("ROLLBACK");
+			throw $e;
+		}
 	}
 
 	public function editManufacturer($manufacturer_id, $data) {
