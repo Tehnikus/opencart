@@ -343,10 +343,15 @@ class ModelCatalogManufacturer extends Model {
 		return $result;
 	}
 
-	public function getManufacturerStores($manufacturer_id) {
-		$manufacturer_store_data = array();
+	public function getManufacturerStores($manufacturer_id) : array {
+		$manufacturer_store_data = [];
 
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "manufacturer_to_store WHERE manufacturer_id = '" . (int)$manufacturer_id . "'");
+		$query = $this->db->query("
+			SELECT 
+				store_id 
+			FROM " . DB_PREFIX . "manufacturer_to_store 
+			WHERE manufacturer_id = '" . (int)$manufacturer_id . "'
+		");
 
 		foreach ($query->rows as $result) {
 			$manufacturer_store_data[] = $result['store_id'];
@@ -355,8 +360,8 @@ class ModelCatalogManufacturer extends Model {
 		return $manufacturer_store_data;
 	}
 	
-	public function getManufacturerSeoUrls($manufacturer_id) {
-		$manufacturer_seo_url_data = array();
+	public function getManufacturerSeoUrls($manufacturer_id) : array {
+		$manufacturer_seo_url_data = [];
 		
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "seo_url WHERE query = 'manufacturer_id=" . (int)$manufacturer_id . "'");
 
@@ -367,9 +372,12 @@ class ModelCatalogManufacturer extends Model {
 		return $manufacturer_seo_url_data;
 	}
 	
-	public function getTotalManufacturers() {
-		$query = $this->db->query("SELECT COUNT(*) AS total FROM " . DB_PREFIX . "manufacturer");
+	public function getTotalManufacturers() : int {
+		$query = $this->db->query("
+			SELECT COUNT(manufacturer_id) AS total FROM " . DB_PREFIX . "manufacturer
+		");
 
-		return $query->row['total'];
+		return $query->row['total'] ?? 0;
+	}
 	}
 }
