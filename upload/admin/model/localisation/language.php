@@ -337,9 +337,16 @@ class ModelLocalisationLanguage extends Model {
 			'weight_class_description',
 			// New tables 
 			'manufacturer_description',
+			// 'blog_article_image_description',
+			// 'blog_category_image_description',
+			// 'category_image_description',
+			// 'product_image_description',
+			// 'filter_page_image_description',
+			// 'search_page_image_description',
 			// 'blog_category_description',
 			// 'blog_article_description',
-			// 'seo_page_description',
+			// 'search_page_description',
+			// 'filter_page_description',
 			// 'tag_page_description',
 			// 'supplier_description',
 		];
