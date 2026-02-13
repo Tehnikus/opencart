@@ -379,5 +379,28 @@ class ModelCatalogManufacturer extends Model {
 
 		return $query->row['total'] ?? 0;
 	}
+
+	public function getManufacturerDescriptions($manufacturer_id) : array {
+		$manufacturer_description_data = [];
+
+		$query = $this->db->query("
+			SELECT 
+				* 
+			FROM " . DB_PREFIX . "manufacturer_description 
+			WHERE manufacturer_id = '" . (int) $manufacturer_id . "'
+				AND store_id 		= '" . (int) $this->session->data['store_id'] . "'
+		");
+
+		foreach ($query->rows as $result) {
+			$manufacturer_description_data[$result['language_id']] = array(
+				'name'             => $result['name'],
+				'meta_title'       => $result['meta_title'],
+				'meta_description' => $result['meta_description'],
+				'meta_keyword'     => $result['meta_keyword'],
+				'description'      => $result['description']
+			);
+		}
+
+		return $manufacturer_description_data;
 	}
 }
