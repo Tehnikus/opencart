@@ -108,7 +108,8 @@ CREATE TABLE `oc_attribute` (
   `attribute_id`        INT NOT NULL AUTO_INCREMENT,
   `attribute_group_id`  INT NOT NULL,
   `sort_order`          INT NOT NULL,
-  PRIMARY KEY (`attribute_id`, `store_id`)
+  PRIMARY KEY (`attribute_id`),
+  KEY (`attribute_group_id`, `sort_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -118,7 +119,7 @@ CREATE TABLE `oc_attribute_description` (
   `language_id`   INT NOT NULL,
   `store_id`      INT NOT NULL DEFAULT '0',
   `name`          VARCHAR(255) NOT NULL,
-  PRIMARY KEY (`attribute_id`,`language_id`, `store_id`)
+  PRIMARY KEY (`attribute_id`, `language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -128,7 +129,8 @@ CREATE TABLE `oc_attribute_to_store` (
   `store_id`            INT NOT NULL DEFAULT '0',
   `sort_order`          INT NOT NULL DEFAULT '0',
   `attribute_group_id`  INT NOT NULL,
-  PRIMARY KEY (`attribute_id`, `store_id`)
+  PRIMARY KEY (`attribute_id`, `store_id`),
+  KEY (`attribute_group_id`, `store_id`, `sort_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -137,9 +139,10 @@ CREATE TABLE `oc_attribute_to_store` (
 
 DROP TABLE IF EXISTS `oc_attribute_group`;
 CREATE TABLE `oc_attribute_group` (
-  `attribute_group_id` INT NOT NULL AUTO_INCREMENT,
-  `sort_order` INT NOT NULL,
-  PRIMARY KEY (`attribute_group_id`)
+  `attribute_group_id`  INT NOT NULL AUTO_INCREMENT,
+  `sort_order`          INT NOT NULL,
+  PRIMARY KEY (`attribute_group_id`),
+  KEY (`attribute_group_id`, `sort_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -149,7 +152,7 @@ CREATE TABLE `oc_attribute_group_to_store` (
   `store_id`           INT NOT NULL DEFAULT '0',
   `sort_order`         INT NOT NULL DEFAULT '0',
   PRIMARY KEY (`attribute_group_id`, `store_id`),
-  KEY (`store_id`, `sort_order`)
+  KEY (`attribute_group_id`, `store_id`, `sort_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -159,7 +162,8 @@ CREATE TABLE `oc_attribute_group_description` (
   `language_id` INT NOT NULL,
   `store_id` INT NOT NULL DEFAULT '0',
   `name` VARCHAR(255) NOT NULL,
-  PRIMARY KEY (`attribute_group_id`,`language_id`, `store_id`)
+  PRIMARY KEY (`attribute_group_id`,`language_id`, `store_id`),
+  KEY (`language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -233,7 +237,7 @@ CREATE TABLE `oc_category` (
   `date_added`    DATETIME NOT NULL,
   `date_modified` DATETIME NOT NULL,
   PRIMARY KEY (`category_id`),
-  KEY `parent_id` (`parent_id`)
+  KEY (`parent_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -252,8 +256,7 @@ CREATE TABLE `oc_category_to_store` (
   `column`            INT NOT NULL DEFAULT '1',
   `date_modified`     DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP),
   PRIMARY KEY (`category_id`,`store_id`),
-  KEY (`sort_order`, `store_id`),
-  KEY (`parent_id`, `store_id`)
+  KEY (`store_id`, `parent_id`, `sort_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -271,8 +274,8 @@ CREATE TABLE `oc_category_description` (
   `meta_description`  VARCHAR(255) NOT NULL,
   `meta_keyword`      VARCHAR(255) NOT NULL,
   `date_modified`     DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP),
-  PRIMARY KEY (`category_id`,`language_id`, `store_id`),
-  KEY `name` (`name`, `store_id`)
+  PRIMARY KEY (`category_id`, `language_id`, `store_id`),
+  KEY (`language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -285,9 +288,9 @@ CREATE TABLE `oc_category_description` (
 DROP TABLE IF EXISTS `oc_category_filter`;
 CREATE TABLE `oc_category_filter` (
   `category_id` INT NOT NULL,
-  `filter_id` INT NOT NULL,
-  `store_id` INT NOT NULL DEFAULT '0',
-  PRIMARY KEY (`category_id`,`filter_id`, `store_id`)
+  `filter_id`   INT NOT NULL,
+  `store_id`    INT NOT NULL DEFAULT '0',
+  PRIMARY KEY (`category_id`,`store_id`, `filter_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -299,11 +302,11 @@ CREATE TABLE `oc_category_filter` (
 DROP TABLE IF EXISTS `oc_category_path`;
 CREATE TABLE `oc_category_path` (
   `category_id` INT NOT NULL,
-  `path_id` INT NOT NULL,
-  `store_id` INT NOT NULL DEFAULT '0',
-  `level` INT NOT NULL,
-  PRIMARY KEY (`category_id`,`path_id`, `store_id`),
-  KEY (`level`, `store_id`),
+  `path_id`     INT NOT NULL,
+  `store_id`    INT NOT NULL DEFAULT '0',
+  `level`       INT NOT NULL,
+  PRIMARY KEY (`category_id`, `store_id`, `path_id`),
+  KEY (`category_id`, `store_id`, `level`),
   KEY (`path_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -648,7 +651,7 @@ DROP TABLE IF EXISTS `oc_coupon_category`;
 CREATE TABLE `oc_coupon_category` (
   `coupon_id` INT NOT NULL,
   `category_id` INT NOT NULL,
-  `store_id` INT NOT NULL DEFAULT '0'
+  `store_id` INT NOT NULL DEFAULT '0',
   PRIMARY KEY (`coupon_id`,`category_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -678,9 +681,9 @@ CREATE TABLE `oc_coupon_history` (
 DROP TABLE IF EXISTS `oc_coupon_product`;
 CREATE TABLE `oc_coupon_product` (
   `coupon_product_id` INT NOT NULL AUTO_INCREMENT,
-  `coupon_id` INT NOT NULL,
-  `product_id` INT NOT NULL,
-  `store_id` INT NOT NULL,
+  `coupon_id`         INT NOT NULL,
+  `product_id`        INT NOT NULL,
+  `store_id`          INT NOT NULL,
   PRIMARY KEY (`coupon_product_id`),
   KEY (`product_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -814,7 +817,7 @@ CREATE TABLE `oc_customer_approval` (
 DROP TABLE IF EXISTS `oc_customer_group`;
 CREATE TABLE `oc_customer_group` (
   `customer_group_id` INT NOT NULL AUTO_INCREMENT,
-  `approval` int(1) NOT NULL,
+  `approval` INT NOT NULL,
   `sort_order` INT NOT NULL,
   PRIMARY KEY (`customer_group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1270,8 +1273,7 @@ CREATE TABLE `oc_filter` (
   `store_id`        INT NOT NULL DEFAULT '0',
   `sort_order`      INT NOT NULL,
   PRIMARY KEY (`filter_id`, `store_id`),
-  KEY (`filter_group_id`, `store_id`),
-  KEY (`sort_order`, `store_id`)
+  KEY (`filter_group_id`, `store_id`, `sort_order`, `filter_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -1309,7 +1311,7 @@ CREATE TABLE `oc_filter_group_to_store` (
   `store_id`        INT NOT NULL DEFAULT '0',
   `sort_order`      INT NOT NULL DEFAULT '0',
   PRIMARY KEY (`filter_group_id`, `store_id`),
-  KEY (`sort_order`)
+  KEY (`store_id`, `sort_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -1408,7 +1410,7 @@ CREATE TABLE `oc_information_to_layout` (
 
 DROP TABLE IF EXISTS `oc_information_to_store`;
 CREATE TABLE `oc_information_to_store` (
-  `information_id`  INT NOT NULL
+  `information_id`  INT NOT NULL,
   `store_id`        INT NOT NULL DEFAULT '0',
   `sort_order`   	  INT NOT NULL DEFAULT '0',
   `bottom`       	  INT NOT NULL DEFAULT '0',
@@ -1603,24 +1605,37 @@ CREATE TABLE `oc_location` (
 DROP TABLE IF EXISTS `oc_manufacturer`;
 CREATE TABLE `oc_manufacturer` (
   `manufacturer_id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(64) NOT NULL,
-  `image` VARCHAR(255) DEFAULT NULL,
-  `sort_order` INT NOT NULL,
+  `name`            VARCHAR(255) NOT NULL,
+  `image`           VARCHAR(255) DEFAULT NULL,
+  `sort_order`      INT NOT NULL,
   PRIMARY KEY (`manufacturer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
+DROP TABLE IF EXISTS `oc_manufacturer_description`;
+CREATE TABLE `oc_manufacturer_description` (
+  `manufacturer_id`   INT NOT NULL,
+  `language_id`       INT NOT NULL,
+  `store_id`          INT NOT NULL DEFAULT '0',
+  `name`              VARCHAR(255) NOT NULL,
+  `description`       TEXT NOT NULL,
+  `meta_title`        VARCHAR(255) NOT NULL,
+  `meta_description`  VARCHAR(255) NOT NULL,
+  `meta_keyword`      VARCHAR(255) NOT NULL,
+  `date_modified`     DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+  PRIMARY KEY (`manufacturer_id`, `language_id`, `store_id`),
+  KEY (`language_id`, `store_id`)
+) Engine=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
---
--- Table structure for table `oc_manufacturer_to_store`
---
 
 DROP TABLE IF EXISTS `oc_manufacturer_to_store`;
 CREATE TABLE `oc_manufacturer_to_store` (
   `manufacturer_id` INT NOT NULL,
-  `store_id` INT NOT NULL,
-  PRIMARY KEY (`manufacturer_id`,`store_id`)
+  `store_id`        INT NOT NULL,
+  `image`           VARCHAR(255) DEFAULT NULL,
+  `sort_order`      INT NOT NULL,
+  PRIMARY KEY (`manufacturer_id`,`store_id`),
+  KEY (`sort_order`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -1692,19 +1707,20 @@ CREATE TABLE `oc_option` (
 
 DROP TABLE IF EXISTS `oc_option_to_store`;
 CREATE TABLE `oc_option_to_store` (
-  `option_id` INT NOT NULL,
+  `option_id`   INT NOT NULL,
   `store_id`    INT NOT NULL DEFAULT '0',
   `sort_order`  INT NOT NULL DEFAULT '0',
-  PRIMARY KEY (`option_id`, `store_id`)
+  PRIMARY KEY (`option_id`, `store_id`),
+  KEY (`store_id`, `sort_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 DROP TABLE IF EXISTS `oc_option_description`;
 CREATE TABLE `oc_option_description` (
-  `option_id` INT NOT NULL,
+  `option_id`   INT NOT NULL,
   `language_id` INT NOT NULL,
   `store_id`    INT NOT NULL DEFAULT '0',
-  `name` VARCHAR(128) NOT NULL,
+  `name`        VARCHAR(255) NOT NULL,
   PRIMARY KEY (`option_id`,`language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1712,21 +1728,22 @@ CREATE TABLE `oc_option_description` (
 DROP TABLE IF EXISTS `oc_option_value`;
 CREATE TABLE `oc_option_value` (
   `option_value_id` INT NOT NULL AUTO_INCREMENT,
-  `option_id` INT NOT NULL,
-  `store_id` INT NOT NULL DEFAULT '0',
-  `image` VARCHAR(255) NOT NULL,
-  `sort_order` INT NOT NULL,
-  PRIMARY KEY (`option_value_id`, `store_id`)
+  `option_id`       INT NOT NULL,
+  `store_id`        INT NOT NULL DEFAULT '0',
+  `image`           VARCHAR(255) NOT NULL,
+  `sort_order`      INT NOT NULL,
+  PRIMARY KEY (`option_value_id`, `store_id`),
+  KEY (`option_id`, `store_id`, `sort_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 DROP TABLE IF EXISTS `oc_option_value_description`;
 CREATE TABLE `oc_option_value_description` (
   `option_value_id` INT NOT NULL,
-  `language_id` INT NOT NULL,
-  `store_id` INT NOT NULL DEFAULT '0',
-  `option_id` INT NOT NULL,
-  `name` VARCHAR(128) NOT NULL,
+  `language_id`     INT NOT NULL,
+  `store_id`        INT NOT NULL DEFAULT '0',
+  `option_id`       INT NOT NULL,
+  `name`            VARCHAR(255) NOT NULL,
   PRIMARY KEY (`option_value_id`,`language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1993,7 +2010,7 @@ CREATE TABLE `oc_order_voucher` (
 DROP TABLE IF EXISTS `oc_product`;
 CREATE TABLE `oc_product` (
   `product_id`         INT NOT NULL AUTO_INCREMENT,
-  `model`              VARCHAR(64) NOT NULL,
+  `model`              VARCHAR(255) NOT NULL,
   `parent_id`          INT NOT NULL DEFAULT '1',
   `sku`                VARCHAR(64) NOT NULL,
   `upc`                VARCHAR(12) NOT NULL,
@@ -2001,7 +2018,7 @@ CREATE TABLE `oc_product` (
   `jan`                VARCHAR(13) NOT NULL,
   `isbn`               VARCHAR(17) NOT NULL,
   `mpn`                VARCHAR(64) NOT NULL,
-  `location`           VARCHAR(128) NOT NULL,
+  `location`           VARCHAR(255) NOT NULL,
   `quantity`           int(4) NOT NULL DEFAULT '0',
   `stock_status_id`    INT NOT NULL,
   `image`              VARCHAR(255) DEFAULT NULL,
@@ -2040,7 +2057,8 @@ CREATE TABLE `oc_product_to_store` (
   `status`            INT NOT NULL DEFAULT '0',
   `image`             VARCHAR(255) DEFAULT NULL,
   `date_modified`     DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP),
-  PRIMARY KEY (`product_id`,`store_id`)
+  PRIMARY KEY (`product_id`,`store_id`),
+  KEY (`store_id`, `parent_id`, `sort_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -2049,7 +2067,7 @@ CREATE TABLE `oc_product_price` (
   `product_id`    INT NOT NULL,
   `store_id`      INT NOT NULL DEFAULT '0',
   `currency_id`   INT NOT NULL DEFAULT '1',
-  PRIMARY KEY (`product_id`,`store_id`, `currency_id`)
+  PRIMARY KEY (`product_id`, `currency_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -2200,7 +2218,7 @@ CREATE TABLE `oc_product_filter` (
   `product_id`  INT NOT NULL,
   `filter_id`   INT NOT NULL,
   `store_id`    INT NOT NULL DEFAULT '0',
-  PRIMARY KEY (`product_id`,`filter_id`, `store_id`)
+  PRIMARY KEY (`product_id`, `store_id`, `filter_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -2217,7 +2235,7 @@ CREATE TABLE `oc_product_image` (
   `image`             VARCHAR(255) DEFAULT NULL,
   `sort_order`        INT NOT NULL DEFAULT '0',
   PRIMARY KEY (`product_image_id`),
-  KEY (`product_id`, `store_id`)
+  KEY (`product_id`, `store_id`, `sort_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -2331,7 +2349,7 @@ CREATE TABLE `oc_product_special` (
   `date_start`          DATETIME DEFAULT NULL,
   `date_end`            DATETIME DEFAULT NULL,
   PRIMARY KEY (`product_special_id`),
-  KEY `product_id` (`product_id`, `store_id`)
+  KEY (`product_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -2557,7 +2575,7 @@ CREATE TABLE `oc_review` (
   `date_added`    DATETIME NOT NULL,
   `date_modified` DATETIME NOT NULL,
   PRIMARY KEY (`review_id`),
-  KEY `product_id` (`product_id`)
+  KEY `product_id` (`product_id`, `language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -2597,13 +2615,15 @@ CREATE TABLE `oc_session` (
 
 DROP TABLE IF EXISTS `oc_setting`;
 CREATE TABLE `oc_setting` (
-  `setting_id` INT NOT NULL AUTO_INCREMENT,
-  `store_id` INT NOT NULL DEFAULT '0',
-  `code` VARCHAR(128) NOT NULL,
-  `key` VARCHAR(128) NOT NULL,
-  `value` TEXT NOT NULL,
-  `serialized` TINYINT NOT NULL,
-  PRIMARY KEY (`setting_id`)
+  `setting_id`  INT NOT NULL AUTO_INCREMENT,
+  `store_id`    INT NOT NULL DEFAULT '0',
+  `code`        VARCHAR(128) NOT NULL,
+  `key`         VARCHAR(128) NOT NULL,
+  `value`       TEXT NOT NULL,
+  `serialized`  TINYINT NOT NULL,
+  PRIMARY KEY (`setting_id`),
+  KEY (`store_id`, `code`),
+  KEY (`store_id`, `key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -2899,14 +2919,14 @@ CREATE TABLE `oc_upload` (
 
 DROP TABLE IF EXISTS `oc_seo_url`;
 CREATE TABLE `oc_seo_url` (
-  `seo_url_id` INT NOT NULL AUTO_INCREMENT,
-  `store_id` INT NOT NULL,
+  `seo_url_id`  INT NOT NULL AUTO_INCREMENT,
+  `store_id`    INT NOT NULL,
   `language_id` INT NOT NULL,  
-  `query` VARCHAR(255) NOT NULL,
-  `keyword` VARCHAR(255) NOT NULL,
+  `query`       VARCHAR(191) NOT NULL,
+  `keyword`     VARCHAR(191) NOT NULL,
   PRIMARY KEY (`seo_url_id`),
-  KEY `query` (`query`, `language_id`, `store_id`),
-  KEY `keyword` (`keyword`, `language_id`, `store_id`)
+  UNIQUE KEY `query` (`query`, `language_id`, `store_id`),
+  UNIQUE KEY `keyword` (`keyword`, `language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
