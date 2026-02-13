@@ -7357,7 +7357,7 @@ INSERT INTO `oc_zone_to_geo_zone` (`zone_to_geo_zone_id`, `country_id`, `zone_id
 (109, 222, 3972, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00');
 
 -- Image description tables
-
+DELETE TABLE IF EXISTS `oc_category_image_description`;
 CREATE TABLE `oc_category_image_description` (
   `image_id`                INT NOT NULL,
   `category_id`             INT NOT NULL,
@@ -7367,6 +7367,7 @@ CREATE TABLE `oc_category_image_description` (
   KEY (`category_id`, `language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DELETE TABLE IF EXISTS `oc_product_image_description`;
 CREATE TABLE `oc_product_image_description` (
   `image_id`                INT NOT NULL,
   `product_id`              INT NOT NULL,
@@ -7376,6 +7377,7 @@ CREATE TABLE `oc_product_image_description` (
   KEY (`product_id`, `language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DELETE TABLE IF EXISTS `oc_blog_article_image_description`;
 CREATE TABLE `oc_blog_article_image_description` (
   `image_id`                INT NOT NULL,
   `blog_article_id`         INT NOT NULL,
@@ -7385,6 +7387,7 @@ CREATE TABLE `oc_blog_article_image_description` (
   KEY (`blog_article_id`, `language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DELETE TABLE IF EXISTS `oc_blog_category_image_description`;
 CREATE TABLE `oc_blog_category_image_description` (
   `image_id`                INT NOT NULL,
   `blog_category_id`        INT NOT NULL,
@@ -7394,6 +7397,7 @@ CREATE TABLE `oc_blog_category_image_description` (
   KEY (`blog_category_id`, `language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DELETE TABLE IF EXISTS `oc_filter_page_image_description`;
 CREATE TABLE `oc_filter_page_image_description` (
   `image_id`                INT NOT NULL,
   `filter_page_id`          INT NOT NULL,
@@ -7403,11 +7407,12 @@ CREATE TABLE `oc_filter_page_image_description` (
   KEY (`filter_page_id`, `language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DELETE TABLE IF EXISTS `oc_search_page_image_description`;
 CREATE TABLE `oc_search_page_image_description` (
   `image_id`                INT NOT NULL,
   `search_page_id`          INT NOT NULL,
   `language_id`             INT NOT NULL,
   `store_id`                INT NOT NULL,
   `description`             TEXT NOT NULL,
-  KEY (`filter_page_id`, `language_id`, `store_id`)
+  KEY (`search_page_id`, `language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
