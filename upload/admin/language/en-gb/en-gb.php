@@ -175,6 +175,7 @@ $_['column_option_type']            = 'Type';
 $_['column_option_values_list']     = 'Values';
 $_['column_option_count']           = 'Values count';
 $_['column_top_category']           = 'Top menu';
+$_['column_bottom']                 = 'Show in footer';
 
 /* When doing translations only include the matching language code */
 
