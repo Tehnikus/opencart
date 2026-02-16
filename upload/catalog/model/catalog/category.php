@@ -116,7 +116,6 @@ public function getCategoryFilters($category_id) {
 	";
 
 	$query = $this->db->query($sql);
-	$this->log->write($sql);
 
 	$filter_group_data = [];
 
