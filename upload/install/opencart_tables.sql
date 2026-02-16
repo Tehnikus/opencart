@@ -1446,14 +1446,18 @@ CREATE TABLE `oc_language` (
   KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `oc_language`
---
-
 INSERT INTO `oc_language` (`language_id`, `name`, `code`, `locale`, `image`, `directory`, `sort_order`, `status`) VALUES
 (1, 'English', 'en-gb', 'en-US,en_US.UTF-8,en_US,en-gb,english', 'gb.png', 'english', 1, 1);
 
+DROP TABLE IF EXISTS `oc_language_to_store`;
+CREATE TABLE `oc_language_to_store` (
+  `language_id` INT NOT NULL,
+  `store_id`    INT NOT NULL,
+  PRIMARY KEY (`language_id`, `store_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+INSERT INTO `oc_language_to_store` (`language_id`, `store_id`) VALUES
+(1, 0);
 
 --
 -- Table structure for table `oc_layout`
