@@ -12,6 +12,23 @@ class ModelSettingStore extends Model {
 			$this->db->query("INSERT INTO " . DB_PREFIX . "layout_route SET layout_id = '" . (int)$layout_route['layout_id'] . "', route = '" . $this->db->escape($layout_route['route']) . "', store_id = '" . (int)$store_id . "'");
 		}
 
+		// Language to store association
+		$this->db->query("
+			DELETE FROM " . DB_PREFIX . "language_to_store
+			WHERE store_id = '" . (int) $store_id . "'
+		");
+
+		if (isset($data['languages_association']) && !empty($data['languages_association'])) {
+			foreach ($data['languages_association'] as $language_id) {
+				$this->db->query("
+					INSERT INTO " . DB_PREFIX . "language_to_store
+					SET
+						`language_id` 				= '" . (int) $language_id . "', 
+						`store_id` 		 				= '" . (int) $store_id . "'
+				");
+			}
+		}
+
 		$this->cache->delete('store');
 
 		return $store_id;
@@ -19,6 +36,23 @@ class ModelSettingStore extends Model {
 
 	public function editStore($store_id, $data) {
 		$this->db->query("UPDATE " . DB_PREFIX . "store SET name = '" . $this->db->escape($data['config_name']) . "', `url` = '" . $this->db->escape($data['config_url']) . "', `ssl` = '" . $this->db->escape($data['config_ssl']) . "' WHERE store_id = '" . (int)$store_id . "'");
+
+		// Language to store association
+		$this->db->query("
+			DELETE FROM " . DB_PREFIX . "language_to_store
+			WHERE store_id = '" . (int) $store_id . "'
+		");
+
+		if (isset($data['languages_association']) && !empty($data['languages_association'])) {
+			foreach ($data['languages_association'] as $language_id) {
+				$this->db->query("
+					INSERT INTO " . DB_PREFIX . "language_to_store
+					SET
+						`language_id` 				= '" . (int) $language_id . "', 
+						`store_id` 		 				= '" . (int) $store_id . "'
+				");
+			}
+		}
 
 		$this->cache->delete('store');
 	}
@@ -126,5 +160,27 @@ class ModelSettingStore extends Model {
 		}
 
 		return $stores;
+	}
+
+	// Language to store association
+		public function getLanguagesAssociation($id = null) : array {
+		$result = [];
+
+		if (!isset($id)) {
+			$id === 0;
+		}
+
+		// Get stores association
+		$storeData = $this->db->query("
+			SELECT
+				language_id
+			FROM `" . DB_PREFIX . "language_to_store`
+			WHERE store_id = '" . (int) $id . "'
+		");
+		foreach ($storeData->rows as $store) {
+			$result[] = $store['language_id']; 
+		}
+
+		return $result;
 	}
 }

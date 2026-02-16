@@ -232,7 +232,7 @@ class ModelLocalisationLanguage extends Model {
 			DELETE FROM " . DB_PREFIX . "language_to_store
 			WHERE language_id = '" . (int) $language_id . "'
 		");
-		
+
 		if (isset($data['stores_association']) && !empty($data['stores_association'])) {
 			foreach ($data['stores_association'] as $store_id) {
 				$this->db->query("
@@ -251,6 +251,12 @@ class ModelLocalisationLanguage extends Model {
 	public function deleteLanguage($language_id) {
 		$this->db->query("DELETE FROM " . DB_PREFIX . "language WHERE language_id = '" . (int)$language_id . "'");
  		$this->db->query("DELETE FROM " . DB_PREFIX . "seo_url WHERE language_id = '" . (int)$language_id . "'"); 
+
+		// Language to store association
+		$this->db->query("
+			DELETE FROM " . DB_PREFIX . "language_to_store
+			WHERE language_id = '" . (int) $language_id . "'
+		");
 		
 		$this->cache->delete('catalog.language');
 		$this->cache->delete('admin.language');

@@ -18,6 +18,8 @@ class ControllerSettingSetting extends Controller {
 //				$this->model_localisation_currency->refresh();
 //			}
 
+			$this->model_setting_setting->editLanguageToDefaultStore($this->request->post);
+
 			$this->session->data['success'] = $this->language->get('text_success');
 
 			$this->response->redirect($this->url->link('setting/store', 'user_token=' . $this->session->data['user_token'], true));
@@ -63,6 +65,12 @@ class ControllerSettingSetting extends Controller {
 			$data['error_meta_title'] = $this->error['meta_title'];
 		} else {
 			$data['error_meta_title'] = '';
+		}
+
+		if (isset($this->error['language_association'])) {
+			$data['error_language_association'] = $this->error['language_association'];
+		} else {
+			$data['error_language_association'] = '';
 		}
 
 		if (isset($this->error['country'])) {
@@ -919,6 +927,9 @@ class ControllerSettingSetting extends Controller {
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['footer'] = $this->load->controller('common/footer');
 
+		$data['languages_association'] = $this->request->post['languages_association'] ?? $this->model_setting_store->getLanguagesAssociation($this->request->get['store_id'] ?? null) ?? [];
+
+
 		$this->response->setOutput($this->load->view('setting/setting', $data));
 	}
 
@@ -941,6 +952,10 @@ class ControllerSettingSetting extends Controller {
 
 		if (!$this->request->post['config_name']) {
 			$this->error['name'] = $this->language->get('error_name');
+		}
+
+		if (empty($this->request->post['languages_association'])) {
+			$this->error['language_association'] = $this->language->get('error_language_association');
 		}
 
 		if ((utf8_strlen($this->request->post['config_owner']) < 3) || (utf8_strlen($this->request->post['config_owner']) > 64)) {

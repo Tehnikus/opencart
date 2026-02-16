@@ -37,6 +37,7 @@
             <li><a href="#tab-option" data-toggle="tab">{{ tab_option }}</a></li>
             <li><a href="#tab-image" data-toggle="tab">{{ tab_image }}</a></li>
             <li><a href="#tab-server" data-toggle="tab">{{ tab_server }}</a></li>
+            <li><a href="#tab-language" data-toggle="tab">{{ tab_languages }}</a></li>
           </ul>
           <div class="tab-content">
             <div class="tab-pane active" id="tab-general">
@@ -599,6 +600,28 @@
                 </div>
               </div>
             </div>
+            <div class="tab-pane" id="tab-language">
+              {# Language association #}
+              <div class="form-group required">
+                <label class="col-sm-2 control-label">{{ entry_language_association }}</label>
+                <div class="col-sm-10">
+                  <div class="well well-sm" style="height: 150px; overflow: auto;"> 
+                    {% for language in languages %}
+                      <div class="checkbox">
+                        <label> 
+                          <input type="checkbox" name="languages_association[]" value="{{ language.language_id }}" {% if language.language_id in languages_association %} checked="checked" {% endif %} />
+                          {{ language.name }}
+                        </label>
+                      </div>
+                    {% endfor %}
+                  </div>
+                  {% if error_language_association %}
+                    <div class="text-danger">{{ error_language_association }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              {# End language association #}
+            </div>            
           </div>
         </form>
       </div>
