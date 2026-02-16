@@ -2,14 +2,29 @@
 class ModelLocalisationLanguage extends Model {
 	public function addLanguage($data) {
 		$this->db->query("INSERT INTO " . DB_PREFIX . "language SET name = '" . $this->db->escape($data['name']) . "', code = '" . $this->db->escape($data['code']) . "', locale = '" . $this->db->escape($data['locale']) . "', sort_order = '" . (int)$data['sort_order'] . "', status = '" . (int)$data['status'] . "'");
-
+		
 		$this->cache->delete('catalog.language');
 		$this->cache->delete('admin.language');
-
+		
 		$language_id = $this->db->getLastId();
 		$source_language_id = $this->config->get('config_language_id');
-		return $this->cloneLanguage($language_id, $source_language_id);
 
+		// Language to store association
+		if (isset($data['stores_association']) && !empty($data['stores_association'])) {
+			foreach ($data['stores_association'] as $store_id) {
+				$this->db->query("
+					INSERT INTO " . DB_PREFIX . "language_to_store
+					SET
+						`language_id` 				= '" . (int) $language_id . "', 
+						`store_id` 		 				= '" . (int) $store_id . "'
+				");
+			}
+		}
+
+		// New language add 
+		return $this->cloneLanguage($language_id, $source_language_id);
+		// RETURN
+		// Next code is left for compatibility with future Github pull requests from base Opencart 3.x.x.x branch
 
 		// Attribute
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "attribute_description WHERE language_id = '" . (int)$this->config->get('config_language_id') . "'");
@@ -211,6 +226,23 @@ class ModelLocalisationLanguage extends Model {
 			$this->db->query("UPDATE " . DB_PREFIX . "setting SET value = '" . $this->db->escape($data['code']) . "' WHERE `key` = 'config_language' AND value = '" . $this->db->escape($language_query->row['code']) . "'");
 			$this->db->query("UPDATE " . DB_PREFIX . "setting SET value = '" . $this->db->escape($data['code']) . "' WHERE `key` = 'config_admin_language' AND value = '" . $this->db->escape($language_query->row['code']) . "'");
 		}
+
+		// Language to store association
+		$this->db->query("
+			DELETE FROM " . DB_PREFIX . "language_to_store
+			WHERE language_id = '" . (int) $language_id . "'
+		");
+		
+		if (isset($data['stores_association']) && !empty($data['stores_association'])) {
+			foreach ($data['stores_association'] as $store_id) {
+				$this->db->query("
+					INSERT INTO " . DB_PREFIX . "language_to_store
+					SET
+						`language_id` 				= '" . (int) $language_id . "', 
+						`store_id` 		 				= '" . (int) $store_id . "'
+				");
+			}
+		}
 		
 		$this->cache->delete('catalog.language');
 		$this->cache->delete('admin.language');
@@ -397,5 +429,26 @@ class ModelLocalisationLanguage extends Model {
 			$this->db->query("ROLLBACK");
 			throw $e;
 		}
+	}
+
+	public function getStoresAssociation($id = null) : array {
+		$result = [];
+
+		if (!$id) {
+			return $result;
+		}
+
+		// Get stores association
+		$storeData = $this->db->query("
+			SELECT
+				store_id
+			FROM `" . DB_PREFIX . "language_to_store`
+			WHERE language_id = '" . (int) $id . "'
+		");
+		foreach ($storeData->rows as $store) {
+			$result[] = $store['store_id']; 
+		}
+
+		return $result;
 	}
 }
