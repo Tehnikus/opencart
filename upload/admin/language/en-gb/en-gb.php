@@ -160,6 +160,7 @@ $_['error_curl']                    = 'CURL: Error Code(%s): %s';
 // Additional translations
 // Form entries
 $_['entry_store_association']       = 'Store association';
+$_['entry_language_association']    = 'Language association';
 $_['entry_language']                = 'Language';
 $_['entry_store']                   = 'Store';
 // List entries
@@ -180,6 +181,11 @@ $_['column_option_values_list']     = 'Values';
 $_['column_option_count']           = 'Values count';
 $_['column_top_category']           = 'Top menu';
 $_['column_bottom']                 = 'Show in footer';
+// Tabs
+$_['tab_languages']                 = 'Languages';
+// Errors
+$_['error_language_association']    = 'Select at least one language for this store';
+$_['error_stores_association']      = 'Select at least on store';
 
 /* When doing translations only include the matching language code */
 
