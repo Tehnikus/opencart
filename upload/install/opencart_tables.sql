@@ -256,7 +256,7 @@ CREATE TABLE `oc_category_to_store` (
   `column`            INT NOT NULL DEFAULT '1',
   `date_modified`     DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP),
   PRIMARY KEY (`category_id`,`store_id`),
-  KEY (`store_id`, `parent_id`, `sort_order`)
+  KEY (`parent_id`, `store_id`, `status`, `sort_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -1293,7 +1293,8 @@ CREATE TABLE `oc_filter_description` (
   `store_id`        INT NOT NULL DEFAULT '0',
   `filter_group_id` INT NOT NULL,
   `name`            VARCHAR(128) NOT NULL,
-  PRIMARY KEY (`filter_id`,`language_id`, `store_id`)
+  PRIMARY KEY (`filter_id`, `language_id`, `store_id`),
+  KEY (`language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -1305,7 +1306,7 @@ DROP TABLE IF EXISTS `oc_filter_group`;
 CREATE TABLE `oc_filter_group` (
   `filter_group_id` INT NOT NULL AUTO_INCREMENT,
   `sort_order`      INT NOT NULL,
-  PRIMARY KEY (`filter_group_id`)
+  PRIMARY KEY (`filter_group_id`, `sort_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Filter group to store relation
@@ -1330,7 +1331,8 @@ CREATE TABLE `oc_filter_group_description` (
   `language_id`     INT NOT NULL,
   `store_id`        INT NOT NULL DEFAULT '0',
   `name`            VARCHAR(128) NOT NULL,
-  PRIMARY KEY (`filter_group_id`,`language_id`, `store_id`)
+  PRIMARY KEY (`filter_group_id`,`language_id`, `store_id`),
+  KEY (`language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
