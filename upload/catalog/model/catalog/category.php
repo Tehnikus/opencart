@@ -70,7 +70,7 @@ public function getCategory($category_id) : array {
 
 		$query = $this->db->query($sql);
 
-		return $query->rows;
+		return $query->rows ?? [];
 	}
 
 public function getCategoryFilters($category_id) {
