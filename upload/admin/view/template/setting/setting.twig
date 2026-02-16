@@ -51,8 +51,8 @@
                       <input type="text" name="config_meta_title[{{ language.language_id }}]" value="{{ config_meta_title[language.language_id] ? config_meta_title[language.language_id] }}" placeholder="{{ entry_meta_title }}" class="form-control" />
                     </div>
                   {% endfor %}
-                  {% if error_meta_title[language.language_id] %}
-                    <div class="text-danger">{{ error_meta_title[language.language_id] }}</div>
+                  {% if error_meta_title %}
+                    <div class="text-danger">{{ error_meta_title }}</div>
                   {% endif %}
                 </div>
               </div>
