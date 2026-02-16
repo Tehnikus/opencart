@@ -64,6 +64,30 @@
                 <button type="button" class="btn btn-default"><i class="fa fa-calendar"></i></button>
                 </span></div>
             </div>
+
+            <div class="form-group">
+              <label class="control-label" for="input-store">{{ entry_store }}</label>
+              <div>
+                <select class="form-control" name="store_id" id="input-store">
+                  <option>{{ text_select }}</option>
+                  {% for store in stores %}
+                    <option value="{{ store.store_id }}" {% if store.store_id == filter_store %} selected {% endif %}>{{ store.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label" for="input-language">{{ entry_language }}</label>
+              <div>
+                <select class="form-control" name="language_id" id="input-language">
+                  <option>{{ text_select }}</option>
+                  {% for language in languages %}
+                    <option value="{{ language.language_id }}" {% if language.language_id == filter_language %} selected {% endif %}>{{ language.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            
             <div class="form-group text-right">
               <button type="button" id="button-filter" class="btn btn-default"><i class="fa fa-filter"></i> {{ button_filter }}</button>
             </div>
@@ -102,13 +126,13 @@
                       {% else %}
                       <input type="checkbox" name="selected[]" value="{{ review.review_id }}" />
                       {% endif %}</td>
-                    <td class="text-left">{{ review.name }}</td>
-                    <td class="text-center">{{ review.author }}</td>
-                    <td class="text-center">{{ review.rating }}</td>
-                    <td class="text-center">{{ review.status }}</td>
-                    <td class="text-center">{% for language in languages %}{% if language.language_id == review.language_id %}{{ language.name }}{% endif %}{% endfor %}</td>
-                    <td class="text-center">{{ stores[review.store_id].name }}</td>
-                    <td class="text-center">{{ review.date_added }}</td>
+                    <td class="text-left"><b>{{ review.name }}</b></td>
+                    <td class="text-center"><b>{{ review.author }}</b></td>
+                    <td class="text-center"><b>{{ review.rating }}</b></td>
+                    <td class="text-center"><b>{{ review.status }}</b></td>
+                    <td class="text-center"><b>{% for language in languages %}{% if language.language_id == review.language_id %}{{ language.name }}{% endif %}{% endfor %}</b></td>
+                    <td class="text-center"><b>{{ stores[review.store_id].name }}</b></td>
+                    <td class="text-center"><b>{{ review.date_added }}</b></td>
                     <td class="text-center"><a href="{{ review.edit }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a></td>
                   </tr>
                   {% endfor %}
@@ -151,6 +175,18 @@ $('#button-filter').on('click', function() {
 	
 	if (filter_status !== '') {
 		url += '&filter_status=' + encodeURIComponent(filter_status); 
+	}		
+
+	var filter_store = $('select[name=\'store_id\']').val();
+	
+	if (filter_store !== '') {
+		url += '&filter_store=' + encodeURIComponent(filter_store); 
+	}		
+
+	var filter_language = $('select[name=\'language_id\']').val();
+	
+	if (filter_language !== '') {
+		url += '&filter_language=' + encodeURIComponent(filter_language); 
 	}		
 			
 	var filter_date_added = $('input[name=\'filter_date_added\']').val();
