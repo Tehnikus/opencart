@@ -41,7 +41,10 @@ class ModelCatalogReview extends Model {
 	}
 
 	public function deleteReview($review_id) {
-		$this->db->query("DELETE FROM " . DB_PREFIX . "review WHERE review_id = '" . (int)$review_id . "'");
+		$this->db->query("
+			DELETE FROM " . DB_PREFIX . "review 
+			WHERE review_id = '" . (int)$review_id . "'
+		");
 
 		$this->cache->delete('product');
 	}
