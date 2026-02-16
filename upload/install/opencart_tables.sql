@@ -2587,7 +2587,7 @@ CREATE TABLE `oc_review` (
   `date_added`    DATETIME NOT NULL,
   `date_modified` DATETIME NOT NULL,
   PRIMARY KEY (`review_id`),
-  KEY `product_id` (`product_id`, `language_id`, `store_id`)
+  KEY `product_id` (`product_id`, `language_id`, `store_id`, `status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
