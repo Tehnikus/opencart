@@ -349,13 +349,17 @@ class ModelCatalogOption extends Model {
 			$where[] = " o2s.store_id = '" . (int) $data['store_id'] . "'";
 		}
 
+		// Filter by value existance
 		if (!empty($data['has_values'])) {
 			$where[] = "
 				EXISTS (
 					SELECT 1
-					FROM " . DB_PREFIX . "option_value ov
+					FROM " . DB_PREFIX . "option o
+					JOIN " . DB_PREFIX . "option_value ov
+						ON ov.option_id = o.option_id
 					WHERE ov.option_id = o.option_id
-						AND ov.store_id = '" . (int) $this->session->data['store_id'] . "'
+						AND ov.store_id  = '" . (int) $this->session->data['store_id'] . "'
+						AND o.type IN ('select', 'checkbox', 'radio')
 				)
 			";
 		}
