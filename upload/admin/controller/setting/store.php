@@ -104,14 +104,14 @@ class ControllerSettingStore extends Controller {
 		$data['add'] = $this->url->link('setting/store/add', 'user_token=' . $this->session->data['user_token'], true);
 		$data['delete'] = $this->url->link('setting/store/delete', 'user_token=' . $this->session->data['user_token'], true);
 
-		$data['stores'] = array();
+		// $data['stores'] = array();
 
-		$data['stores'][] = array(
-			'store_id' => 0,
-			'name'     => $this->config->get('config_name') . $this->language->get('text_default'),
-			'url'      => $this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG,
-			'edit'     => $this->url->link('setting/setting', 'user_token=' . $this->session->data['user_token'], true)
-		);
+		// $data['stores'][] = array(
+		// 	'store_id' => 0,
+		// 	'name'     => $this->config->get('config_name') . $this->language->get('text_default'),
+		// 	'url'      => $this->config->get('config_secure') ? HTTPS_CATALOG : HTTP_CATALOG,
+		// 	'edit'     => $this->url->link('setting/setting', 'user_token=' . $this->session->data['user_token'], true)
+		// );
 
 		$store_total = $this->model_setting_store->getTotalStores();
 
