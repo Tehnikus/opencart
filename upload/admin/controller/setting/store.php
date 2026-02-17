@@ -115,7 +115,7 @@ class ControllerSettingStore extends Controller {
 
 		$store_total = $this->model_setting_store->getTotalStores();
 
-		$results = $this->model_setting_store->getStores();
+		$results = $this->model_setting_store->getMultistores();
 
 		foreach ($results as $result) {
 			$data['stores'][] = array(
