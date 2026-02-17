@@ -16,6 +16,8 @@ class ModelLocalisationLanguage extends Model {
 
 	public function getLanguages() {
 
+		$language_data = [];
+
 		$query = $this->db->query("
 			SELECT 
 				* 
