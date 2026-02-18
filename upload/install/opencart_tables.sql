@@ -1697,11 +1697,13 @@ CREATE TABLE `oc_modification` (
 
 DROP TABLE IF EXISTS `oc_module`;
 CREATE TABLE `oc_module` (
-  `module_id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(64) NOT NULL,
-  `code` VARCHAR(32) NOT NULL,
-  `setting` TEXT NOT NULL,
-  PRIMARY KEY (`module_id`)
+  `module_id`     INT NOT NULL AUTO_INCREMENT,
+  `name`          VARCHAR(64) NOT NULL,
+  `code`          VARCHAR(32) NOT NULL,
+  `setting`       TEXT NOT NULL,
+  `store_id`      INT NOT NULL DEFAULT '0',
+  `date_modified` DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+  PRIMARY KEY (`module_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
