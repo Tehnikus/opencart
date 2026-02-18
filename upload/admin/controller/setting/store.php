@@ -122,7 +122,7 @@ class ControllerSettingStore extends Controller {
 				'store_id' => $result['store_id'],
 				'name'     => $result['name'],
 				'url'      => $result['url'],
-				'edit'     => $this->url->link('setting/store/edit', 'user_token=' . $this->session->data['user_token'] . '&store_id=' . $result['store_id'], true)
+				'edit'     => ((int) $result['store_id'] === 0) ? ($this->url->link('setting/setting', 'user_token=' . $this->session->data['user_token'], true)) : ($this->url->link('setting/store/edit', 'user_token=' . $this->session->data['user_token'] . '&store_id=' . $result['store_id'], true))
 			);
 		}
 
