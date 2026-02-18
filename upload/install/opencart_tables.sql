@@ -1501,20 +1501,16 @@ CREATE TABLE `oc_layout_module` (
   PRIMARY KEY (`layout_module_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
-
-
---
--- Table structure for table `oc_layout_route`
---
-
 DROP TABLE IF EXISTS `oc_layout_route`;
 CREATE TABLE `oc_layout_route` (
   `layout_route_id` INT NOT NULL AUTO_INCREMENT,
-  `layout_id` INT NOT NULL,
-  `store_id` INT NOT NULL,
-  `route` VARCHAR(64) NOT NULL,
-  PRIMARY KEY (`layout_route_id`)
+  `layout_id`       INT NOT NULL,
+  `store_id`        INT NOT NULL DEFAULT '0',
+  `route`           VARCHAR(64) NOT NULL,
+  `is_wildcard`     TINYINT NOT NULL DEFAULT '0',
+  PRIMARY KEY (`layout_route_id`),
+  KEY (`route`),
+  KEY (`is_wildcard`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
