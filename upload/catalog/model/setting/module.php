@@ -6,7 +6,7 @@ class ModelSettingModule extends Model {
 				* 
 			FROM " . DB_PREFIX . "module 
 			WHERE `module_id` = '" . (int) $module_id . "'
-			AND 	`store_id`  = '" . (int) $this->config->get('config_store_id') . "'
+				AND `store_id`  = '" . (int) $this->config->get('config_store_id') . "'
 		");
 		
 		if ($query->row) {
