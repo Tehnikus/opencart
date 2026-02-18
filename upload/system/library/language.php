@@ -30,7 +30,7 @@ class Language {
 	 * @param mixed $key
 	 * @return Language|string
 	 */
-	public function get($key) : Language|string {
+	public function get($key) : Language|array|string {
 		return (isset($this->data[$key]) ? $this->data[$key] : $key);
 	}
 	
