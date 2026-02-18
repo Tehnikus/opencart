@@ -1489,19 +1489,15 @@ INSERT INTO `oc_layout` (`layout_id`, `name`) VALUES
 (12, 'Compare'),
 (13, 'Search');
 
-
-
---
--- Table structure for table `oc_layout_module`
---
-
 DROP TABLE IF EXISTS `oc_layout_module`;
 CREATE TABLE `oc_layout_module` (
-  `layout_module_id` INT NOT NULL AUTO_INCREMENT,
-  `layout_id` INT NOT NULL,
-  `code` VARCHAR(64) NOT NULL,
-  `position` VARCHAR(14) NOT NULL,
-  `sort_order` INT NOT NULL,
+  `layout_module_id`  INT NOT NULL AUTO_INCREMENT,
+  `layout_id`         INT NOT NULL,
+  `store_id`          INT NOT NULL DEFAULT '0',
+  `code`              VARCHAR(64) NOT NULL,
+  `position`          VARCHAR(14) NOT NULL,
+  `sort_order`        INT NOT NULL,
+  `date_modified`     DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP),
   PRIMARY KEY (`layout_module_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
