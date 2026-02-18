@@ -59,6 +59,7 @@
 /.cache/cache
 /tools
 /.vscode
+/.kanbn_boards
 
 # Root storage
 /storage
