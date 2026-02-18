@@ -1,23 +1,52 @@
 <?php
 class ModelDesignLayout extends Model {
-	public function addLayout($data) {
-		$this->db->query("INSERT INTO " . DB_PREFIX . "layout SET name = '" . $this->db->escape($data['name']) . "'");
-
-		$layout_id = $this->db->getLastId();
-
-		if (isset($data['layout_route'])) {
-			foreach ($data['layout_route'] as $layout_route) {
-				$this->db->query("INSERT INTO " . DB_PREFIX . "layout_route SET layout_id = '" . (int)$layout_id . "', store_id = '" . (int)$layout_route['store_id'] . "', route = '" . $this->db->escape($layout_route['route']) . "'");
+	public function addLayout($data) : int {
+		$this->db->query("START TRANSACTION");
+		try {
+			$this->db->query("
+				INSERT INTO " . DB_PREFIX . "layout 
+				SET 
+					`name` 			= '" . $this->db->escape($data['name']) . "',
+					`store_id` 	= '" . (int) $this->session->data['store_id'] . "'
+			");
+	
+			$layout_id = $this->db->getLastId();
+	
+			if (isset($data['layout_route'])) {
+	
+				$this->db->query("
+					INSERT INTO " . DB_PREFIX . "layout_route 
+					SET 
+						`layout_id` 	= '" . (int) $layout_id . "', 
+						`store_id`		= '" . (int) $this->session->data['store_id'] . "',
+						`route` 			= '" . $this->db->escape($data['layout_route']['route']) . "',
+						`is_wildcard` = '" . (str_contains($data['layout_route']['route'], '%') ? '1' : '0') . "'
+				");
+				
 			}
-		}
-
-		if (isset($data['layout_module'])) {
-			foreach ($data['layout_module'] as $layout_module) {
-				$this->db->query("INSERT INTO " . DB_PREFIX . "layout_module SET layout_id = '" . (int)$layout_id . "', code = '" . $this->db->escape($layout_module['code']) . "', position = '" . $this->db->escape($layout_module['position']) . "', sort_order = '" . (int)$layout_module['sort_order'] . "'");
+	
+			if (isset($data['layout_module'])) {
+				foreach ($data['layout_module'] as $layout_module) {
+					$this->db->query("
+						INSERT INTO " . DB_PREFIX . "layout_module 
+						SET 
+							`layout_id` 	= '" . (int) $layout_id . "', 
+							`store_id`		= '" . (int) $this->session->data['store_id'] . "',
+							`code` 				= '" . $this->db->escape($layout_module['code']) . "', 
+							`position` 		= '" . $this->db->escape($layout_module['position']) . "', 
+							`sort_order` 	= '" . (int) $layout_module['sort_order'] . "'
+					");
+				}
 			}
-		}
+	
+			$this->db->query("COMMIT");
+			
+			return $layout_id;
 
-		return $layout_id;
+		} catch (\Throwable $e) {
+			$this->db->query("ROLLBACK");
+			throw $e;
+		}
 	}
 
 	public function editLayout($layout_id, $data) {
