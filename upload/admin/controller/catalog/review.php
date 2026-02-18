@@ -293,7 +293,7 @@ class ControllerCatalogReview extends Controller {
 				'rating'     			=> $result['rating'],
 				'language_id'     => $result['language_id'],
 				'store_id'     		=> $result['store_id'],
-				'status'     			=> ($result['status']) ? $this->language->get('text_enabled') : $this->language->get('text_disabled'),
+				'status'     			=> $result['status'],
 				'date_added' 			=> date($this->language->get('date_format_short'), strtotime($result['date_added'])),
 				'edit'       			=> $this->url->link('catalog/review/edit', 'user_token=' . $this->session->data['user_token'] . '&review_id=' . $result['review_id'] . $url, true)
 			);
