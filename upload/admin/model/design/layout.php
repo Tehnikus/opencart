@@ -146,8 +146,16 @@ class ModelDesignLayout extends Model {
 			throw $e;
 		}
 	}
+
+	// Get layout data in admin layout form
 	public function getLayout($layout_id) {
-		$query = $this->db->query("SELECT DISTINCT * FROM " . DB_PREFIX . "layout WHERE layout_id = '" . (int)$layout_id . "'");
+		$query = $this->db->query("
+			SELECT 
+				* 
+			FROM " . DB_PREFIX . "layout 
+			WHERE `layout_id` = '" . (int) $layout_id . "'
+				AND `store_id`  = '" . (int) $this->session->data['store_id'] . "'
+		");
 
 		return $query->row;
 	}
@@ -211,17 +219,47 @@ class ModelDesignLayout extends Model {
 		return $result;
 	}
 
-		return $query->rows;
+	// Get layout routes
+	// No need of store_id, because store_id is now in " . DB_PREFIX . "layout table
+	// And every layout is now unique for every store
+	public function getLayoutRoutes($layout_id = null) : array {
+		if ($layout_id === null) {
+			return [];
+		}
+
+		$query = $this->db->query("
+			SELECT 
+				*
+			FROM " . DB_PREFIX . "layout_route 
+			WHERE `layout_id` = '" . (int) $layout_id . "'
+		");
+
+		return $query->row ?? [];
 	}
 
+
+	// Get modules in current layout in admin layout form
+	// Because every layout is now unique for every store, no need of store_id filtering here
 	public function getLayoutModules($layout_id) {
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "layout_module WHERE layout_id = '" . (int)$layout_id . "' ORDER BY position ASC, sort_order ASC");
+		$query = $this->db->query("
+			SELECT 
+				* 
+			FROM " . DB_PREFIX . "layout_module 
+			WHERE `layout_id` = '" . (int) $layout_id . "' 
+			ORDER BY `position` ASC, `sort_order` ASC
+		");
 
 		return $query->rows;
 	}
 
+	// Count layouts by store
 	public function getTotalLayouts() {
-		$query = $this->db->query("SELECT COUNT(*) AS total FROM " . DB_PREFIX . "layout");
+		$query = $this->db->query("
+			SELECT 
+				COUNT(*) AS total 
+			FROM " . DB_PREFIX . "layout
+			WHERE `store_id` = '" . (int) $this->session->data['store_id'] . "'
+		");
 
 		return $query->row['total'];
 	}
