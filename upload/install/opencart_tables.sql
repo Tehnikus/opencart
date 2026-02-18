@@ -1217,9 +1217,11 @@ INSERT INTO `oc_event` (`event_id`, `code`, `trigger`, `action`, `status`, `sort
 DROP TABLE IF EXISTS `oc_extension`;
 CREATE TABLE `oc_extension` (
   `extension_id` INT NOT NULL AUTO_INCREMENT,
-  `type` VARCHAR(32) NOT NULL,
-  `code` VARCHAR(32) NOT NULL,
-  PRIMARY KEY (`extension_id`)
+  `type`      VARCHAR(32) NOT NULL,
+  `code`      VARCHAR(32) NOT NULL,
+  `store_id`  INT NOT NULL DEFAULT '0',
+  PRIMARY KEY (`extension_id`),
+  KEY (`type`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
