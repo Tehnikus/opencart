@@ -106,15 +106,46 @@ class ModelDesignLayout extends Model {
 		}
 	}
 
-	public function deleteLayout($layout_id) {
-		$this->db->query("DELETE FROM " . DB_PREFIX . "layout WHERE layout_id = '" . (int)$layout_id . "'");
-		$this->db->query("DELETE FROM " . DB_PREFIX . "layout_route WHERE layout_id = '" . (int)$layout_id . "'");
-		$this->db->query("DELETE FROM " . DB_PREFIX . "layout_module WHERE layout_id = '" . (int)$layout_id . "'");
-		$this->db->query("DELETE FROM " . DB_PREFIX . "category_to_layout WHERE layout_id = '" . (int)$layout_id . "'");
-		$this->db->query("DELETE FROM " . DB_PREFIX . "product_to_layout WHERE layout_id = '" . (int)$layout_id . "'");
-		$this->db->query("DELETE FROM " . DB_PREFIX . "information_to_layout WHERE layout_id = '" . (int)$layout_id . "'");
+	public function deleteLayout($layout_id) : bool {
+		
+		$this->db->query("START TRANSACTION");
+		
+		try {
+			$this->db->query("
+				DELETE FROM " . DB_PREFIX . "layout 
+				WHERE `layout_id` = '" . (int) $layout_id . "'
+					AND `store_id`  = '" . (int) $this->session->data['store_id'] . "'
+			");
+			$this->db->query("
+				DELETE FROM " . DB_PREFIX . "layout_route 
+				WHERE `layout_id` = '" . (int) $layout_id . "'
+			");
+			$this->db->query("
+				DELETE FROM " . DB_PREFIX . "layout_module 
+				WHERE `layout_id` = '" . (int) $layout_id . "'
+			");
+			$this->db->query("
+				DELETE FROM " . DB_PREFIX . "category_to_layout 
+				WHERE `layout_id` = '" . (int) $layout_id . "'
+					AND `store_id`  = '" . (int) $this->session->data['store_id'] . "'
+			");
+			$this->db->query("
+				DELETE FROM " . DB_PREFIX . "product_to_layout 
+				WHERE `layout_id` = '" . (int) $layout_id . "'
+					AND `store_id`  = '" . (int) $this->session->data['store_id'] . "'
+			");
+			$this->db->query("
+				DELETE FROM " . DB_PREFIX . "information_to_layout 
+				WHERE `layout_id` = '" . (int) $layout_id . "'
+					AND `store_id`  = '" . (int) $this->session->data['store_id'] . "'
+			");
+			$this->db->query("COMMIT");
+			return true;
+		} catch (\Throwable $e) {
+			$this->db->query("ROLLBACK");
+			throw $e;
+		}
 	}
-
 	public function getLayout($layout_id) {
 		$query = $this->db->query("SELECT DISTINCT * FROM " . DB_PREFIX . "layout WHERE layout_id = '" . (int)$layout_id . "'");
 
