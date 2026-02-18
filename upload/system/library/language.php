@@ -26,13 +26,11 @@ class Language {
 	}
 	
 	/**
-     * 
-     *
-     * @param	string	$key
-	 * 
-	 * @return	string
-     */
-	public function get($key) {
+	 * Summary of get
+	 * @param mixed $key
+	 * @return Language|string
+	 */
+	public function get($key) : Language|string {
 		return (isset($this->data[$key]) ? $this->data[$key] : $key);
 	}
 	
