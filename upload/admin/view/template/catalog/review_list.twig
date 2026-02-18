@@ -69,7 +69,7 @@
               <label class="control-label" for="input-store">{{ entry_store }}</label>
               <div>
                 <select class="form-control" name="store_id" id="input-store">
-                  <option>{{ text_select }}</option>
+                  <option value="">{{ text_select }}</option>
                   {% for store in stores %}
                     <option value="{{ store.store_id }}" {% if store.store_id == filter_store %} selected {% endif %}>{{ store.name }}</option>
                   {% endfor %}
@@ -80,7 +80,7 @@
               <label class="control-label" for="input-language">{{ entry_language }}</label>
               <div>
                 <select class="form-control" name="language_id" id="input-language">
-                  <option>{{ text_select }}</option>
+                  <option value="">{{ text_select }}</option>
                   {% for language in languages %}
                     <option value="{{ language.language_id }}" {% if language.language_id == filter_language %} selected {% endif %}>{{ language.name }}</option>
                   {% endfor %}
