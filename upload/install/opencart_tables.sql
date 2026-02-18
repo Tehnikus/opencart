@@ -1462,19 +1462,17 @@ INSERT INTO `oc_language_to_store` (`language_id`, `store_id`) VALUES
 (1, 0);
 
 --
--- Table structure for table `oc_layout`
+-- Store layouts
+-- Now layout is related to store_id and every store has its own layouts 
 --
 
 DROP TABLE IF EXISTS `oc_layout`;
 CREATE TABLE `oc_layout` (
   `layout_id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(64) NOT NULL,
-  PRIMARY KEY (`layout_id`)
+  `name`      VARCHAR(64) NOT NULL,
+  `store_id`  INT NOT NULL DEFAULT '0',
+  PRIMARY KEY (`layout_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `oc_layout`
---
 
 INSERT INTO `oc_layout` (`layout_id`, `name`) VALUES
 (1, 'Home'),
