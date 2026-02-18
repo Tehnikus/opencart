@@ -1,10 +1,8 @@
 <div id="filemanager" class="modal-dialog modal-lg">
   <div class="modal-content">
-    <div class="modal-header">
+    <div class="modal-header" style="position: sticky; top: 0; z-index: 1000; background: #fff; border-radius: 5px">
       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
       <h4 class="modal-title">{{ heading_title }}</h4>
-    </div>
-    <div class="modal-body">
       <div class="row">
         <div class="col-sm-5"><a href="{{ parent }}" data-toggle="tooltip" title="{{ button_parent }}" id="button-parent" class="btn btn-default"><i class="fa fa-level-up"></i></a> <a href="{{ refresh }}" data-toggle="tooltip" title="{{ button_refresh }}" id="button-refresh" class="btn btn-default"><i class="fa fa-refresh"></i></a>
           <button type="button" data-toggle="tooltip" title="{{ button_upload }}" id="button-upload" class="btn btn-primary"><i class="fa fa-upload"></i></button>
@@ -19,6 +17,8 @@
             </span></div>
         </div>
       </div>
+    </div>
+    <div class="modal-body">
       <hr />
       {% for image in images|batch(6) %}
       <div class="row">
