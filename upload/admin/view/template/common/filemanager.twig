@@ -31,7 +31,9 @@
             {{ image.name }}</label>
           {% endif %}
           {% if image.type == 'image' %}
-          <a href="{{ image.href }}" class="thumbnail"><img src="{{ image.thumb }}" alt="{{ image.name }}" title="{{ image.name }}" /></a>
+          <a href="{{ image.href }}" class="thumbnail">
+						<img style="width: 100%; height: 100%; margin-left: auto; margin-right: auto; object-fit: contain; aspect-ratio: 1/1;" src="{{ image.thumb }}" alt="{{ image.name }}" title="{{ image.name }}" loading="lazy"/>
+					</a>
           <label>
             <input type="checkbox" name="path[]" value="{{ image.path }}" />
             {{ image.name }}</label>
