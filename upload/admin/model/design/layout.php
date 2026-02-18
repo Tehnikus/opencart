@@ -152,15 +152,35 @@ class ModelDesignLayout extends Model {
 		return $query->row;
 	}
 
-	public function getLayouts($data = array()) {
-		$sql = "SELECT * FROM " . DB_PREFIX . "layout";
+	// Get layout list in admin layout list controller
+	// Loads layouts for current store
+	public function getLayouts($data = []) : array {
+		$result = [];
+		$sql = "
+			SELECT 
+				*,
+				(
+					SELECT JSON_OBJECTAGG(t.position, t.codes)
+					FROM (
+						SELECT 
+							lm.position,
+							JSON_ARRAYAGG(lm.code) AS codes
+						FROM " . DB_PREFIX . "layout_module lm
+						WHERE lm.layout_id = l.layout_id
+						GROUP BY lm.position
+					) t
+				) AS modules,
+				(SELECT route FROM " . DB_PREFIX . "layout_route lr WHERE lr.layout_id = l.layout_id) AS route
+			FROM " . DB_PREFIX . "layout l
+			WHERE l.`store_id` = '" . (int) $this->session->data['store_id'] . "'
+		";
 
 		$sort_data = array('name');
 
 		if (isset($data['sort']) && in_array($data['sort'], $sort_data)) {
 			$sql .= " ORDER BY " . $data['sort'];
 		} else {
-			$sql .= " ORDER BY name";
+			$sql .= " ORDER BY `name`";
 		}
 
 		if (isset($data['order']) && ($data['order'] == 'DESC')) {
@@ -183,11 +203,13 @@ class ModelDesignLayout extends Model {
 
 		$query = $this->db->query($sql);
 
-		return $query->rows;
-	}
+		foreach ($query->rows as $row) {
+			$row['modules'] = json_decode($row['modules'] ?? '[]', true);
+			$result[] = $row;
+		}
 
-	public function getLayoutRoutes($layout_id) {
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "layout_route WHERE layout_id = '" . (int)$layout_id . "'");
+		return $result;
+	}
 
 		return $query->rows;
 	}
