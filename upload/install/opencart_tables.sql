@@ -1513,24 +1513,20 @@ CREATE TABLE `oc_layout_route` (
   KEY (`is_wildcard`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `oc_layout_route`
---
-
-INSERT INTO `oc_layout_route` (`layout_id`, `store_id`, `route`) VALUES
-(6, 0, 'account/%'),
-(10, 0, 'affiliate/%'),
-(3, 0, 'product/category'),
-(1, 0, 'common/home'),
-(2, 0, 'product/product'),
-(11, 0, 'information/information'),
-(7, 0, 'checkout/%'),
-(8, 0, 'information/contact'),
-(9, 0, 'information/sitemap'),
-(4, 0, ''),
-(5, 0, 'product/manufacturer'),
-(12, 0, 'product/compare'),
-(13, 0, 'product/search');
+INSERT INTO `oc_layout_route` (`layout_id`, `route`) VALUES
+(1,  'common/home'),
+(2,  'product/product'),
+(3,  'product/category'),
+(4,  ''),
+(5,  'product/manufacturer'),
+(6,  'account/%'),
+(7,  'checkout/%'),
+(8,  'information/contact'),
+(9,  'information/sitemap'),
+(10, 'affiliate/%'),
+(11, 'information/information'),
+(12, 'product/compare'),
+(13, 'product/search');
 
 
 
