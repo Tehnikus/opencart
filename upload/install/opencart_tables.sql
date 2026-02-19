@@ -42,7 +42,7 @@ CREATE TABLE `oc_googleshopping_target` (
   `country` VARCHAR(2) NOT NULL DEFAULT '',
   `budget` DECIMAL(15,4) NOT NULL DEFAULT '0.0000',
   `feeds` TEXT NOT NULL,
-  `status` enum('paused','active') NOT NULL DEFAULT 'paused',
+  `status` ENUM('paused','active') NOT NULL DEFAULT 'paused',
   `date_added` DATE,
   `roas` INT NOT NULL DEFAULT '0',
   PRIMARY KEY (`advertise_google_target_id`),
@@ -188,13 +188,13 @@ CREATE TABLE `oc_banner` (
 
 DROP TABLE IF EXISTS `oc_banner_image`;
 CREATE TABLE `oc_banner_image` (
-  `banner_image_id` INT NOT NULL AUTO_INCREMENT,
-  `banner_id` INT NOT NULL,
-  `language_id` INT NOT NULL,
-  `title` VARCHAR(64) NOT NULL,
-  `link` VARCHAR(255) NOT NULL,
-  `image` VARCHAR(255) NOT NULL,
-  `sort_order` INT NOT NULL DEFAULT '0',
+  `banner_image_id`       INT NOT NULL AUTO_INCREMENT,
+  `banner_id`             INT NOT NULL,
+  `language_id`           INT NOT NULL,
+  `title`                 VARCHAR(64) NOT NULL,
+  `link`                  VARCHAR(255) NOT NULL,
+  `image`                 VARCHAR(255) NOT NULL,
+  `sort_order`            INT NOT NULL DEFAULT '0',
   PRIMARY KEY (`banner_image_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -206,15 +206,15 @@ CREATE TABLE `oc_banner_image` (
 
 DROP TABLE IF EXISTS `oc_cart`;
 CREATE TABLE `oc_cart` (
-  `cart_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `api_id` INT NOT NULL,
-  `customer_id` INT NOT NULL,
-  `session_id` VARCHAR(32) NOT NULL,
-  `product_id` INT NOT NULL,
-  `recurring_id` INT NOT NULL,
-  `option` TEXT NOT NULL,
-  `quantity` INT NOT NULL,
-  `date_added` DATETIME NOT NULL,
+  `cart_id`               INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `api_id`                INT NOT NULL,
+  `customer_id`           INT NOT NULL,
+  `session_id`            VARCHAR(32) NOT NULL,
+  `product_id`            INT NOT NULL,
+  `recurring_id`          INT NOT NULL,
+  `option`                TEXT NOT NULL,
+  `quantity`              INT NOT NULL,
+  `date_added`            DATETIME NOT NULL,
   PRIMARY KEY (`cart_id`),
   KEY `cart_id` (`api_id`,`customer_id`,`session_id`,`product_id`,`recurring_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -324,8 +324,8 @@ CREATE TABLE `oc_category_path` (
 DROP TABLE IF EXISTS `oc_googleshopping_category`;
 CREATE TABLE `oc_googleshopping_category` (
   `google_product_category` VARCHAR(10) NOT NULL,
-  `store_id` INT NOT NULL DEFAULT '0',
-  `category_id` INT NOT NULL,
+  `store_id`                INT NOT NULL DEFAULT '0',
+  `category_id`             INT NOT NULL,
   PRIMARY KEY (`google_product_category`,`store_id`),
   KEY `category_id_store_id` (`category_id`,`store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -339,8 +339,8 @@ CREATE TABLE `oc_googleshopping_category` (
 DROP TABLE IF EXISTS `oc_category_to_layout`;
 CREATE TABLE `oc_category_to_layout` (
   `category_id` INT NOT NULL,
-  `store_id` INT NOT NULL,
-  `layout_id` INT NOT NULL,
+  `store_id`    INT NOT NULL,
+  `layout_id`   INT NOT NULL,
   PRIMARY KEY (`category_id`,`store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -351,13 +351,13 @@ CREATE TABLE `oc_category_to_layout` (
 
 DROP TABLE IF EXISTS `oc_country`;
 CREATE TABLE `oc_country` (
-  `country_id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(128) NOT NULL,
-  `iso_code_2` VARCHAR(2) NOT NULL,
-  `iso_code_3` VARCHAR(3) NOT NULL,
-  `address_format` TEXT NOT NULL,
-  `postcode_required` TINYINT NOT NULL,
-  `status` TINYINT NOT NULL DEFAULT '1',
+  `country_id`            INT NOT NULL AUTO_INCREMENT,
+  `name`                  VARCHAR(128) NOT NULL,
+  `iso_code_2`            VARCHAR(2) NOT NULL,
+  `iso_code_3`            VARCHAR(3) NOT NULL,
+  `address_format`        TEXT NOT NULL,
+  `postcode_required`     TINYINT NOT NULL,
+  `status`                TINYINT NOT NULL DEFAULT '1',
   PRIMARY KEY (`country_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -628,20 +628,20 @@ INSERT INTO `oc_country` (`country_id`, `name`, `iso_code_2`, `iso_code_3`, `add
 
 DROP TABLE IF EXISTS `oc_coupon`;
 CREATE TABLE `oc_coupon` (
-  `coupon_id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(128) NOT NULL,
-  `code` VARCHAR(20) NOT NULL,
-  `type` char(1) NOT NULL,
-  `discount` DECIMAL(15,4) NOT NULL,
-  `logged` TINYINT NOT NULL,
-  `shipping` TINYINT NOT NULL,
-  `total` DECIMAL(15,4) NOT NULL,
-  `date_start` date NOT NULL DEFAULT '0000-00-00',
-  `date_end` date NOT NULL DEFAULT '0000-00-00',
-  `uses_total` INT NOT NULL,
-  `uses_customer` VARCHAR(11) NOT NULL,
-  `status` TINYINT NOT NULL,
-  `date_added` DATETIME NOT NULL,
+  `coupon_id`       INT NOT NULL AUTO_INCREMENT,
+  `name`            VARCHAR(128) NOT NULL,
+  `code`            VARCHAR(20) NOT NULL,
+  `type`            CHAR(1) NOT NULL,
+  `discount`        DECIMAL(15,4) NOT NULL,
+  `logged`          TINYINT NOT NULL,
+  `shipping`        TINYINT NOT NULL,
+  `total`           DECIMAL(15,4) NOT NULL,
+  `date_start`      DATETIME DEFAULT NULL,
+  `date_end`        DATETIME DEFAULT NULL,
+  `uses_total`      INT NOT NULL,
+  `uses_customer`   VARCHAR(11) NOT NULL,
+  `status`          TINYINT NOT NULL,
+  `date_added`      DATETIME NOT NULL,
   PRIMARY KEY (`coupon_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -654,9 +654,9 @@ CREATE TABLE `oc_coupon` (
 
 DROP TABLE IF EXISTS `oc_coupon_category`;
 CREATE TABLE `oc_coupon_category` (
-  `coupon_id` INT NOT NULL,
+  `coupon_id`   INT NOT NULL,
   `category_id` INT NOT NULL,
-  `store_id` INT NOT NULL DEFAULT '0',
+  `store_id`    INT NOT NULL DEFAULT '0',
   PRIMARY KEY (`coupon_id`,`category_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -668,12 +668,12 @@ CREATE TABLE `oc_coupon_category` (
 
 DROP TABLE IF EXISTS `oc_coupon_history`;
 CREATE TABLE `oc_coupon_history` (
-  `coupon_history_id` INT NOT NULL AUTO_INCREMENT,
-  `coupon_id` INT NOT NULL,
-  `order_id` INT NOT NULL,
-  `customer_id` INT NOT NULL,
-  `amount` DECIMAL(15,4) NOT NULL,
-  `date_added` DATETIME NOT NULL,
+  `coupon_history_id`   INT NOT NULL AUTO_INCREMENT,
+  `coupon_id`           INT NOT NULL,
+  `order_id`            INT NOT NULL,
+  `customer_id`         INT NOT NULL,
+  `amount`              DECIMAL(15,4) NOT NULL,
+  `date_added`          DATETIME NOT NULL,
   PRIMARY KEY (`coupon_history_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -701,15 +701,15 @@ CREATE TABLE `oc_coupon_product` (
 
 DROP TABLE IF EXISTS `oc_currency`;
 CREATE TABLE `oc_currency` (
-  `currency_id` INT NOT NULL AUTO_INCREMENT,
-  `title` VARCHAR(32) NOT NULL,
-  `code` VARCHAR(3) NOT NULL,
-  `symbol_left` VARCHAR(12) NOT NULL,
-  `symbol_right` VARCHAR(12) NOT NULL,
-  `decimal_place` char(1) NOT NULL,
-  `value` double(15,8) NOT NULL,
-  `status` TINYINT NOT NULL,
-  `date_modified` DATETIME NOT NULL,
+  `currency_id`           INT NOT NULL AUTO_INCREMENT,
+  `title`                 VARCHAR(32) NOT NULL,
+  `code`                  VARCHAR(3) NOT NULL,
+  `symbol_left`           VARCHAR(12) NOT NULL,
+  `symbol_right`          VARCHAR(12) NOT NULL,
+  `decimal_place`         CHAR(1) NOT NULL,
+  `value`                 double(15,8) NOT NULL,
+  `status`                TINYINT NOT NULL,
+  `date_modified`         DATETIME NOT NULL,
   PRIMARY KEY (`currency_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -728,28 +728,28 @@ INSERT INTO `oc_currency` (`currency_id`, `title`, `code`, `symbol_left`, `symbo
 
 DROP TABLE IF EXISTS `oc_customer`;
 CREATE TABLE `oc_customer` (
-  `customer_id` INT NOT NULL AUTO_INCREMENT,
-  `customer_group_id` INT NOT NULL,
-  `store_id` INT NOT NULL DEFAULT '0',
-  `language_id` INT NOT NULL,
-  `firstname` VARCHAR(32) NOT NULL,
-  `lastname` VARCHAR(32) NOT NULL,
-  `email` VARCHAR(96) NOT NULL,
-  `telephone` VARCHAR(32) NOT NULL,
-  `fax` VARCHAR(32) NOT NULL,
-  `password` VARCHAR(40) NOT NULL,
-  `salt` VARCHAR(9) NOT NULL,
-  `cart` text,
-  `wishlist` text,
-  `newsletter` TINYINT NOT NULL DEFAULT '0',
-  `address_id` INT NOT NULL DEFAULT '0',
-  `custom_field` TEXT NOT NULL,
-  `ip` VARCHAR(40) NOT NULL,
-  `status` TINYINT NOT NULL,
-  `safe` TINYINT NOT NULL,
-  `token` TEXT NOT NULL,
-  `code` VARCHAR(40) NOT NULL,
-  `date_added` DATETIME NOT NULL,
+  `customer_id`           INT NOT NULL AUTO_INCREMENT,
+  `customer_group_id`     INT NOT NULL,
+  `store_id`              INT NOT NULL DEFAULT '0',
+  `language_id`           INT NOT NULL,
+  `firstname`             VARCHAR(32) NOT NULL,
+  `lastname`              VARCHAR(32) NOT NULL,
+  `email`                 VARCHAR(96) NOT NULL,
+  `telephone`             VARCHAR(32) NOT NULL,
+  `fax`                   VARCHAR(32) NOT NULL,
+  `password`              VARCHAR(40) NOT NULL,
+  `salt`                  VARCHAR(9) NOT NULL,
+  `cart`                  TEXT,
+  `wishlist`              TEXT,
+  `newsletter`            TINYINT NOT NULL DEFAULT '0',
+  `address_id`            INT NOT NULL DEFAULT '0',
+  `custom_field`          TEXT NOT NULL,
+  `ip`                    VARCHAR(40) NOT NULL,
+  `status`                TINYINT NOT NULL,
+  `safe`                  TINYINT NOT NULL,
+  `token`                 TEXT NOT NULL,
+  `code`                  VARCHAR(40) NOT NULL,
+  `date_added`            DATETIME NOT NULL,
   PRIMARY KEY (`customer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -761,12 +761,12 @@ CREATE TABLE `oc_customer` (
 
 DROP TABLE IF EXISTS `oc_customer_activity`;
 CREATE TABLE `oc_customer_activity` (
-  `customer_activity_id` INT NOT NULL AUTO_INCREMENT,
-  `customer_id` INT NOT NULL,
-  `key` VARCHAR(64) NOT NULL,
-  `data` TEXT NOT NULL,
-  `ip` VARCHAR(40) NOT NULL,
-  `date_added` DATETIME NOT NULL,
+  `customer_activity_id`    INT NOT NULL AUTO_INCREMENT,
+  `customer_id`             INT NOT NULL,
+  `key`                     VARCHAR(64) NOT NULL,
+  `data`                    TEXT NOT NULL,
+  `ip`                      VARCHAR(40) NOT NULL,
+  `date_added`              DATETIME NOT NULL,
   PRIMARY KEY (`customer_activity_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -778,23 +778,23 @@ CREATE TABLE `oc_customer_activity` (
 
 DROP TABLE IF EXISTS `oc_customer_affiliate`;
 CREATE TABLE `oc_customer_affiliate` (
-  `customer_id` INT NOT NULL,
-  `company` VARCHAR(40) NOT NULL,
-  `website` VARCHAR(255) NOT NULL,
-  `tracking` VARCHAR(64) NOT NULL,
-  `commission` DECIMAL(4,2) NOT NULL DEFAULT '0.00',
-  `tax` VARCHAR(64) NOT NULL,
-  `payment` VARCHAR(6) NOT NULL,
-  `cheque` VARCHAR(100) NOT NULL,
-  `paypal` VARCHAR(64) NOT NULL,
-  `bank_name` VARCHAR(64) NOT NULL,
-  `bank_branch_number` VARCHAR(64) NOT NULL,
-  `bank_swift_code` VARCHAR(64) NOT NULL,
-  `bank_account_name` VARCHAR(64) NOT NULL,
-  `bank_account_number` VARCHAR(64) NOT NULL,
-  `custom_field` TEXT NOT NULL,
-  `status` TINYINT NOT NULL,
-  `date_added` DATETIME NOT NULL,
+  `customer_id`           INT NOT NULL,
+  `company`               VARCHAR(40) NOT NULL,
+  `website`               VARCHAR(255) NOT NULL,
+  `tracking`              VARCHAR(64) NOT NULL,
+  `commission`            DECIMAL(4,2) NOT NULL DEFAULT '0.00',
+  `tax`                   VARCHAR(64) NOT NULL,
+  `payment`               VARCHAR(6) NOT NULL,
+  `cheque`                VARCHAR(100) NOT NULL,
+  `paypal`                VARCHAR(64) NOT NULL,
+  `bank_name`             VARCHAR(64) NOT NULL,
+  `bank_branch_number`    VARCHAR(64) NOT NULL,
+  `bank_swift_code`       VARCHAR(64) NOT NULL,
+  `bank_account_name`     VARCHAR(64) NOT NULL,
+  `bank_account_number`   VARCHAR(64) NOT NULL,
+  `custom_field`          TEXT NOT NULL,
+  `status`                TINYINT NOT NULL,
+  `date_added`            DATETIME NOT NULL,
   PRIMARY KEY (`customer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -806,10 +806,10 @@ CREATE TABLE `oc_customer_affiliate` (
 
 DROP TABLE IF EXISTS `oc_customer_approval`;
 CREATE TABLE `oc_customer_approval` (
-  `customer_approval_id` INT NOT NULL AUTO_INCREMENT,
-  `customer_id` INT NOT NULL,
-  `type` VARCHAR(9) NOT NULL,
-  `date_added` DATETIME NOT NULL,
+  `customer_approval_id`  INT NOT NULL AUTO_INCREMENT,
+  `customer_id`           INT NOT NULL,
+  `type`                  VARCHAR(9) NOT NULL,
+  `date_added`            DATETIME NOT NULL,
   PRIMARY KEY (`customer_approval_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -822,8 +822,8 @@ CREATE TABLE `oc_customer_approval` (
 DROP TABLE IF EXISTS `oc_customer_group`;
 CREATE TABLE `oc_customer_group` (
   `customer_group_id` INT NOT NULL AUTO_INCREMENT,
-  `approval` INT NOT NULL,
-  `sort_order` INT NOT NULL,
+  `approval`          INT NOT NULL,
+  `sort_order`        INT NOT NULL,
   PRIMARY KEY (`customer_group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -843,9 +843,9 @@ INSERT INTO `oc_customer_group` (`customer_group_id`, `approval`, `sort_order`) 
 DROP TABLE IF EXISTS `oc_customer_group_description`;
 CREATE TABLE `oc_customer_group_description` (
   `customer_group_id` INT NOT NULL,
-  `language_id` INT NOT NULL,
-  `name` VARCHAR(32) NOT NULL,
-  `description` TEXT NOT NULL,
+  `language_id`       INT NOT NULL,
+  `name`              VARCHAR(32) NOT NULL,
+  `description`       TEXT NOT NULL,
   PRIMARY KEY (`customer_group_id`,`language_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -865,9 +865,9 @@ INSERT INTO `oc_customer_group_description` (`customer_group_id`, `language_id`,
 DROP TABLE IF EXISTS `oc_customer_history`;
 CREATE TABLE `oc_customer_history` (
   `customer_history_id` INT NOT NULL AUTO_INCREMENT,
-  `customer_id` INT NOT NULL,
-  `comment` TEXT NOT NULL,
-  `date_added` DATETIME NOT NULL,
+  `customer_id`         INT NOT NULL,
+  `comment`             TEXT NOT NULL,
+  `date_added`          DATETIME NOT NULL,
   PRIMARY KEY (`customer_history_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -880,11 +880,11 @@ CREATE TABLE `oc_customer_history` (
 DROP TABLE IF EXISTS `oc_customer_login`;
 CREATE TABLE `oc_customer_login` (
   `customer_login_id` INT NOT NULL AUTO_INCREMENT,
-  `email` VARCHAR(96) NOT NULL,
-  `ip` VARCHAR(40) NOT NULL,
-  `total` int(4) NOT NULL,
-  `date_added` DATETIME NOT NULL,
-  `date_modified` DATETIME NOT NULL,
+  `email`             VARCHAR(96) NOT NULL,
+  `ip`                VARCHAR(40) NOT NULL,
+  `total`             INT NOT NULL,
+  `date_added`        DATETIME NOT NULL,
+  `date_modified`     DATETIME NOT NULL,
   PRIMARY KEY (`customer_login_id`),
   KEY `email` (`email`),
   KEY `ip` (`ip`)
@@ -898,10 +898,10 @@ CREATE TABLE `oc_customer_login` (
 
 DROP TABLE IF EXISTS `oc_customer_ip`;
 CREATE TABLE `oc_customer_ip` (
-  `customer_ip_id` INT NOT NULL AUTO_INCREMENT,
-  `customer_id` INT NOT NULL,
-  `ip` VARCHAR(40) NOT NULL,
-  `date_added` DATETIME NOT NULL,
+  `customer_ip_id`  INT NOT NULL AUTO_INCREMENT,
+  `customer_id`     INT NOT NULL,
+  `ip`              VARCHAR(40) NOT NULL,
+  `date_added`      DATETIME NOT NULL,
   PRIMARY KEY (`customer_ip_id`),
   KEY `ip` (`ip`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -914,11 +914,11 @@ CREATE TABLE `oc_customer_ip` (
 
 DROP TABLE IF EXISTS `oc_customer_online`;
 CREATE TABLE `oc_customer_online` (
-  `ip` VARCHAR(40) NOT NULL,
+  `ip`          VARCHAR(40) NOT NULL,
   `customer_id` INT NOT NULL,
-  `url` TEXT NOT NULL,
-  `referer` TEXT NOT NULL,
-  `date_added` DATETIME NOT NULL,
+  `url`         TEXT NOT NULL,
+  `referer`     TEXT NOT NULL,
+  `date_added`  DATETIME NOT NULL,
   PRIMARY KEY (`ip`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -930,12 +930,12 @@ CREATE TABLE `oc_customer_online` (
 
 DROP TABLE IF EXISTS `oc_customer_reward`;
 CREATE TABLE `oc_customer_reward` (
-  `customer_reward_id` INT NOT NULL AUTO_INCREMENT,
-  `customer_id` INT NOT NULL DEFAULT '0',
-  `order_id` INT NOT NULL DEFAULT '0',
-  `description` TEXT NOT NULL,
-  `points` int(8) NOT NULL DEFAULT '0',
-  `date_added` DATETIME NOT NULL,
+  `customer_reward_id`  INT NOT NULL AUTO_INCREMENT,
+  `customer_id`         INT NOT NULL DEFAULT '0',
+  `order_id`            INT NOT NULL DEFAULT '0',
+  `description`         TEXT NOT NULL,
+  `points`              INT NOT NULL DEFAULT '0',
+  `date_added`          DATETIME NOT NULL,
   PRIMARY KEY (`customer_reward_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -947,12 +947,12 @@ CREATE TABLE `oc_customer_reward` (
 
 DROP TABLE IF EXISTS `oc_customer_transaction`;
 CREATE TABLE `oc_customer_transaction` (
-  `customer_transaction_id` INT NOT NULL AUTO_INCREMENT,
-  `customer_id` INT NOT NULL,
-  `order_id` INT NOT NULL,
-  `description` TEXT NOT NULL,
-  `amount` DECIMAL(15,4) NOT NULL,
-  `date_added` DATETIME NOT NULL,
+  `customer_transaction_id`   INT NOT NULL AUTO_INCREMENT,
+  `customer_id`               INT NOT NULL,
+  `order_id`                  INT NOT NULL,
+  `description`               TEXT NOT NULL,
+  `amount`                    DECIMAL(15,4) NOT NULL,
+  `date_added`                DATETIME NOT NULL,
   PRIMARY KEY (`customer_transaction_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -964,17 +964,17 @@ CREATE TABLE `oc_customer_transaction` (
 
 DROP TABLE IF EXISTS `oc_customer_search`;
 CREATE TABLE `oc_customer_search` (
-  `customer_search_id` INT NOT NULL AUTO_INCREMENT,
-  `store_id` INT NOT NULL,
-  `language_id` INT NOT NULL,
-  `customer_id` INT NOT NULL,
-  `keyword` VARCHAR(255) NOT NULL,
-  `category_id` INT,
-  `sub_category` TINYINT NOT NULL,
-  `description` TINYINT NOT NULL,
-  `products` INT NOT NULL,
-  `ip` VARCHAR(40) NOT NULL,
-  `date_added` DATETIME NOT NULL,
+  `customer_search_id`    INT NOT NULL AUTO_INCREMENT,
+  `store_id`              INT NOT NULL,
+  `language_id`           INT NOT NULL,
+  `customer_id`           INT NOT NULL,
+  `keyword`               VARCHAR(255) NOT NULL,
+  `category_id`           INT,
+  `sub_category`          TINYINT NOT NULL,
+  `description`           TINYINT NOT NULL,
+  `products`              INT NOT NULL,
+  `ip`                    VARCHAR(40) NOT NULL,
+  `date_added`            DATETIME NOT NULL,
   PRIMARY KEY (`customer_search_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -987,8 +987,8 @@ CREATE TABLE `oc_customer_search` (
 DROP TABLE IF EXISTS `oc_customer_wishlist`;
 CREATE TABLE `oc_customer_wishlist` (
   `customer_id` INT NOT NULL,
-  `product_id` INT NOT NULL,
-  `date_added` DATETIME NOT NULL,
+  `product_id`  INT NOT NULL,
+  `date_added`  DATETIME NOT NULL,
   PRIMARY KEY (`customer_id`,`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1000,13 +1000,13 @@ CREATE TABLE `oc_customer_wishlist` (
 
 DROP TABLE IF EXISTS `oc_custom_field`;
 CREATE TABLE `oc_custom_field` (
-  `custom_field_id` INT NOT NULL AUTO_INCREMENT,
-  `type` VARCHAR(32) NOT NULL,
-  `value` TEXT NOT NULL,
-  `validation` VARCHAR(255) NOT NULL,
-  `location` VARCHAR(10) NOT NULL,
-  `status` TINYINT NOT NULL,
-  `sort_order` INT NOT NULL,
+  `custom_field_id`  INT NOT NULL AUTO_INCREMENT,
+  `type`             VARCHAR(32) NOT NULL,
+  `value`            TEXT NOT NULL,
+  `validation`       VARCHAR(255) NOT NULL,
+  `location`         VARCHAR(10) NOT NULL,
+  `status`           TINYINT NOT NULL,
+  `sort_order`       INT NOT NULL,
   PRIMARY KEY (`custom_field_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1018,9 +1018,9 @@ CREATE TABLE `oc_custom_field` (
 
 DROP TABLE IF EXISTS `oc_custom_field_customer_group`;
 CREATE TABLE `oc_custom_field_customer_group` (
-  `custom_field_id` INT NOT NULL,
+  `custom_field_id`   INT NOT NULL,
   `customer_group_id` INT NOT NULL,
-  `required` TINYINT NOT NULL,
+  `required`          TINYINT NOT NULL,
   PRIMARY KEY (`custom_field_id`,`customer_group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1033,8 +1033,8 @@ CREATE TABLE `oc_custom_field_customer_group` (
 DROP TABLE IF EXISTS `oc_custom_field_description`;
 CREATE TABLE `oc_custom_field_description` (
   `custom_field_id` INT NOT NULL,
-  `language_id` INT NOT NULL,
-  `name` VARCHAR(128) NOT NULL,
+  `language_id`     INT NOT NULL,
+  `name`            VARCHAR(128) NOT NULL,
   PRIMARY KEY (`custom_field_id`,`language_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1047,8 +1047,8 @@ CREATE TABLE `oc_custom_field_description` (
 DROP TABLE IF EXISTS `oc_custom_field_value`;
 CREATE TABLE `oc_custom_field_value` (
   `custom_field_value_id` INT NOT NULL AUTO_INCREMENT,
-  `custom_field_id` INT NOT NULL,
-  `sort_order` INT NOT NULL,
+  `custom_field_id`       INT NOT NULL,
+  `sort_order`            INT NOT NULL,
   PRIMARY KEY (`custom_field_value_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1061,9 +1061,9 @@ CREATE TABLE `oc_custom_field_value` (
 DROP TABLE IF EXISTS `oc_custom_field_value_description`;
 CREATE TABLE `oc_custom_field_value_description` (
   `custom_field_value_id` INT NOT NULL,
-  `language_id` INT NOT NULL,
-  `custom_field_id` INT NOT NULL,
-  `name` VARCHAR(128) NOT NULL,
+  `language_id`           INT NOT NULL,
+  `custom_field_id`       INT NOT NULL,
+  `name`                  VARCHAR(128) NOT NULL,
   PRIMARY KEY (`custom_field_value_id`,`language_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1076,9 +1076,9 @@ CREATE TABLE `oc_custom_field_value_description` (
 DROP TABLE IF EXISTS `oc_download`;
 CREATE TABLE `oc_download` (
   `download_id` INT NOT NULL AUTO_INCREMENT,
-  `filename` VARCHAR(160) NOT NULL,
-  `mask` VARCHAR(128) NOT NULL,
-  `date_added` DATETIME NOT NULL,
+  `filename`    VARCHAR(160) NOT NULL,
+  `mask`        VARCHAR(128) NOT NULL,
+  `date_added`  DATETIME NOT NULL,
   PRIMARY KEY (`download_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1092,7 +1092,7 @@ DROP TABLE IF EXISTS `oc_download_description`;
 CREATE TABLE `oc_download_description` (
   `download_id` INT NOT NULL,
   `language_id` INT NOT NULL,
-  `name` VARCHAR(64) NOT NULL,
+  `name`        VARCHAR(64) NOT NULL,
   PRIMARY KEY (`download_id`,`language_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1104,12 +1104,12 @@ CREATE TABLE `oc_download_description` (
 
 DROP TABLE IF EXISTS `oc_event`;
 CREATE TABLE `oc_event` (
-  `event_id` INT NOT NULL AUTO_INCREMENT,
-  `code` VARCHAR(64) NOT NULL,
-  `trigger` TEXT NOT NULL,
-  `action` TEXT NOT NULL,
-  `status` TINYINT NOT NULL,
-  `sort_order` INT NOT NULL DEFAULT '0',
+  `event_id`        INT NOT NULL AUTO_INCREMENT,
+  `code`            VARCHAR(64) NOT NULL,
+  `trigger`         TEXT NOT NULL,
+  `action`          TEXT NOT NULL,
+  `status`          TINYINT NOT NULL,
+  `sort_order`      INT NOT NULL DEFAULT '0',
   PRIMARY KEY (`event_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1216,10 +1216,10 @@ INSERT INTO `oc_event` (`event_id`, `code`, `trigger`, `action`, `status`, `sort
 
 DROP TABLE IF EXISTS `oc_extension`;
 CREATE TABLE `oc_extension` (
-  `extension_id` INT NOT NULL AUTO_INCREMENT,
-  `type`      VARCHAR(32) NOT NULL,
-  `code`      VARCHAR(32) NOT NULL,
-  `store_id`  INT NOT NULL DEFAULT '0',
+  `extension_id`  INT NOT NULL AUTO_INCREMENT,
+  `type`          VARCHAR(32) NOT NULL,
+  `code`          VARCHAR(32) NOT NULL,
+  `store_id`      INT NOT NULL DEFAULT '0',
   PRIMARY KEY (`extension_id`),
   KEY (`type`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1246,10 +1246,10 @@ INSERT INTO `oc_extension` (`type`, `code`) VALUES
 
 DROP TABLE IF EXISTS `oc_extension_install`;
 CREATE TABLE `oc_extension_install` (
-  `extension_install_id` INT NOT NULL AUTO_INCREMENT,
-  `extension_download_id` INT NOT NULL,
-  `filename` VARCHAR(255) NOT NULL,
-  `date_added` DATETIME NOT NULL,
+  `extension_install_id`      INT NOT NULL AUTO_INCREMENT,
+  `extension_download_id`     INT NOT NULL,
+  `filename`                  VARCHAR(255) NOT NULL,
+  `date_added`                DATETIME NOT NULL,
   PRIMARY KEY (`extension_install_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1346,10 +1346,10 @@ CREATE TABLE `oc_filter_group_description` (
 DROP TABLE IF EXISTS `oc_geo_zone`;
 CREATE TABLE `oc_geo_zone` (
   `geo_zone_id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(32) NOT NULL,
-  `description` VARCHAR(255) NOT NULL,
-  `date_added` DATETIME NOT NULL,
-  `date_modified` DATETIME NOT NULL,
+  `name`            VARCHAR(32) NOT NULL,
+  `description`     VARCHAR(255) NOT NULL,
+  `date_added`      DATETIME NOT NULL,
+  `date_modified`   DATETIME NOT NULL,
   PRIMARY KEY (`geo_zone_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1405,9 +1405,9 @@ CREATE TABLE `oc_information_description` (
 
 DROP TABLE IF EXISTS `oc_information_to_layout`;
 CREATE TABLE `oc_information_to_layout` (
-  `information_id` INT NOT NULL,
-  `store_id` INT NOT NULL,
-  `layout_id` INT NOT NULL,
+  `information_id`  INT NOT NULL,
+  `store_id`        INT NOT NULL,
+  `layout_id`       INT NOT NULL,
   PRIMARY KEY (`information_id`,`store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1436,14 +1436,14 @@ CREATE TABLE `oc_information_to_store` (
 
 DROP TABLE IF EXISTS `oc_language`;
 CREATE TABLE `oc_language` (
-  `language_id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(32) NOT NULL,
-  `code` VARCHAR(5) NOT NULL,
-  `locale` VARCHAR(255) NOT NULL,
-  `image` VARCHAR(64) NOT NULL,
-  `directory` VARCHAR(32) NOT NULL,
-  `sort_order` INT NOT NULL DEFAULT '0',
-  `status` TINYINT NOT NULL,
+  `language_id`        INT NOT NULL AUTO_INCREMENT,
+  `name`               VARCHAR(32) NOT NULL,
+  `code`               VARCHAR(5) NOT NULL,
+  `locale`             VARCHAR(255) NOT NULL,
+  `image`              VARCHAR(64) NOT NULL,
+  `directory`          VARCHAR(32) NOT NULL,
+  `sort_order`         INT NOT NULL DEFAULT '0',
+  `status`             TINYINT NOT NULL,
   PRIMARY KEY (`language_id`),
   KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1538,7 +1538,7 @@ INSERT INTO `oc_layout_route` (`layout_id`, `route`, `is_wildcard`) VALUES
 DROP TABLE IF EXISTS `oc_length_class`;
 CREATE TABLE `oc_length_class` (
   `length_class_id` INT NOT NULL AUTO_INCREMENT,
-  `value` DECIMAL(15,8) NOT NULL,
+  `value`           DECIMAL(15,8) NOT NULL,
   PRIMARY KEY (`length_class_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1559,10 +1559,10 @@ INSERT INTO `oc_length_class` (`length_class_id`, `value`) VALUES
 
 DROP TABLE IF EXISTS `oc_length_class_description`;
 CREATE TABLE `oc_length_class_description` (
-  `length_class_id` INT NOT NULL,
-  `language_id` INT NOT NULL,
-  `title` VARCHAR(32) NOT NULL,
-  `unit` VARCHAR(4) NOT NULL,
+  `length_class_id`     INT NOT NULL,
+  `language_id`         INT NOT NULL,
+  `title`               VARCHAR(32) NOT NULL,
+  `unit`                VARCHAR(4) NOT NULL,
   PRIMARY KEY (`length_class_id`,`language_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1583,15 +1583,15 @@ INSERT INTO `oc_length_class_description` (`length_class_id`, `language_id`, `ti
 
 DROP TABLE IF EXISTS `oc_location`;
 CREATE TABLE `oc_location` (
-  `location_id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(32) NOT NULL,
-  `address` TEXT NOT NULL,
-  `telephone` VARCHAR(32) NOT NULL,
-  `fax` VARCHAR(32) NOT NULL,
-  `geocode` VARCHAR(32) NOT NULL,
-  `image` VARCHAR(255) DEFAULT NULL,
-  `open` TEXT NOT NULL,
-  `comment` TEXT NOT NULL,
+  `location_id`       INT NOT NULL AUTO_INCREMENT,
+  `name`              VARCHAR(32) NOT NULL,
+  `address`           TEXT NOT NULL,
+  `telephone`         VARCHAR(32) NOT NULL,
+  `fax`               VARCHAR(32) NOT NULL,
+  `geocode`           VARCHAR(32) NOT NULL,
+  `image`             VARCHAR(255) DEFAULT NULL,
+  `open`              TEXT NOT NULL,
+  `comment`           TEXT NOT NULL,
   PRIMARY KEY (`location_id`),
   KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1647,12 +1647,12 @@ CREATE TABLE `oc_manufacturer_to_store` (
 
 DROP TABLE IF EXISTS `oc_marketing`;
 CREATE TABLE `oc_marketing` (
-  `marketing_id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(32) NOT NULL,
-  `description` TEXT NOT NULL,
-  `code` VARCHAR(64) NOT NULL,
-  `clicks` INT NOT NULL DEFAULT '0',
-  `date_added` DATETIME NOT NULL,
+  `marketing_id`          INT NOT NULL AUTO_INCREMENT,
+  `name`                  VARCHAR(32) NOT NULL,
+  `description`           TEXT NOT NULL,
+  `code`                  VARCHAR(64) NOT NULL,
+  `clicks`                INT NOT NULL DEFAULT '0',
+  `date_added`            DATETIME NOT NULL,
   PRIMARY KEY (`marketing_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1664,16 +1664,16 @@ CREATE TABLE `oc_marketing` (
 
 DROP TABLE IF EXISTS `oc_modification`;
 CREATE TABLE `oc_modification` (
-  `modification_id` INT NOT NULL AUTO_INCREMENT,
-  `extension_install_id` INT NOT NULL,
-  `name` VARCHAR(64) NOT NULL,
-  `code` VARCHAR(64) NOT NULL,
-  `author` VARCHAR(64) NOT NULL,
-  `version` VARCHAR(32) NOT NULL,
-  `link` VARCHAR(255) NOT NULL,
-  `xml` TEXT NOT NULL,
-  `status` TINYINT NOT NULL,
-  `date_added` DATETIME NOT NULL,
+  `modification_id`          INT NOT NULL AUTO_INCREMENT,
+  `extension_install_id`     INT NOT NULL,
+  `name`                     VARCHAR(64) NOT NULL,
+  `code`                     VARCHAR(64) NOT NULL,
+  `author`                   VARCHAR(64) NOT NULL,
+  `version`                  VARCHAR(32) NOT NULL,
+  `link`                     VARCHAR(255) NOT NULL,
+  `xml`                      TEXT NOT NULL,
+  `status`                   TINYINT NOT NULL,
+  `date_added`               DATETIME NOT NULL,
   PRIMARY KEY (`modification_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1758,67 +1758,67 @@ CREATE TABLE `oc_option_value_description` (
 
 DROP TABLE IF EXISTS `oc_order`;
 CREATE TABLE `oc_order` (
-  `order_id` INT NOT NULL AUTO_INCREMENT,
-  `invoice_no` INT NOT NULL DEFAULT '0',
-  `invoice_prefix` VARCHAR(26) NOT NULL,
-  `store_id` INT NOT NULL DEFAULT '0',
-  `store_name` VARCHAR(64) NOT NULL,
-  `store_url` VARCHAR(255) NOT NULL,
-  `customer_id` INT NOT NULL DEFAULT '0',
-  `customer_group_id` INT NOT NULL DEFAULT '0',
-  `firstname` VARCHAR(32) NOT NULL,
-  `lastname` VARCHAR(32) NOT NULL,
-  `email` VARCHAR(96) NOT NULL,
-  `telephone` VARCHAR(32) NOT NULL,
-  `fax` VARCHAR(32) NOT NULL,
-  `custom_field` TEXT NOT NULL,
-  `payment_firstname` VARCHAR(32) NOT NULL,
-  `payment_lastname` VARCHAR(32) NOT NULL,
-  `payment_company` VARCHAR(60) NOT NULL,
-  `payment_address_1` VARCHAR(128) NOT NULL,
-  `payment_address_2` VARCHAR(128) NOT NULL,
-  `payment_city` VARCHAR(128) NOT NULL,
-  `payment_postcode` VARCHAR(10) NOT NULL,
-  `payment_country` VARCHAR(128) NOT NULL,
-  `payment_country_id` INT NOT NULL,
-  `payment_zone` VARCHAR(128) NOT NULL,
-  `payment_zone_id` INT NOT NULL,
-  `payment_address_format` TEXT NOT NULL,
-  `payment_custom_field` TEXT NOT NULL,
-  `payment_method` VARCHAR(128) NOT NULL,
-  `payment_code` VARCHAR(128) NOT NULL,
-  `shipping_firstname` VARCHAR(32) NOT NULL,
-  `shipping_lastname` VARCHAR(32) NOT NULL,
-  `shipping_company` VARCHAR(60) NOT NULL,
-  `shipping_address_1` VARCHAR(128) NOT NULL,
-  `shipping_address_2` VARCHAR(128) NOT NULL,
-  `shipping_city` VARCHAR(128) NOT NULL,
-  `shipping_postcode` VARCHAR(10) NOT NULL,
-  `shipping_country` VARCHAR(128) NOT NULL,
-  `shipping_country_id` INT NOT NULL,
-  `shipping_zone` VARCHAR(128) NOT NULL,
-  `shipping_zone_id` INT NOT NULL,
-  `shipping_address_format` TEXT NOT NULL,
-  `shipping_custom_field` TEXT NOT NULL,
-  `shipping_method` VARCHAR(128) NOT NULL,
-  `shipping_code` VARCHAR(128) NOT NULL,
-  `comment` TEXT NOT NULL,
-  `total` DECIMAL(15,4) NOT NULL DEFAULT '0.0000',
-  `order_status_id` INT NOT NULL DEFAULT '0',
-  `affiliate_id` INT NOT NULL,
-  `commission` DECIMAL(15,4) NOT NULL,
-  `marketing_id` INT NOT NULL,
-  `tracking` VARCHAR(64) NOT NULL,
-  `language_id` INT NOT NULL,
-  `currency_id` INT NOT NULL,
-  `currency_code` VARCHAR(3) NOT NULL,
-  `currency_value` DECIMAL(15,8) NOT NULL DEFAULT '1.00000000',
-  `ip` VARCHAR(40) NOT NULL,
-  `forwarded_ip` VARCHAR(40) NOT NULL,
-  `user_agent` VARCHAR(255) NOT NULL,
-  `accept_language` VARCHAR(255) NOT NULL,
-  `date_added` DATETIME NOT NULL,
-  `date_modified` DATETIME NOT NULL,
+  `order_id`                  INT NOT NULL AUTO_INCREMENT,
+  `invoice_no`                INT NOT NULL DEFAULT '0',
+  `invoice_prefix`            VARCHAR(26) NOT NULL,
+  `store_id`                  INT NOT NULL DEFAULT '0',
+  `store_name`                VARCHAR(64) NOT NULL,
+  `store_url`                 VARCHAR(255) NOT NULL,
+  `customer_id`               INT NOT NULL DEFAULT '0',
+  `customer_group_id`         INT NOT NULL DEFAULT '0',
+  `firstname`                 VARCHAR(32) NOT NULL,
+  `lastname`                  VARCHAR(32) NOT NULL,
+  `email`                     VARCHAR(96) NOT NULL,
+  `telephone`                 VARCHAR(32) NOT NULL,
+  `fax`                       VARCHAR(32) NOT NULL,
+  `custom_field`              TEXT NOT NULL,
+  `payment_firstname`         VARCHAR(32) NOT NULL,
+  `payment_lastname`          VARCHAR(32) NOT NULL,
+  `payment_company`           VARCHAR(60) NOT NULL,
+  `payment_address_1`         VARCHAR(128) NOT NULL,
+  `payment_address_2`         VARCHAR(128) NOT NULL,
+  `payment_city`              VARCHAR(128) NOT NULL,
+  `payment_postcode`          VARCHAR(10) NOT NULL,
+  `payment_country`           VARCHAR(128) NOT NULL,
+  `payment_country_id`        INT NOT NULL,
+  `payment_zone`              VARCHAR(128) NOT NULL,
+  `payment_zone_id`           INT NOT NULL,
+  `payment_address_format`    TEXT NOT NULL,
+  `payment_custom_field`      TEXT NOT NULL,
+  `payment_method`            VARCHAR(128) NOT NULL,
+  `payment_code`              VARCHAR(128) NOT NULL,
+  `shipping_firstname`        VARCHAR(32) NOT NULL,
+  `shipping_lastname`         VARCHAR(32) NOT NULL,
+  `shipping_company`          VARCHAR(60) NOT NULL,
+  `shipping_address_1`        VARCHAR(128) NOT NULL,
+  `shipping_address_2`        VARCHAR(128) NOT NULL,
+  `shipping_city`             VARCHAR(128) NOT NULL,
+  `shipping_postcode`         VARCHAR(10) NOT NULL,
+  `shipping_country`          VARCHAR(128) NOT NULL,
+  `shipping_country_id`       INT NOT NULL,
+  `shipping_zone`             VARCHAR(128) NOT NULL,
+  `shipping_zone_id`          INT NOT NULL,
+  `shipping_address_format`   TEXT NOT NULL,
+  `shipping_custom_field`     TEXT NOT NULL,
+  `shipping_method`           VARCHAR(128) NOT NULL,
+  `shipping_code`             VARCHAR(128) NOT NULL,
+  `comment`                   TEXT NOT NULL,
+  `total`                     DECIMAL(15,4) NOT NULL DEFAULT '0.0000',
+  `order_status_id`           INT NOT NULL DEFAULT '0',
+  `affiliate_id`              INT NOT NULL,
+  `commission`                DECIMAL(15,4) NOT NULL,
+  `marketing_id`              INT NOT NULL,
+  `tracking`                  VARCHAR(64) NOT NULL,
+  `language_id`               INT NOT NULL,
+  `currency_id`               INT NOT NULL,
+  `currency_code`             VARCHAR(3) NOT NULL,
+  `currency_value`            DECIMAL(15,8) NOT NULL DEFAULT '1.00000000',
+  `ip`                        VARCHAR(40) NOT NULL,
+  `forwarded_ip`              VARCHAR(40) NOT NULL,
+  `user_agent`                VARCHAR(255) NOT NULL,
+  `accept_language`           VARCHAR(255) NOT NULL,
+  `date_added`                DATETIME NOT NULL,
+  `date_modified`             DATETIME NOT NULL,
   PRIMARY KEY (`order_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1830,12 +1830,12 @@ CREATE TABLE `oc_order` (
 
 DROP TABLE IF EXISTS `oc_order_history`;
 CREATE TABLE `oc_order_history` (
-  `order_history_id` INT NOT NULL AUTO_INCREMENT,
-  `order_id` INT NOT NULL,
-  `order_status_id` INT NOT NULL,
-  `notify` TINYINT NOT NULL DEFAULT '0',
-  `comment` TEXT NOT NULL,
-  `date_added` DATETIME NOT NULL,
+  `order_history_id`     INT NOT NULL AUTO_INCREMENT,
+  `order_id`             INT NOT NULL,
+  `order_status_id`      INT NOT NULL,
+  `notify`               TINYINT NOT NULL DEFAULT '0',
+  `comment`              TEXT NOT NULL,
+  `date_added`           DATETIME NOT NULL,
   PRIMARY KEY (`order_history_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1847,14 +1847,14 @@ CREATE TABLE `oc_order_history` (
 
 DROP TABLE IF EXISTS `oc_order_option`;
 CREATE TABLE `oc_order_option` (
-  `order_option_id` INT NOT NULL AUTO_INCREMENT,
-  `order_id` INT NOT NULL,
-  `order_product_id` INT NOT NULL,
-  `product_option_id` INT NOT NULL,
-  `product_option_value_id` INT NOT NULL DEFAULT '0',
-  `name` VARCHAR(255) NOT NULL,
-  `value` TEXT NOT NULL,
-  `type` VARCHAR(32) NOT NULL,
+  `order_option_id`           INT NOT NULL AUTO_INCREMENT,
+  `order_id`                  INT NOT NULL,
+  `order_product_id`          INT NOT NULL,
+  `product_option_id`         INT NOT NULL,
+  `product_option_value_id`   INT NOT NULL DEFAULT '0',
+  `name`                      VARCHAR(255) NOT NULL,
+  `value`                     TEXT NOT NULL,
+  `type`                      VARCHAR(32) NOT NULL,
   PRIMARY KEY (`order_option_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1866,16 +1866,16 @@ CREATE TABLE `oc_order_option` (
 
 DROP TABLE IF EXISTS `oc_order_product`;
 CREATE TABLE `oc_order_product` (
-  `order_product_id` INT NOT NULL AUTO_INCREMENT,
-  `order_id` INT NOT NULL,
-  `product_id` INT NOT NULL,
-  `name` VARCHAR(255) NOT NULL,
-  `model` VARCHAR(64) NOT NULL,
-  `quantity` int(4) NOT NULL,
-  `price` DECIMAL(15,4) NOT NULL DEFAULT '0.0000',
-  `total` DECIMAL(15,4) NOT NULL DEFAULT '0.0000',
-  `tax` DECIMAL(15,4) NOT NULL DEFAULT '0.0000',
-  `reward` int(8) NOT NULL,
+  `order_product_id`  INT NOT NULL AUTO_INCREMENT,
+  `order_id`          INT NOT NULL,
+  `product_id`        INT NOT NULL,
+  `name`              VARCHAR(255) NOT NULL,
+  `model`             VARCHAR(64) NOT NULL,
+  `quantity`          INT NOT NULL,
+  `price`             DECIMAL(15,4) NOT NULL DEFAULT '0.0000',
+  `total`             DECIMAL(15,4) NOT NULL DEFAULT '0.0000',
+  `tax`               DECIMAL(15,4) NOT NULL DEFAULT '0.0000',
+  `reward`            INT NOT NULL,
   PRIMARY KEY (`order_product_id`),
   KEY `order_id` (`order_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1888,26 +1888,26 @@ CREATE TABLE `oc_order_product` (
 
 DROP TABLE IF EXISTS `oc_order_recurring`;
 CREATE TABLE `oc_order_recurring` (
-  `order_recurring_id` INT NOT NULL AUTO_INCREMENT,
-  `order_id` INT NOT NULL,
-  `reference` VARCHAR(255) NOT NULL,
-  `product_id` INT NOT NULL,
-  `product_name` VARCHAR(255) NOT NULL,
-  `product_quantity` INT NOT NULL,
-  `recurring_id` INT NOT NULL,
-  `recurring_name` VARCHAR(255) NOT NULL,
-  `recurring_description` VARCHAR(255) NOT NULL,
-  `recurring_frequency` VARCHAR(25) NOT NULL,
-  `recurring_cycle` smallint(6) NOT NULL,
-  `recurring_duration` smallint(6) NOT NULL,
-  `recurring_price` DECIMAL(10,4) NOT NULL,
-  `trial` TINYINT NOT NULL,
-  `trial_frequency` VARCHAR(25) NOT NULL,
-  `trial_cycle` smallint(6) NOT NULL,
-  `trial_duration` smallint(6) NOT NULL,
-  `trial_price` DECIMAL(10,4) NOT NULL,
-  `status` tinyint(4) NOT NULL,
-  `date_added` DATETIME NOT NULL,
+  `order_recurring_id`       INT NOT NULL AUTO_INCREMENT,
+  `order_id`                 INT NOT NULL,
+  `reference`                VARCHAR(255) NOT NULL,
+  `product_id`               INT NOT NULL,
+  `product_name`             VARCHAR(255) NOT NULL,
+  `product_quantity`         INT NOT NULL,
+  `recurring_id`             INT NOT NULL,
+  `recurring_name`           VARCHAR(255) NOT NULL,
+  `recurring_description`    VARCHAR(255) NOT NULL,
+  `recurring_frequency`      VARCHAR(25) NOT NULL,
+  `recurring_cycle`          SMALLINT NOT NULL,
+  `recurring_duration`       SMALLINT NOT NULL,
+  `recurring_price`          DECIMAL(10,4) NOT NULL,
+  `trial`                    TINYINT NOT NULL,
+  `trial_frequency`          VARCHAR(25) NOT NULL,
+  `trial_cycle`              SMALLINT NOT NULL,
+  `trial_duration`           SMALLINT NOT NULL,
+  `trial_price`              DECIMAL(10,4) NOT NULL,
+  `status`                   TINYINT NOT NULL,
+  `date_added`               DATETIME NOT NULL,
   PRIMARY KEY (`order_recurring_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1919,12 +1919,12 @@ CREATE TABLE `oc_order_recurring` (
 
 DROP TABLE IF EXISTS `oc_order_recurring_transaction`;
 CREATE TABLE `oc_order_recurring_transaction` (
-  `order_recurring_transaction_id` INT NOT NULL AUTO_INCREMENT,
-  `order_recurring_id` INT NOT NULL,
-  `reference` VARCHAR(255) NOT NULL,
-  `type` VARCHAR(255) NOT NULL,
-  `amount` DECIMAL(10,4) NOT NULL,
-  `date_added` DATETIME NOT NULL,
+  `order_recurring_transaction_id`  INT NOT NULL AUTO_INCREMENT,
+  `order_recurring_id`              INT NOT NULL,
+  `reference`                       VARCHAR(255) NOT NULL,
+  `type`                            VARCHAR(255) NOT NULL,
+  `amount`                          DECIMAL(10,4) NOT NULL,
+  `date_added`                      DATETIME NOT NULL,
   PRIMARY KEY (`order_recurring_transaction_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1936,9 +1936,9 @@ CREATE TABLE `oc_order_recurring_transaction` (
 
 DROP TABLE IF EXISTS `oc_order_status`;
 CREATE TABLE `oc_order_status` (
-  `order_status_id` INT NOT NULL AUTO_INCREMENT,
-  `language_id` INT NOT NULL,
-  `name` VARCHAR(32) NOT NULL,
+  `order_status_id`   INT NOT NULL AUTO_INCREMENT,
+  `language_id`       INT NOT NULL,
+  `name`              VARCHAR(32) NOT NULL,
   PRIMARY KEY (`order_status_id`,`language_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1970,12 +1970,12 @@ INSERT INTO `oc_order_status` (`order_status_id`, `language_id`, `name`) VALUES
 
 DROP TABLE IF EXISTS `oc_order_total`;
 CREATE TABLE `oc_order_total` (
-  `order_total_id` int(10) NOT NULL AUTO_INCREMENT,
-  `order_id` INT NOT NULL,
-  `code` VARCHAR(32) NOT NULL,
-  `title` VARCHAR(255) NOT NULL,
-  `value` DECIMAL(15,4) NOT NULL DEFAULT '0.0000',
-  `sort_order` INT NOT NULL,
+  `order_total_id`        INT NOT NULL AUTO_INCREMENT,
+  `order_id`              INT NOT NULL,
+  `code`                  VARCHAR(32) NOT NULL,
+  `title`                 VARCHAR(255) NOT NULL,
+  `value`                 DECIMAL(15,4) NOT NULL DEFAULT '0.0000',
+  `sort_order`            INT NOT NULL,
   PRIMARY KEY (`order_total_id`),
   KEY `order_id` (`order_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1988,18 +1988,18 @@ CREATE TABLE `oc_order_total` (
 
 DROP TABLE IF EXISTS `oc_order_voucher`;
 CREATE TABLE `oc_order_voucher` (
-  `order_voucher_id` INT NOT NULL AUTO_INCREMENT,
-  `order_id` INT NOT NULL,
-  `voucher_id` INT NOT NULL,
-  `description` VARCHAR(255) NOT NULL,
-  `code` VARCHAR(10) NOT NULL,
-  `from_name` VARCHAR(64) NOT NULL,
-  `from_email` VARCHAR(96) NOT NULL,
-  `to_name` VARCHAR(64) NOT NULL,
-  `to_email` VARCHAR(96) NOT NULL,
-  `voucher_theme_id` INT NOT NULL,
-  `message` TEXT NOT NULL,
-  `amount` DECIMAL(15,4) NOT NULL,
+  `order_voucher_id`       INT NOT NULL AUTO_INCREMENT,
+  `order_id`               INT NOT NULL,
+  `voucher_id`             INT NOT NULL,
+  `description`            VARCHAR(255) NOT NULL,
+  `code`                   VARCHAR(10) NOT NULL,
+  `from_name`              VARCHAR(64) NOT NULL,
+  `from_email`             VARCHAR(96) NOT NULL,
+  `to_name`                VARCHAR(64) NOT NULL,
+  `to_email`               VARCHAR(96) NOT NULL,
+  `voucher_theme_id`       INT NOT NULL,
+  `message`                TEXT NOT NULL,
+  `amount`                 DECIMAL(15,4) NOT NULL,
   PRIMARY KEY (`order_voucher_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -2021,13 +2021,13 @@ CREATE TABLE `oc_product` (
   `isbn`               VARCHAR(17) NOT NULL,
   `mpn`                VARCHAR(64) NOT NULL,
   `location`           VARCHAR(255) NOT NULL,
-  `quantity`           int(4) NOT NULL DEFAULT '0',
+  `quantity`           INT NOT NULL DEFAULT '0',
   `stock_status_id`    INT NOT NULL,
   `image`              VARCHAR(255) DEFAULT NULL,
   `manufacturer_id`    INT NOT NULL,
   `shipping`           TINYINT NOT NULL DEFAULT '1',
   `price`              DECIMAL(15,4) NOT NULL DEFAULT '0.0000',
-  `points`             int(8) NOT NULL DEFAULT '0',
+  `points`             INT NOT NULL DEFAULT '0',
   `tax_class_id`       INT NOT NULL,
   `date_available`     DATE DEFAULT NULL,
   `weight`             DECIMAL(15,8) NOT NULL DEFAULT '0.00000000',
@@ -2091,30 +2091,30 @@ CREATE TABLE `oc_product_stats` (
 
 DROP TABLE IF EXISTS `oc_googleshopping_product`;
 CREATE TABLE `oc_googleshopping_product` (
-  `product_advertise_google_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `product_id` INT DEFAULT NULL,
-  `store_id` INT NOT NULL DEFAULT '0',
-  `has_issues` TINYINT DEFAULT NULL,
-  `destination_status` enum('pending','approved','disapproved') NOT NULL DEFAULT 'pending',
-  `impressions` INT NOT NULL DEFAULT '0',
-  `clicks` INT NOT NULL DEFAULT '0',
-  `conversions` INT NOT NULL DEFAULT '0',
-  `cost` DECIMAL(15,4) NOT NULL DEFAULT '0.0000',
-  `conversion_value` DECIMAL(15,4) NOT NULL DEFAULT '0.0000',
-  `google_product_category` VARCHAR(10) DEFAULT NULL,
-  `condition` enum('new','refurbished','used') DEFAULT NULL,
-  `adult` TINYINT DEFAULT NULL,
-  `multipack` INT DEFAULT NULL,
-  `is_bundle` TINYINT DEFAULT NULL,
-  `age_group` enum('newborn','infant','toddler','kids','adult') DEFAULT NULL,
-  `color` INT DEFAULT NULL,
-  `gender` enum('male','female','unisex') DEFAULT NULL,
-  `size_type` enum('regular','petite','plus','big and tall','maternity') DEFAULT NULL,
-  `size_system` enum('AU','BR','CN','DE','EU','FR','IT','JP','MEX','UK','US') DEFAULT NULL,
-  `size` INT DEFAULT NULL,
-  `is_modified` TINYINT NOT NULL DEFAULT '0',
+  `product_advertise_google_id`      INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `product_id`                       INT DEFAULT NULL,
+  `store_id`                         INT NOT NULL DEFAULT '0',
+  `has_issues`                       TINYINT DEFAULT NULL,
+  `destination_status`               ENUM('pending','approved','disapproved') NOT NULL DEFAULT 'pending',
+  `impressions`                      INT NOT NULL DEFAULT '0',
+  `clicks`                           INT NOT NULL DEFAULT '0',
+  `conversions`                      INT NOT NULL DEFAULT '0',
+  `cost`                             DECIMAL(15,4) NOT NULL DEFAULT '0.0000',
+  `conversion_value`                 DECIMAL(15,4) NOT NULL DEFAULT '0.0000',
+  `google_product_category`          VARCHAR(10) DEFAULT NULL,
+  `condition`                        ENUM('new','refurbished','used') DEFAULT NULL,
+  `adult`                            TINYINT DEFAULT NULL,
+  `multipack`                        INT DEFAULT NULL,
+  `is_bundle`                        TINYINT DEFAULT NULL,
+  `age_group`                        ENUM('newborn','infant','toddler','kids','adult') DEFAULT NULL,
+  `color`                            INT DEFAULT NULL,
+  `gender`                           ENUM('male','female','unisex') DEFAULT NULL,
+  `size_type`                        ENUM('regular','petite','plus','big and tall','maternity') DEFAULT NULL,
+  `size_system`                      ENUM('AU','BR','CN','DE','EU','FR','IT','JP','MEX','UK','US') DEFAULT NULL,
+  `size`                             INT DEFAULT NULL,
+  `is_modified`                      TINYINT NOT NULL DEFAULT '0',
   PRIMARY KEY (`product_advertise_google_id`),
-  UNIQUE KEY `product_id_store_id` (`product_id`,`store_id`)
+  UNIQUE KEY `product_id_store_id`                                               (`product_id`,`store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -2125,13 +2125,13 @@ CREATE TABLE `oc_googleshopping_product` (
 
 DROP TABLE IF EXISTS `oc_googleshopping_product_status`;
 CREATE TABLE `oc_googleshopping_product_status` (
-  `product_id` INT NOT NULL DEFAULT '0',
-  `store_id` INT NOT NULL DEFAULT '0',
-  `product_variation_id` VARCHAR(64) NOT NULL DEFAULT '',
-  `destination_statuses` TEXT NOT NULL,
-  `data_quality_issues` TEXT NOT NULL,
-  `item_level_issues` TEXT NOT NULL,
-  `google_expiration_date` INT NOT NULL DEFAULT '0',
+  `product_id`                      INT NOT NULL DEFAULT '0',
+  `store_id`                        INT NOT NULL DEFAULT '0',
+  `product_variation_id`            VARCHAR(64) NOT NULL DEFAULT '',
+  `destination_statuses`            TEXT NOT NULL,
+  `data_quality_issues`             TEXT NOT NULL,
+  `item_level_issues`               TEXT NOT NULL,
+  `google_expiration_date`          INT NOT NULL DEFAULT '0',
   PRIMARY KEY (`product_id`,`store_id`,`product_variation_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -2398,9 +2398,9 @@ CREATE TABLE `oc_product_to_download` (
 
 DROP TABLE IF EXISTS `oc_product_to_layout`;
 CREATE TABLE `oc_product_to_layout` (
-  `product_id` INT NOT NULL,
-  `store_id` INT NOT NULL,
-  `layout_id` INT NOT NULL,
+  `product_id`  INT NOT NULL,
+  `store_id`    INT NOT NULL,
+  `layout_id`   INT NOT NULL,
   PRIMARY KEY (`product_id`,`store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -2415,18 +2415,18 @@ CREATE TABLE `oc_product_to_layout` (
 
 DROP TABLE IF EXISTS `oc_recurring`;
 CREATE TABLE `oc_recurring` (
-  `recurring_id` INT NOT NULL AUTO_INCREMENT,
-  `price` DECIMAL(10,4) NOT NULL,
-  `frequency` enum('day','week','semi_month','month','year') NOT NULL,
-  `duration` int(10) unsigned NOT NULL,
-  `cycle` int(10) unsigned NOT NULL,
-  `trial_status` tinyint(4) NOT NULL,
-  `trial_price` DECIMAL(10,4) NOT NULL,
-  `trial_frequency` enum('day','week','semi_month','month','year') NOT NULL,
-  `trial_duration` int(10) unsigned NOT NULL,
-  `trial_cycle` int(10) unsigned NOT NULL,
-  `status` tinyint(4) NOT NULL,
-  `sort_order` INT NOT NULL,
+  `recurring_id`      INT NOT NULL AUTO_INCREMENT,
+  `price`             DECIMAL(10,4) NOT NULL,
+  `frequency`         ENUM('day','week','semi_month','month','year') NOT NULL,
+  `duration`          INT UNSIGNED NOT NULL,
+  `cycle`             INT UNSIGNED NOT NULL,
+  `trial_status`      TINYINT NOT NULL,
+  `trial_price`       DECIMAL(10,4) NOT NULL,
+  `trial_frequency`   ENUM('day','week','semi_month','month','year') NOT NULL,
+  `trial_duration`    INT UNSIGNED NOT NULL,
+  `trial_cycle`       INT UNSIGNED NOT NULL,
+  `status`            TINYINT NOT NULL,
+  `sort_order`        INT NOT NULL,
   PRIMARY KEY (`recurring_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -2438,9 +2438,9 @@ CREATE TABLE `oc_recurring` (
 
 DROP TABLE IF EXISTS `oc_recurring_description`;
 CREATE TABLE `oc_recurring_description` (
-  `recurring_id` INT NOT NULL,
-  `language_id` INT NOT NULL,
-  `name` VARCHAR(255) NOT NULL,
+  `recurring_id`    INT NOT NULL,
+  `language_id`     INT NOT NULL,
+  `name`            VARCHAR(255) NOT NULL,
   PRIMARY KEY (`recurring_id`,`language_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -2452,25 +2452,25 @@ CREATE TABLE `oc_recurring_description` (
 
 DROP TABLE IF EXISTS `oc_return`;
 CREATE TABLE `oc_return` (
-  `return_id` INT NOT NULL AUTO_INCREMENT,
-  `order_id` INT NOT NULL,
-  `product_id` INT NOT NULL,
-  `customer_id` INT NOT NULL,
-  `firstname` VARCHAR(32) NOT NULL,
-  `lastname` VARCHAR(32) NOT NULL,
-  `email` VARCHAR(96) NOT NULL,
-  `telephone` VARCHAR(32) NOT NULL,
-  `product` VARCHAR(255) NOT NULL,
-  `model` VARCHAR(64) NOT NULL,
-  `quantity` int(4) NOT NULL,
-  `opened` TINYINT NOT NULL,
-  `return_reason_id` INT NOT NULL,
-  `return_action_id` INT NOT NULL,
-  `return_status_id` INT NOT NULL,
-  `comment` text,
-  `date_ordered` date NOT NULL DEFAULT '0000-00-00',
-  `date_added` DATETIME NOT NULL,
-  `date_modified` DATETIME NOT NULL,
+  `return_id`            INT NOT NULL AUTO_INCREMENT,
+  `order_id`             INT NOT NULL,
+  `product_id`           INT NOT NULL,
+  `customer_id`          INT NOT NULL,
+  `firstname`            VARCHAR(32) NOT NULL,
+  `lastname`             VARCHAR(32) NOT NULL,
+  `email`                VARCHAR(96) NOT NULL,
+  `telephone`            VARCHAR(32) NOT NULL,
+  `product`              VARCHAR(255) NOT NULL,
+  `model`                VARCHAR(64) NOT NULL,
+  `quantity`             INT NOT NULL,
+  `opened`               TINYINT NOT NULL,
+  `return_reason_id`     INT NOT NULL,
+  `return_action_id`     INT NOT NULL,
+  `return_status_id`     INT NOT NULL,
+  `comment`              text,
+  `date_ordered`         DATETIME NOT NULL,
+  `date_added`           DATETIME NOT NULL,
+  `date_modified`        DATETIME NOT NULL,
   PRIMARY KEY (`return_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -2482,9 +2482,9 @@ CREATE TABLE `oc_return` (
 
 DROP TABLE IF EXISTS `oc_return_action`;
 CREATE TABLE `oc_return_action` (
-  `return_action_id` INT NOT NULL AUTO_INCREMENT,
-  `language_id` INT NOT NULL DEFAULT '0',
-  `name` VARCHAR(64) NOT NULL,
+  `return_action_id`      INT NOT NULL AUTO_INCREMENT,
+  `language_id`           INT NOT NULL DEFAULT '0',
+  `name`                  VARCHAR(64) NOT NULL,
   PRIMARY KEY (`return_action_id`,`language_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -2505,12 +2505,12 @@ INSERT INTO `oc_return_action` (`return_action_id`, `language_id`, `name`) VALUE
 
 DROP TABLE IF EXISTS `oc_return_history`;
 CREATE TABLE `oc_return_history` (
-  `return_history_id` INT NOT NULL AUTO_INCREMENT,
-  `return_id` INT NOT NULL,
-  `return_status_id` INT NOT NULL,
-  `notify` TINYINT NOT NULL,
-  `comment` TEXT NOT NULL,
-  `date_added` DATETIME NOT NULL,
+  `return_history_id`      INT NOT NULL AUTO_INCREMENT,
+  `return_id`              INT NOT NULL,
+  `return_status_id`       INT NOT NULL,
+  `notify`                 TINYINT NOT NULL,
+  `comment`                TEXT NOT NULL,
+  `date_added`             DATETIME NOT NULL,
   PRIMARY KEY (`return_history_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -2522,9 +2522,9 @@ CREATE TABLE `oc_return_history` (
 
 DROP TABLE IF EXISTS `oc_return_reason`;
 CREATE TABLE `oc_return_reason` (
-  `return_reason_id` INT NOT NULL AUTO_INCREMENT,
-  `language_id` INT NOT NULL DEFAULT '0',
-  `name` VARCHAR(128) NOT NULL,
+  `return_reason_id`       INT NOT NULL AUTO_INCREMENT,
+  `language_id`            INT NOT NULL DEFAULT '0',
+  `name`                   VARCHAR(128) NOT NULL,
   PRIMARY KEY (`return_reason_id`,`language_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -2547,9 +2547,9 @@ INSERT INTO `oc_return_reason` (`return_reason_id`, `language_id`, `name`) VALUE
 
 DROP TABLE IF EXISTS `oc_return_status`;
 CREATE TABLE `oc_return_status` (
-  `return_status_id` INT NOT NULL AUTO_INCREMENT,
-  `language_id` INT NOT NULL DEFAULT '0',
-  `name` VARCHAR(32) NOT NULL,
+  `return_status_id`  INT NOT NULL AUTO_INCREMENT,
+  `language_id`       INT NOT NULL DEFAULT '0',
+  `name`              VARCHAR(32) NOT NULL,
   PRIMARY KEY (`return_status_id`,`language_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -2594,8 +2594,8 @@ CREATE TABLE `oc_review` (
 DROP TABLE IF EXISTS `oc_statistics`;
 CREATE TABLE `oc_statistics` (
   `statistics_id` INT NOT NULL AUTO_INCREMENT,
-  `code` VARCHAR(64) NOT NULL,
-  `value` DECIMAL(15,4) NOT NULL,
+  `code`          VARCHAR(64) NOT NULL,
+  `value`         DECIMAL(15,4) NOT NULL,
   PRIMARY KEY (`statistics_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -2608,9 +2608,9 @@ CREATE TABLE `oc_statistics` (
 
 DROP TABLE IF EXISTS `oc_session`;
 CREATE TABLE `oc_session` (
-  `session_id` VARCHAR(32) NOT NULL,
-  `data` TEXT NOT NULL,
-  `expire` DATETIME NOT NULL,
+  `session_id`  VARCHAR(32) NOT NULL,
+  `data`        TEXT NOT NULL,
+  `expire`      DATETIME NOT NULL,
   PRIMARY KEY (`session_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -2638,7 +2638,7 @@ CREATE TABLE `oc_setting` (
 --
 
 INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALUES
-(0, 'config', 'config_robots', 'abot\r\ndbot\r\nebot\r\nhbot\r\nkbot\r\nlbot\r\nmbot\r\nnbot\r\nobot\r\npbot\r\nrbot\r\nsbot\r\ntbot\r\nvbot\r\nybot\r\nzbot\r\nbot.\r\nbot/\r\n_bot\r\n.bot\r\n/bot\r\n-bot\r\n:bot\r\n(bot\r\ncrawl\r\nslurp\r\nspider\r\nseek\r\naccoona\r\nacoon\r\nadressendeutschland\r\nah-ha.com\r\nahoy\r\naltavista\r\nananzi\r\nanthill\r\nappie\r\narachnophilia\r\narale\r\naraneo\r\naranha\r\narchitext\r\naretha\r\narks\r\nasterias\r\natlocal\r\natn\r\natomz\r\naugurfind\r\nbackrub\r\nbannana_bot\r\nbaypup\r\nbdfetch\r\nbig brother\r\nbiglotron\r\nbjaaland\r\nblackwidow\r\nblaiz\r\nblog\r\nblo.\r\nbloodhound\r\nboitho\r\nbooch\r\nbradley\r\nbutterfly\r\ncalif\r\ncassandra\r\nccubee\r\ncfetch\r\ncharlotte\r\nchurl\r\ncienciaficcion\r\ncmc\r\ncollective\r\ncomagent\r\ncombine\r\ncomputingsite\r\ncsci\r\ncurl\r\ncusco\r\ndaumoa\r\ndeepindex\r\ndelorie\r\ndepspid\r\ndeweb\r\ndie blinde kuh\r\ndigger\r\nditto\r\ndmoz\r\ndocomo\r\ndownload express\r\ndtaagent\r\ndwcp\r\nebiness\r\nebingbong\r\ne-collector\r\nejupiter\r\nemacs-w3 search engine\r\nesther\r\nevliya celebi\r\nezresult\r\nfalcon\r\nfelix ide\r\nferret\r\nfetchrover\r\nfido\r\nfindlinks\r\nfireball\r\nfish search\r\nfouineur\r\nfunnelweb\r\ngazz\r\ngcreep\r\ngenieknows\r\ngetterroboplus\r\ngeturl\r\nglx\r\ngoforit\r\ngolem\r\ngrabber\r\ngrapnel\r\ngralon\r\ngriffon\r\ngromit\r\ngrub\r\ngulliver\r\nhamahakki\r\nharvest\r\nhavindex\r\nhelix\r\nheritrix\r\nhku www octopus\r\nhomerweb\r\nhtdig\r\nhtml index\r\nhtml_analyzer\r\nhtmlgobble\r\nhubater\r\nhyper-decontextualizer\r\nia_archiver\r\nibm_planetwide\r\nichiro\r\niconsurf\r\niltrovatore\r\nimage.kapsi.net\r\nimagelock\r\nincywincy\r\nindexer\r\ninfobee\r\ninformant\r\ningrid\r\ninktomisearch.com\r\ninspector web\r\nintelliagent\r\ninternet shinchakubin\r\nip3000\r\niron33\r\nisraeli-search\r\nivia\r\njack\r\njakarta\r\njavabee\r\njetbot\r\njumpstation\r\nkatipo\r\nkdd-explorer\r\nkilroy\r\nknowledge\r\nkototoi\r\nkretrieve\r\nlabelgrabber\r\nlachesis\r\nlarbin\r\nlegs\r\nlibwww\r\nlinkalarm\r\nlink validator\r\nlinkscan\r\nlockon\r\nlwp\r\nlycos\r\nmagpie\r\nmantraagent\r\nmapoftheinternet\r\nmarvin/\r\nmattie\r\nmediafox\r\nmediapartners\r\nmercator\r\nmerzscope\r\nmicrosoft url control\r\nminirank\r\nmiva\r\nmj12\r\nmnogosearch\r\nmoget\r\nmonster\r\nmoose\r\nmotor\r\nmultitext\r\nmuncher\r\nmuscatferret\r\nmwd.search\r\nmyweb\r\nnajdi\r\nnameprotect\r\nnationaldirectory\r\nnazilla\r\nncsa beta\r\nnec-meshexplorer\r\nnederland.zoek\r\nnetcarta webmap engine\r\nnetmechanic\r\nnetresearchserver\r\nnetscoop\r\nnewscan-online\r\nnhse\r\nnokia6682/\r\nnomad\r\nnoyona\r\nnutch\r\nnzexplorer\r\nobjectssearch\r\noccam\r\nomni\r\nopen text\r\nopenfind\r\nopenintelligencedata\r\norb search\r\nosis-project\r\npack rat\r\npageboy\r\npagebull\r\npage_verifier\r\npanscient\r\nparasite\r\npartnersite\r\npatric\r\npear.\r\npegasus\r\nperegrinator\r\npgp key agent\r\nphantom\r\nphpdig\r\npicosearch\r\npiltdownman\r\npimptrain\r\npinpoint\r\npioneer\r\npiranha\r\nplumtreewebaccessor\r\npogodak\r\npoirot\r\npompos\r\npoppelsdorf\r\npoppi\r\npopular iconoclast\r\npsycheclone\r\npublisher\r\npython\r\nrambler\r\nraven search\r\nroach\r\nroad runner\r\nroadhouse\r\nrobbie\r\nrobofox\r\nrobozilla\r\nrules\r\nsalty\r\nsbider\r\nscooter\r\nscoutjet\r\nscrubby\r\nsearch.\r\nsearchprocess\r\nsemanticdiscovery\r\nsenrigan\r\nsg-scout\r\nshai''hulud\r\nshark\r\nshopwiki\r\nsidewinder\r\nsift\r\nsilk\r\nsimmany\r\nsite searcher\r\nsite valet\r\nsitetech-rover\r\nskymob.com\r\nsleek\r\nsmartwit\r\nsna-\r\nsnappy\r\nsnooper\r\nsohu\r\nspeedfind\r\nsphere\r\nsphider\r\nspinner\r\nspyder\r\nsteeler/\r\nsuke\r\nsuntek\r\nsupersnooper\r\nsurfnomore\r\nsven\r\nsygol\r\nszukacz\r\ntach black widow\r\ntarantula\r\ntempleton\r\n/teoma\r\nt-h-u-n-d-e-r-s-t-o-n-e\r\ntheophrastus\r\ntitan\r\ntitin\r\ntkwww\r\ntoutatis\r\nt-rex\r\ntutorgig\r\ntwiceler\r\ntwisted\r\nucsd\r\nudmsearch\r\nurl check\r\nupdated\r\nvagabondo\r\nvalkyrie\r\nverticrawl\r\nvictoria\r\nvision-search\r\nvolcano\r\nvoyager/\r\nvoyager-hc\r\nw3c_validator\r\nw3m2\r\nw3mir\r\nwalker\r\nwallpaper\r\nwanderer\r\nwauuu\r\nwavefire\r\nweb core\r\nweb hopper\r\nweb wombat\r\nwebbandit\r\nwebcatcher\r\nwebcopy\r\nwebfoot\r\nweblayers\r\nweblinker\r\nweblog monitor\r\nwebmirror\r\nwebmonkey\r\nwebquest\r\nwebreaper\r\nwebsitepulse\r\nwebsnarf\r\nwebstolperer\r\nwebvac\r\nwebwalk\r\nwebwatch\r\nwebwombat\r\nwebzinger\r\nwhizbang\r\nwhowhere\r\nwild ferret\r\nworldlight\r\nwwwc\r\nwwwster\r\nxenu\r\nxget\r\nxift\r\nxirq\r\nyandex\r\nyanga\r\nyeti\r\nyodao\r\nzao\r\nzippp\r\nzyborg', 0),
+(0, 'config', 'config_robots', 'abot\r\ndbot\r\nebot\r\nhbot\r\nkbot\r\nlbot\r\nmbot\r\nnbot\r\nobot\r\npbot\r\nrbot\r\nsbot\r\ntbot\r\nvbot\r\nybot\r\nzbot\r\nbot.\r\nbot/\r\n_bot\r\n.bot\r\n/bot\r\n-bot\r\n:bot\r\n(bot\r\ncrawl\r\nslurp\r\nspider\r\nseek\r\naccoona\r\nacoon\r\nadressendeutschland\r\nah-ha.com\r\nahoy\r\naltavista\r\nananzi\r\nanthill\r\nappie\r\narachnophilia\r\narale\r\naraneo\r\naranha\r\narchitext\r\naretha\r\narks\r\nasterias\r\natlocal\r\natn\r\natomz\r\naugurfind\r\nbackrub\r\nbannana_bot\r\nbaypup\r\nbdfetch\r\nbig brother\r\nbiglotron\r\nbjaaland\r\nblackwidow\r\nblaiz\r\nblog\r\nblo.\r\nbloodhound\r\nboitho\r\nbooch\r\nbradley\r\nbutterfly\r\ncalif\r\ncassandra\r\nccubee\r\ncfetch\r\nCHARlotte\r\nchurl\r\ncienciaficcion\r\ncmc\r\ncollective\r\ncomagent\r\ncombine\r\ncomputingsite\r\ncsci\r\ncurl\r\ncusco\r\ndaumoa\r\ndeepindex\r\ndelorie\r\ndepspid\r\ndeweb\r\ndie blinde kuh\r\ndigger\r\nditto\r\ndmoz\r\ndocomo\r\ndownload express\r\ndtaagent\r\ndwcp\r\nebiness\r\nebingbong\r\ne-collector\r\nejupiter\r\nemacs-w3 search engine\r\nesther\r\nevliya celebi\r\nezresult\r\nfalcon\r\nfelix ide\r\nferret\r\nfetchrover\r\nfido\r\nfindlinks\r\nfireball\r\nfish search\r\nfouineur\r\nfunnelweb\r\ngazz\r\ngcreep\r\ngenieknows\r\ngetterroboplus\r\ngeturl\r\nglx\r\ngoforit\r\ngolem\r\ngrabber\r\ngrapnel\r\ngralon\r\ngriffon\r\ngromit\r\ngrub\r\ngulliver\r\nhamahakki\r\nharvest\r\nhavindex\r\nhelix\r\nheritrix\r\nhku www octopus\r\nhomerweb\r\nhtdig\r\nhtml index\r\nhtml_analyzer\r\nhtmlgobble\r\nhubater\r\nhyper-decontextualizer\r\nia_archiver\r\nibm_planetwide\r\nichiro\r\niconsurf\r\niltrovatore\r\nimage.kapsi.net\r\nimagelock\r\nincywincy\r\nindexer\r\ninfobee\r\ninformant\r\ningrid\r\ninktomisearch.com\r\ninspector web\r\nintelliagent\r\ninternet shinchakubin\r\nip3000\r\niron33\r\nisraeli-search\r\nivia\r\njack\r\njakarta\r\njavabee\r\njetbot\r\njumpstation\r\nkatipo\r\nkdd-explorer\r\nkilroy\r\nknowledge\r\nkototoi\r\nkretrieve\r\nlabelgrabber\r\nlachesis\r\nlarbin\r\nlegs\r\nlibwww\r\nlinkalarm\r\nlink validator\r\nlinkscan\r\nlockon\r\nlwp\r\nlycos\r\nmagpie\r\nmantraagent\r\nmapoftheinternet\r\nmarvin/\r\nmattie\r\nmediafox\r\nmediapartners\r\nmercator\r\nmerzscope\r\nmicrosoft url control\r\nminirank\r\nmiva\r\nmj12\r\nmnogosearch\r\nmoget\r\nmonster\r\nmoose\r\nmotor\r\nmultitext\r\nmuncher\r\nmuscatferret\r\nmwd.search\r\nmyweb\r\nnajdi\r\nnameprotect\r\nnationaldirectory\r\nnazilla\r\nncsa beta\r\nnec-meshexplorer\r\nnederland.zoek\r\nnetcarta webmap engine\r\nnetmechanic\r\nnetresearchserver\r\nnetscoop\r\nnewscan-online\r\nnhse\r\nnokia6682/\r\nnomad\r\nnoyona\r\nnutch\r\nnzexplorer\r\nobjectssearch\r\noccam\r\nomni\r\nopen text\r\nopenfind\r\nopenintelligencedata\r\norb search\r\nosis-project\r\npack rat\r\npageboy\r\npagebull\r\npage_verifier\r\npanscient\r\nparasite\r\npartnersite\r\npatric\r\npear.\r\npegasus\r\nperegrinator\r\npgp key agent\r\nphantom\r\nphpdig\r\npicosearch\r\npiltdownman\r\npimptrain\r\npinpoint\r\npioneer\r\npiranha\r\nplumtreewebaccessor\r\npogodak\r\npoirot\r\npompos\r\npoppelsdorf\r\npoppi\r\npopular iconoclast\r\npsycheclone\r\npublisher\r\npython\r\nrambler\r\nraven search\r\nroach\r\nroad runner\r\nroadhouse\r\nrobbie\r\nrobofox\r\nrobozilla\r\nrules\r\nsalty\r\nsbider\r\nscooter\r\nscoutjet\r\nscrubby\r\nsearch.\r\nsearchprocess\r\nsemanticdiscovery\r\nsenrigan\r\nsg-scout\r\nshai''hulud\r\nshark\r\nshopwiki\r\nsidewinder\r\nsift\r\nsilk\r\nsimmany\r\nsite searcher\r\nsite valet\r\nsitetech-rover\r\nskymob.com\r\nsleek\r\nsmartwit\r\nsna-\r\nsnappy\r\nsnooper\r\nsohu\r\nspeedfind\r\nsphere\r\nsphider\r\nspinner\r\nspyder\r\nsteeler/\r\nsuke\r\nsuntek\r\nsupersnooper\r\nsurfnomore\r\nsven\r\nsygol\r\nszukacz\r\ntach black widow\r\ntarantula\r\ntempleton\r\n/teoma\r\nt-h-u-n-d-e-r-s-t-o-n-e\r\ntheophrastus\r\ntitan\r\ntitin\r\ntkwww\r\ntoutatis\r\nt-rex\r\ntutorgig\r\ntwiceler\r\ntwisted\r\nucsd\r\nudmsearch\r\nurl check\r\nupdated\r\nvagabondo\r\nvalkyrie\r\nverticrawl\r\nvictoria\r\nvision-search\r\nvolcano\r\nvoyager/\r\nvoyager-hc\r\nw3c_validator\r\nw3m2\r\nw3mir\r\nwalker\r\nwallpaper\r\nwanderer\r\nwauuu\r\nwavefire\r\nweb core\r\nweb hopper\r\nweb wombat\r\nwebbandit\r\nwebcatcher\r\nwebcopy\r\nwebfoot\r\nweblayers\r\nweblinker\r\nweblog monitor\r\nwebmirror\r\nwebmonkey\r\nwebquest\r\nwebreaper\r\nwebsitepulse\r\nwebsnarf\r\nwebstolperer\r\nwebvac\r\nwebwalk\r\nwebwatch\r\nwebwombat\r\nwebzinger\r\nwhizbang\r\nwhowhere\r\nwild ferret\r\nworldlight\r\nwwwc\r\nwwwster\r\nxenu\r\nxget\r\nxift\r\nxirq\r\nyandex\r\nyanga\r\nyeti\r\nyodao\r\nzao\r\nzippp\r\nzyborg', 0),
 (0, 'config', 'config_shared', '0', 0),
 (0, 'config', 'config_secure', '0', 0),
 (0, 'config', 'config_fraud_detection', '0', 0),
@@ -2769,8 +2769,8 @@ INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALU
 DROP TABLE IF EXISTS `oc_stock_status`;
 CREATE TABLE `oc_stock_status` (
   `stock_status_id` INT NOT NULL AUTO_INCREMENT,
-  `language_id` INT NOT NULL,
-  `name` VARCHAR(32) NOT NULL,
+  `language_id`     INT NOT NULL,
+  `name`            VARCHAR(32) NOT NULL,
   PRIMARY KEY (`stock_status_id`,`language_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -2792,10 +2792,10 @@ INSERT INTO `oc_stock_status` (`stock_status_id`, `language_id`, `name`) VALUES
 
 DROP TABLE IF EXISTS `oc_store`;
 CREATE TABLE `oc_store` (
-  `store_id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(64) NOT NULL,
-  `url` VARCHAR(255) NOT NULL,
-  `ssl` VARCHAR(255) NOT NULL,
+  `store_id`  INT NOT NULL AUTO_INCREMENT,
+  `name`      VARCHAR(64) NOT NULL,
+  `url`       VARCHAR(255) NOT NULL,
+  `ssl`       VARCHAR(255) NOT NULL,
   PRIMARY KEY (`store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -2807,11 +2807,11 @@ CREATE TABLE `oc_store` (
 
 DROP TABLE IF EXISTS `oc_tax_class`;
 CREATE TABLE `oc_tax_class` (
-  `tax_class_id` INT NOT NULL AUTO_INCREMENT,
-  `title` VARCHAR(32) NOT NULL,
-  `description` VARCHAR(255) NOT NULL,
-  `date_added` DATETIME NOT NULL,
-  `date_modified` DATETIME NOT NULL,
+  `tax_class_id`    INT NOT NULL AUTO_INCREMENT,
+  `title`           VARCHAR(32) NOT NULL,
+  `description`     VARCHAR(255) NOT NULL,
+  `date_added`      DATETIME NOT NULL,
+  `date_modified`   DATETIME NOT NULL,
   PRIMARY KEY (`tax_class_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -2823,13 +2823,13 @@ CREATE TABLE `oc_tax_class` (
 
 DROP TABLE IF EXISTS `oc_tax_rate`;
 CREATE TABLE `oc_tax_rate` (
-  `tax_rate_id` INT NOT NULL AUTO_INCREMENT,
-  `geo_zone_id` INT NOT NULL DEFAULT '0',
-  `name` VARCHAR(32) NOT NULL,
-  `rate` DECIMAL(15,4) NOT NULL DEFAULT '0.0000',
-  `type` char(1) NOT NULL,
-  `date_added` DATETIME NOT NULL,
-  `date_modified` DATETIME NOT NULL,
+  `tax_rate_id`     INT NOT NULL AUTO_INCREMENT,
+  `geo_zone_id`     INT NOT NULL DEFAULT '0',
+  `name`            VARCHAR(32) NOT NULL,
+  `rate`            DECIMAL(15,4) NOT NULL DEFAULT '0.0000',
+  `type`            CHAR(1) NOT NULL,
+  `date_added`      DATETIME NOT NULL,
+  `date_modified`   DATETIME NOT NULL,
   PRIMARY KEY (`tax_rate_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -2843,7 +2843,7 @@ CREATE TABLE `oc_tax_rate` (
 
 DROP TABLE IF EXISTS `oc_tax_rate_to_customer_group`;
 CREATE TABLE `oc_tax_rate_to_customer_group` (
-  `tax_rate_id` INT NOT NULL,
+  `tax_rate_id`       INT NOT NULL,
   `customer_group_id` INT NOT NULL,
   PRIMARY KEY (`tax_rate_id`,`customer_group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -2857,11 +2857,11 @@ CREATE TABLE `oc_tax_rate_to_customer_group` (
 
 DROP TABLE IF EXISTS `oc_tax_rule`;
 CREATE TABLE `oc_tax_rule` (
-  `tax_rule_id` INT NOT NULL AUTO_INCREMENT,
-  `tax_class_id` INT NOT NULL,
-  `tax_rate_id` INT NOT NULL,
-  `based` VARCHAR(10) NOT NULL,
-  `priority` INT NOT NULL DEFAULT '1',
+  `tax_rule_id`   INT NOT NULL AUTO_INCREMENT,
+  `tax_class_id`  INT NOT NULL,
+  `tax_rate_id`   INT NOT NULL,
+  `based`         VARCHAR(10) NOT NULL,
+  `priority`      INT NOT NULL DEFAULT '1',
   PRIMARY KEY (`tax_rule_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -2875,12 +2875,12 @@ CREATE TABLE `oc_tax_rule` (
 
 DROP TABLE IF EXISTS `oc_theme`;
 CREATE TABLE `oc_theme` (
-  `theme_id` INT NOT NULL AUTO_INCREMENT,
-  `store_id` INT NOT NULL,
-  `theme` VARCHAR(64) NOT NULL,
-  `route` VARCHAR(64) NOT NULL,
-  `code` mediumTEXT NOT NULL,
-  `date_added` DATETIME NOT NULL,
+  `theme_id`    INT NOT NULL AUTO_INCREMENT,
+  `store_id`    INT NOT NULL,
+  `theme`       VARCHAR(64) NOT NULL,
+  `route`       VARCHAR(64) NOT NULL,
+  `code`        TEXT NOT NULL,
+  `date_added`  DATETIME NOT NULL,
   PRIMARY KEY (`theme_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -2892,13 +2892,13 @@ CREATE TABLE `oc_theme` (
 
 DROP TABLE IF EXISTS `oc_translation`;
 CREATE TABLE `oc_translation` (
-  `translation_id` INT NOT NULL AUTO_INCREMENT,
-  `store_id` INT NOT NULL,
-  `language_id` INT NOT NULL,
-  `route` VARCHAR(64) NOT NULL,
-  `key` VARCHAR(64) NOT NULL,
-  `value` TEXT NOT NULL,
-  `date_added` DATETIME NOT NULL,
+  `translation_id`  INT NOT NULL AUTO_INCREMENT,
+  `store_id`        INT NOT NULL,
+  `language_id`     INT NOT NULL,
+  `route`           VARCHAR(64) NOT NULL,
+  `key`             VARCHAR(64) NOT NULL,
+  `value`           TEXT NOT NULL,
+  `date_added`      DATETIME NOT NULL,
   PRIMARY KEY (`translation_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -2910,11 +2910,11 @@ CREATE TABLE `oc_translation` (
 
 DROP TABLE IF EXISTS `oc_upload`;
 CREATE TABLE `oc_upload` (
-  `upload_id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) NOT NULL,
-  `filename` VARCHAR(255) NOT NULL,
-  `code` VARCHAR(255) NOT NULL,
-  `date_added` DATETIME NOT NULL,
+  `upload_id`   INT NOT NULL AUTO_INCREMENT,
+  `name`        VARCHAR(255) NOT NULL,
+  `filename`    VARCHAR(255) NOT NULL,
+  `code`        VARCHAR(255) NOT NULL,
+  `date_added`  DATETIME NOT NULL,
   PRIMARY KEY (`upload_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -2945,19 +2945,19 @@ CREATE TABLE `oc_seo_url` (
 
 DROP TABLE IF EXISTS `oc_user`;
 CREATE TABLE `oc_user` (
-  `user_id` INT NOT NULL AUTO_INCREMENT,
-  `user_group_id` INT NOT NULL,
-  `username` VARCHAR(20) NOT NULL,
-  `password` VARCHAR(40) NOT NULL,
-  `salt` VARCHAR(9) NOT NULL,
-  `firstname` VARCHAR(32) NOT NULL,
-  `lastname` VARCHAR(32) NOT NULL,
-  `email` VARCHAR(96) NOT NULL,
-  `image` VARCHAR(255) NOT NULL,
-  `code` VARCHAR(40) NOT NULL,
-  `ip` VARCHAR(40) NOT NULL,
-  `status` TINYINT NOT NULL,
-  `date_added` DATETIME NOT NULL,
+  `user_id`           INT NOT NULL AUTO_INCREMENT,
+  `user_group_id`     INT NOT NULL,
+  `username`          VARCHAR(20) NOT NULL,
+  `password`          VARCHAR(40) NOT NULL,
+  `salt`              VARCHAR(9) NOT NULL,
+  `firstname`         VARCHAR(32) NOT NULL,
+  `lastname`          VARCHAR(32) NOT NULL,
+  `email`             VARCHAR(96) NOT NULL,
+  `image`             VARCHAR(255) NOT NULL,
+  `code`              VARCHAR(40) NOT NULL,
+  `ip`                VARCHAR(40) NOT NULL,
+  `status`            TINYINT NOT NULL,
+  `date_added`        DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP),
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -2980,7 +2980,7 @@ CREATE TABLE `oc_user_group` (
 --
 
 INSERT INTO `oc_user_group` (`user_group_id`, `name`, `permission`) VALUES
-(1, 'Administrator', '{"access":["catalog\\/attribute","catalog\\/attribute_group","catalog\\/category","catalog\\/download","catalog\\/filter","catalog\\/information","catalog\\/manufacturer","catalog\\/option","catalog\\/product","catalog\\/recurring","catalog\\/review","common\\/column_left","common\\/developer","common\\/filemanager","common\\/profile","common\\/security","customer\\/custom_field","customer\\/customer","customer\\/customer_approval","customer\\/customer_group","design\\/banner","design\\/layout","design\\/theme","design\\/translation","design\\/seo_url","event\\/statistics","event\\/theme","extension\\/advertise\\/google","extension\\/analytics\\/google","extension\\/captcha\\/basic","extension\\/captcha\\/google","extension\\/currency\\/ecb","extension\\/dashboard\\/activity","extension\\/dashboard\\/chart","extension\\/dashboard\\/customer","extension\\/dashboard\\/map","extension\\/dashboard\\/online","extension\\/dashboard\\/order","extension\\/dashboard\\/recent","extension\\/dashboard\\/sale","extension\\/extension\\/advertise","extension\\/extension\\/analytics","extension\\/extension\\/captcha","extension\\/extension\\/currency","extension\\/extension\\/dashboard","extension\\/extension\\/feed","extension\\/extension\\/fraud","extension\\/extension\\/menu","extension\\/extension\\/module","extension\\/extension\\/payment","extension\\/extension\\/report","extension\\/extension\\/shipping","extension\\/extension\\/theme","extension\\/extension\\/total","extension\\/feed\\/google_base","extension\\/feed\\/google_sitemap","extension\\/fraud\\/fraudlabspro","extension\\/fraud\\/ip","extension\\/fraud\\/maxmind","extension\\/marketing\\/remarketing","extension\\/module\\/account","extension\\/module\\/amazon_login","extension\\/module\\/amazon_pay","extension\\/module\\/banner","extension\\/module\\/bestseller","extension\\/module\\/carousel","extension\\/module\\/category","extension\\/module\\/ebay_listing","extension\\/module\\/featured","extension\\/module\\/filter","extension\\/module\\/google_hangouts","extension\\/module\\/html","extension\\/module\\/information","extension\\/module\\/klarna_checkout_module","extension\\/module\\/latest","extension\\/module\\/laybuy_layout","extension\\/module\\/pilibaba_button","extension\\/module\\/sagepay_direct_cards","extension\\/module\\/sagepay_server_cards","extension\\/module\\/slideshow","extension\\/module\\/special","extension\\/module\\/store","extension\\/payment\\/amazon_login_pay","extension\\/payment\\/authorizenet_aim","extension\\/payment\\/authorizenet_sim","extension\\/payment\\/bank_transfer","extension\\/payment\\/bluepay_hosted","extension\\/payment\\/bluepay_redirect","extension\\/payment\\/cardconnect","extension\\/payment\\/cardinity","extension\\/payment\\/cheque","extension\\/payment\\/cod","extension\\/payment\\/eway","extension\\/payment\\/firstdata","extension\\/payment\\/firstdata_remote","extension\\/payment\\/free_checkout","extension\\/payment\\/g2apay","extension\\/payment\\/globalpay","extension\\/payment\\/globalpay_remote","extension\\/payment\\/klarna_account","extension\\/payment\\/klarna_checkout","extension\\/payment\\/klarna_invoice","extension\\/payment\\/laybuy","extension\\/payment\\/liqpay","extension\\/payment\\/nochex","extension\\/payment\\/paymate","extension\\/payment\\/paypoint","extension\\/payment\\/payza","extension\\/payment\\/perpetual_payments","extension\\/payment\\/pilibaba","extension\\/payment\\/realex","extension\\/payment\\/realex_remote","extension\\/payment\\/sagepay_direct","extension\\/payment\\/sagepay_server","extension\\/payment\\/sagepay_us","extension\\/payment\\/opayo","extension\\/payment\\/securetrading_pp","extension\\/payment\\/securetrading_ws","extension\\/payment\\/skrill","extension\\/payment\\/twocheckout","extension\\/payment\\/web_payment_software","extension\\/payment\\/worldpay","extension\\/module\\/pp_braintree_button","extension\\/payment\\/pp_braintree","extension\\/report\\/customer_activity","extension\\/report\\/customer_order","extension\\/report\\/customer_reward","extension\\/report\\/customer_search","extension\\/report\\/customer_transaction","extension\\/report\\/marketing","extension\\/report\\/product_purchased","extension\\/report\\/product_viewed","extension\\/report\\/sale_coupon","extension\\/report\\/sale_order","extension\\/report\\/sale_return","extension\\/report\\/sale_shipping","extension\\/report\\/sale_tax","extension\\/shipping\\/auspost","extension\\/shipping\\/ec_ship","extension\\/shipping\\/fedex","extension\\/shipping\\/flat","extension\\/shipping\\/free","extension\\/shipping\\/item","extension\\/shipping\\/parcelforce_48","extension\\/shipping\\/pickup","extension\\/shipping\\/royal_mail","extension\\/shipping\\/usps","extension\\/shipping\\/weight","extension\\/theme\\/default","extension\\/total\\/coupon","extension\\/total\\/credit","extension\\/total\\/handling","extension\\/total\\/klarna_fee","extension\\/total\\/low_order_fee","extension\\/total\\/reward","extension\\/total\\/shipping","extension\\/total\\/sub_total","extension\\/total\\/tax","extension\\/total\\/total","extension\\/total\\/voucher","localisation\\/country","localisation\\/currency","localisation\\/geo_zone","localisation\\/language","localisation\\/length_class","localisation\\/location","localisation\\/order_status","localisation\\/return_action","localisation\\/return_reason","localisation\\/return_status","localisation\\/stock_status","localisation\\/tax_class","localisation\\/tax_rate","localisation\\/weight_class","localisation\\/zone","mail\\/affiliate","mail\\/customer","mail\\/forgotten","mail\\/return","mail\\/reward","mail\\/transaction","marketing\\/contact","marketing\\/coupon","marketing\\/marketing","marketplace\\/api","marketplace\\/event","marketplace\\/extension","marketplace\\/install","marketplace\\/installer","marketplace\\/marketplace","marketplace\\/modification","report\\/online","report\\/report","report\\/statistics","sale\\/order","sale\\/recurring","sale\\/return","sale\\/voucher","sale\\/voucher_theme","setting\\/setting","setting\\/store","startup\\/error","startup\\/event","startup\\/login","startup\\/permission","startup\\/router","startup\\/sass","startup\\/startup","tool\\/backup","tool\\/log","tool\\/upload","user\\/api","user\\/user","user\\/user_permission"],"modify":["catalog\\/attribute","catalog\\/attribute_group","catalog\\/category","catalog\\/download","catalog\\/filter","catalog\\/information","catalog\\/manufacturer","catalog\\/option","catalog\\/product","catalog\\/recurring","catalog\\/review","common\\/column_left","common\\/developer","common\\/filemanager","common\\/profile","common\\/security","customer\\/custom_field","customer\\/customer","customer\\/customer_approval","customer\\/customer_group","design\\/banner","design\\/layout","design\\/theme","design\\/translation","design\\/seo_url","event\\/statistics","event\\/theme","extension\\/advertise\\/google","extension\\/analytics\\/google","extension\\/captcha\\/basic","extension\\/captcha\\/google","extension\\/currency\\/ecb","extension\\/dashboard\\/activity","extension\\/dashboard\\/chart","extension\\/dashboard\\/customer","extension\\/dashboard\\/map","extension\\/dashboard\\/online","extension\\/dashboard\\/order","extension\\/dashboard\\/recent","extension\\/dashboard\\/sale","extension\\/extension\\/advertise","extension\\/extension\\/analytics","extension\\/extension\\/captcha","extension\\/extension\\/currency","extension\\/extension\\/dashboard","extension\\/extension\\/feed","extension\\/extension\\/fraud","extension\\/extension\\/menu","extension\\/extension\\/module","extension\\/extension\\/payment","extension\\/extension\\/report","extension\\/extension\\/shipping","extension\\/extension\\/theme","extension\\/extension\\/total","extension\\/feed\\/google_base","extension\\/feed\\/google_sitemap","extension\\/fraud\\/fraudlabspro","extension\\/fraud\\/ip","extension\\/fraud\\/maxmind","extension\\/marketing\\/remarketing","extension\\/module\\/account","extension\\/module\\/amazon_login","extension\\/module\\/amazon_pay","extension\\/module\\/banner","extension\\/module\\/bestseller","extension\\/module\\/carousel","extension\\/module\\/category","extension\\/module\\/ebay_listing","extension\\/module\\/featured","extension\\/module\\/filter","extension\\/module\\/google_hangouts","extension\\/module\\/html","extension\\/module\\/information","extension\\/module\\/klarna_checkout_module","extension\\/module\\/latest","extension\\/module\\/laybuy_layout","extension\\/module\\/pilibaba_button","extension\\/module\\/sagepay_direct_cards","extension\\/module\\/sagepay_server_cards","extension\\/module\\/slideshow","extension\\/module\\/special","extension\\/module\\/store","extension\\/payment\\/amazon_login_pay","extension\\/payment\\/authorizenet_aim","extension\\/payment\\/authorizenet_sim","extension\\/payment\\/bank_transfer","extension\\/payment\\/bluepay_hosted","extension\\/payment\\/bluepay_redirect","extension\\/payment\\/cardconnect","extension\\/payment\\/cardinity","extension\\/payment\\/cheque","extension\\/payment\\/cod","extension\\/payment\\/eway","extension\\/payment\\/firstdata","extension\\/payment\\/firstdata_remote","extension\\/payment\\/free_checkout","extension\\/payment\\/g2apay","extension\\/payment\\/globalpay","extension\\/payment\\/globalpay_remote","extension\\/payment\\/klarna_account","extension\\/payment\\/klarna_checkout","extension\\/payment\\/klarna_invoice","extension\\/payment\\/laybuy","extension\\/payment\\/liqpay","extension\\/payment\\/nochex","extension\\/payment\\/paymate","extension\\/payment\\/paypoint","extension\\/payment\\/payza","extension\\/payment\\/perpetual_payments","extension\\/payment\\/pilibaba","extension\\/payment\\/realex","extension\\/payment\\/realex_remote","extension\\/payment\\/sagepay_direct","extension\\/payment\\/sagepay_server","extension\\/payment\\/sagepay_us","extension\\/payment\\/opayo","extension\\/payment\\/securetrading_pp","extension\\/payment\\/securetrading_ws","extension\\/payment\\/skrill","extension\\/payment\\/twocheckout","extension\\/payment\\/web_payment_software","extension\\/payment\\/worldpay","extension\\/module\\/pp_braintree_button","extension\\/payment\\/pp_braintree","extension\\/report\\/customer_activity","extension\\/report\\/customer_order","extension\\/report\\/customer_reward","extension\\/report\\/customer_search","extension\\/report\\/customer_transaction","extension\\/report\\/marketing","extension\\/report\\/product_purchased","extension\\/report\\/product_viewed","extension\\/report\\/sale_coupon","extension\\/report\\/sale_order","extension\\/report\\/sale_return","extension\\/report\\/sale_shipping","extension\\/report\\/sale_tax","extension\\/shipping\\/auspost","extension\\/shipping\\/ec_ship","extension\\/shipping\\/fedex","extension\\/shipping\\/flat","extension\\/shipping\\/free","extension\\/shipping\\/item","extension\\/shipping\\/parcelforce_48","extension\\/shipping\\/pickup","extension\\/shipping\\/royal_mail","extension\\/shipping\\/usps","extension\\/shipping\\/weight","extension\\/theme\\/default","extension\\/total\\/coupon","extension\\/total\\/credit","extension\\/total\\/handling","extension\\/total\\/klarna_fee","extension\\/total\\/low_order_fee","extension\\/total\\/reward","extension\\/total\\/shipping","extension\\/total\\/sub_total","extension\\/total\\/tax","extension\\/total\\/total","extension\\/total\\/voucher","localisation\\/country","localisation\\/currency","localisation\\/geo_zone","localisation\\/language","localisation\\/length_class","localisation\\/location","localisation\\/order_status","localisation\\/return_action","localisation\\/return_reason","localisation\\/return_status","localisation\\/stock_status","localisation\\/tax_class","localisation\\/tax_rate","localisation\\/weight_class","localisation\\/zone","mail\\/affiliate","mail\\/customer","mail\\/forgotten","mail\\/return","mail\\/reward","mail\\/transaction","marketing\\/contact","marketing\\/coupon","marketing\\/marketing","marketplace\\/event","marketplace\\/api","marketplace\\/extension","marketplace\\/install","marketplace\\/installer","marketplace\\/marketplace","marketplace\\/modification","report\\/online","report\\/report","report\\/statistics","sale\\/order","sale\\/recurring","sale\\/return","sale\\/voucher","sale\\/voucher_theme","setting\\/setting","setting\\/store","startup\\/error","startup\\/event","startup\\/login","startup\\/permission","startup\\/router","startup\\/sass","startup\\/startup","tool\\/backup","tool\\/log","tool\\/upload","user\\/api","user\\/user","user\\/user_permission"]}');
+(1, 'Administrator', '{"access":["catalog\\/attribute","catalog\\/attribute_group","catalog\\/category","catalog\\/download","catalog\\/filter","catalog\\/information","catalog\\/manufacturer","catalog\\/option","catalog\\/product","catalog\\/recurring","catalog\\/review","common\\/column_left","common\\/developer","common\\/filemanager","common\\/profile","common\\/security","customer\\/custom_field","customer\\/customer","customer\\/customer_approval","customer\\/customer_group","design\\/banner","design\\/layout","design\\/theme","design\\/translation","design\\/seo_url","event\\/statistics","event\\/theme","extension\\/advertise\\/google","extension\\/analytics\\/google","extension\\/captcha\\/basic","extension\\/captcha\\/google","extension\\/currency\\/ecb","extension\\/dashboard\\/activity","extension\\/dashboard\\/CHARt","extension\\/dashboard\\/customer","extension\\/dashboard\\/map","extension\\/dashboard\\/online","extension\\/dashboard\\/order","extension\\/dashboard\\/recent","extension\\/dashboard\\/sale","extension\\/extension\\/advertise","extension\\/extension\\/analytics","extension\\/extension\\/captcha","extension\\/extension\\/currency","extension\\/extension\\/dashboard","extension\\/extension\\/feed","extension\\/extension\\/fraud","extension\\/extension\\/menu","extension\\/extension\\/module","extension\\/extension\\/payment","extension\\/extension\\/report","extension\\/extension\\/shipping","extension\\/extension\\/theme","extension\\/extension\\/total","extension\\/feed\\/google_base","extension\\/feed\\/google_sitemap","extension\\/fraud\\/fraudlabspro","extension\\/fraud\\/ip","extension\\/fraud\\/maxmind","extension\\/marketing\\/remarketing","extension\\/module\\/account","extension\\/module\\/amazon_login","extension\\/module\\/amazon_pay","extension\\/module\\/banner","extension\\/module\\/bestseller","extension\\/module\\/carousel","extension\\/module\\/category","extension\\/module\\/ebay_listing","extension\\/module\\/featured","extension\\/module\\/filter","extension\\/module\\/google_hangouts","extension\\/module\\/html","extension\\/module\\/information","extension\\/module\\/klarna_checkout_module","extension\\/module\\/latest","extension\\/module\\/laybuy_layout","extension\\/module\\/pilibaba_button","extension\\/module\\/sagepay_direct_cards","extension\\/module\\/sagepay_server_cards","extension\\/module\\/slideshow","extension\\/module\\/special","extension\\/module\\/store","extension\\/payment\\/amazon_login_pay","extension\\/payment\\/authorizenet_aim","extension\\/payment\\/authorizenet_sim","extension\\/payment\\/bank_transfer","extension\\/payment\\/bluepay_hosted","extension\\/payment\\/bluepay_redirect","extension\\/payment\\/cardconnect","extension\\/payment\\/cardinity","extension\\/payment\\/cheque","extension\\/payment\\/cod","extension\\/payment\\/eway","extension\\/payment\\/firstdata","extension\\/payment\\/firstdata_remote","extension\\/payment\\/free_checkout","extension\\/payment\\/g2apay","extension\\/payment\\/globalpay","extension\\/payment\\/globalpay_remote","extension\\/payment\\/klarna_account","extension\\/payment\\/klarna_checkout","extension\\/payment\\/klarna_invoice","extension\\/payment\\/laybuy","extension\\/payment\\/liqpay","extension\\/payment\\/nochex","extension\\/payment\\/paymate","extension\\/payment\\/paypoint","extension\\/payment\\/payza","extension\\/payment\\/perpetual_payments","extension\\/payment\\/pilibaba","extension\\/payment\\/realex","extension\\/payment\\/realex_remote","extension\\/payment\\/sagepay_direct","extension\\/payment\\/sagepay_server","extension\\/payment\\/sagepay_us","extension\\/payment\\/opayo","extension\\/payment\\/securetrading_pp","extension\\/payment\\/securetrading_ws","extension\\/payment\\/skrill","extension\\/payment\\/twocheckout","extension\\/payment\\/web_payment_software","extension\\/payment\\/worldpay","extension\\/module\\/pp_braintree_button","extension\\/payment\\/pp_braintree","extension\\/report\\/customer_activity","extension\\/report\\/customer_order","extension\\/report\\/customer_reward","extension\\/report\\/customer_search","extension\\/report\\/customer_transaction","extension\\/report\\/marketing","extension\\/report\\/product_purchased","extension\\/report\\/product_viewed","extension\\/report\\/sale_coupon","extension\\/report\\/sale_order","extension\\/report\\/sale_return","extension\\/report\\/sale_shipping","extension\\/report\\/sale_tax","extension\\/shipping\\/auspost","extension\\/shipping\\/ec_ship","extension\\/shipping\\/fedex","extension\\/shipping\\/flat","extension\\/shipping\\/free","extension\\/shipping\\/item","extension\\/shipping\\/parcelforce_48","extension\\/shipping\\/pickup","extension\\/shipping\\/royal_mail","extension\\/shipping\\/usps","extension\\/shipping\\/weight","extension\\/theme\\/default","extension\\/total\\/coupon","extension\\/total\\/credit","extension\\/total\\/handling","extension\\/total\\/klarna_fee","extension\\/total\\/low_order_fee","extension\\/total\\/reward","extension\\/total\\/shipping","extension\\/total\\/sub_total","extension\\/total\\/tax","extension\\/total\\/total","extension\\/total\\/voucher","localisation\\/country","localisation\\/currency","localisation\\/geo_zone","localisation\\/language","localisation\\/length_class","localisation\\/location","localisation\\/order_status","localisation\\/return_action","localisation\\/return_reason","localisation\\/return_status","localisation\\/stock_status","localisation\\/tax_class","localisation\\/tax_rate","localisation\\/weight_class","localisation\\/zone","mail\\/affiliate","mail\\/customer","mail\\/forgotten","mail\\/return","mail\\/reward","mail\\/transaction","marketing\\/contact","marketing\\/coupon","marketing\\/marketing","marketplace\\/api","marketplace\\/event","marketplace\\/extension","marketplace\\/install","marketplace\\/installer","marketplace\\/marketplace","marketplace\\/modification","report\\/online","report\\/report","report\\/statistics","sale\\/order","sale\\/recurring","sale\\/return","sale\\/voucher","sale\\/voucher_theme","setting\\/setting","setting\\/store","startup\\/error","startup\\/event","startup\\/login","startup\\/permission","startup\\/router","startup\\/sass","startup\\/startup","tool\\/backup","tool\\/log","tool\\/upload","user\\/api","user\\/user","user\\/user_permission"],"modify":["catalog\\/attribute","catalog\\/attribute_group","catalog\\/category","catalog\\/download","catalog\\/filter","catalog\\/information","catalog\\/manufacturer","catalog\\/option","catalog\\/product","catalog\\/recurring","catalog\\/review","common\\/column_left","common\\/developer","common\\/filemanager","common\\/profile","common\\/security","customer\\/custom_field","customer\\/customer","customer\\/customer_approval","customer\\/customer_group","design\\/banner","design\\/layout","design\\/theme","design\\/translation","design\\/seo_url","event\\/statistics","event\\/theme","extension\\/advertise\\/google","extension\\/analytics\\/google","extension\\/captcha\\/basic","extension\\/captcha\\/google","extension\\/currency\\/ecb","extension\\/dashboard\\/activity","extension\\/dashboard\\/CHARt","extension\\/dashboard\\/customer","extension\\/dashboard\\/map","extension\\/dashboard\\/online","extension\\/dashboard\\/order","extension\\/dashboard\\/recent","extension\\/dashboard\\/sale","extension\\/extension\\/advertise","extension\\/extension\\/analytics","extension\\/extension\\/captcha","extension\\/extension\\/currency","extension\\/extension\\/dashboard","extension\\/extension\\/feed","extension\\/extension\\/fraud","extension\\/extension\\/menu","extension\\/extension\\/module","extension\\/extension\\/payment","extension\\/extension\\/report","extension\\/extension\\/shipping","extension\\/extension\\/theme","extension\\/extension\\/total","extension\\/feed\\/google_base","extension\\/feed\\/google_sitemap","extension\\/fraud\\/fraudlabspro","extension\\/fraud\\/ip","extension\\/fraud\\/maxmind","extension\\/marketing\\/remarketing","extension\\/module\\/account","extension\\/module\\/amazon_login","extension\\/module\\/amazon_pay","extension\\/module\\/banner","extension\\/module\\/bestseller","extension\\/module\\/carousel","extension\\/module\\/category","extension\\/module\\/ebay_listing","extension\\/module\\/featured","extension\\/module\\/filter","extension\\/module\\/google_hangouts","extension\\/module\\/html","extension\\/module\\/information","extension\\/module\\/klarna_checkout_module","extension\\/module\\/latest","extension\\/module\\/laybuy_layout","extension\\/module\\/pilibaba_button","extension\\/module\\/sagepay_direct_cards","extension\\/module\\/sagepay_server_cards","extension\\/module\\/slideshow","extension\\/module\\/special","extension\\/module\\/store","extension\\/payment\\/amazon_login_pay","extension\\/payment\\/authorizenet_aim","extension\\/payment\\/authorizenet_sim","extension\\/payment\\/bank_transfer","extension\\/payment\\/bluepay_hosted","extension\\/payment\\/bluepay_redirect","extension\\/payment\\/cardconnect","extension\\/payment\\/cardinity","extension\\/payment\\/cheque","extension\\/payment\\/cod","extension\\/payment\\/eway","extension\\/payment\\/firstdata","extension\\/payment\\/firstdata_remote","extension\\/payment\\/free_checkout","extension\\/payment\\/g2apay","extension\\/payment\\/globalpay","extension\\/payment\\/globalpay_remote","extension\\/payment\\/klarna_account","extension\\/payment\\/klarna_checkout","extension\\/payment\\/klarna_invoice","extension\\/payment\\/laybuy","extension\\/payment\\/liqpay","extension\\/payment\\/nochex","extension\\/payment\\/paymate","extension\\/payment\\/paypoint","extension\\/payment\\/payza","extension\\/payment\\/perpetual_payments","extension\\/payment\\/pilibaba","extension\\/payment\\/realex","extension\\/payment\\/realex_remote","extension\\/payment\\/sagepay_direct","extension\\/payment\\/sagepay_server","extension\\/payment\\/sagepay_us","extension\\/payment\\/opayo","extension\\/payment\\/securetrading_pp","extension\\/payment\\/securetrading_ws","extension\\/payment\\/skrill","extension\\/payment\\/twocheckout","extension\\/payment\\/web_payment_software","extension\\/payment\\/worldpay","extension\\/module\\/pp_braintree_button","extension\\/payment\\/pp_braintree","extension\\/report\\/customer_activity","extension\\/report\\/customer_order","extension\\/report\\/customer_reward","extension\\/report\\/customer_search","extension\\/report\\/customer_transaction","extension\\/report\\/marketing","extension\\/report\\/product_purchased","extension\\/report\\/product_viewed","extension\\/report\\/sale_coupon","extension\\/report\\/sale_order","extension\\/report\\/sale_return","extension\\/report\\/sale_shipping","extension\\/report\\/sale_tax","extension\\/shipping\\/auspost","extension\\/shipping\\/ec_ship","extension\\/shipping\\/fedex","extension\\/shipping\\/flat","extension\\/shipping\\/free","extension\\/shipping\\/item","extension\\/shipping\\/parcelforce_48","extension\\/shipping\\/pickup","extension\\/shipping\\/royal_mail","extension\\/shipping\\/usps","extension\\/shipping\\/weight","extension\\/theme\\/default","extension\\/total\\/coupon","extension\\/total\\/credit","extension\\/total\\/handling","extension\\/total\\/klarna_fee","extension\\/total\\/low_order_fee","extension\\/total\\/reward","extension\\/total\\/shipping","extension\\/total\\/sub_total","extension\\/total\\/tax","extension\\/total\\/total","extension\\/total\\/voucher","localisation\\/country","localisation\\/currency","localisation\\/geo_zone","localisation\\/language","localisation\\/length_class","localisation\\/location","localisation\\/order_status","localisation\\/return_action","localisation\\/return_reason","localisation\\/return_status","localisation\\/stock_status","localisation\\/tax_class","localisation\\/tax_rate","localisation\\/weight_class","localisation\\/zone","mail\\/affiliate","mail\\/customer","mail\\/forgotten","mail\\/return","mail\\/reward","mail\\/transaction","marketing\\/contact","marketing\\/coupon","marketing\\/marketing","marketplace\\/event","marketplace\\/api","marketplace\\/extension","marketplace\\/install","marketplace\\/installer","marketplace\\/marketplace","marketplace\\/modification","report\\/online","report\\/report","report\\/statistics","sale\\/order","sale\\/recurring","sale\\/return","sale\\/voucher","sale\\/voucher_theme","setting\\/setting","setting\\/store","startup\\/error","startup\\/event","startup\\/login","startup\\/permission","startup\\/router","startup\\/sass","startup\\/startup","tool\\/backup","tool\\/log","tool\\/upload","user\\/api","user\\/user","user\\/user_permission"]}');
 
 
 
@@ -2990,18 +2990,18 @@ INSERT INTO `oc_user_group` (`user_group_id`, `name`, `permission`) VALUES
 
 DROP TABLE IF EXISTS `oc_voucher`;
 CREATE TABLE `oc_voucher` (
-  `voucher_id` INT NOT NULL AUTO_INCREMENT,
-  `order_id` INT NOT NULL,
-  `code` VARCHAR(10) NOT NULL,
-  `from_name` VARCHAR(64) NOT NULL,
-  `from_email` VARCHAR(96) NOT NULL,
-  `to_name` VARCHAR(64) NOT NULL,
-  `to_email` VARCHAR(96) NOT NULL,
-  `voucher_theme_id` INT NOT NULL,
-  `message` TEXT NOT NULL,
-  `amount` DECIMAL(15,4) NOT NULL,
-  `status` TINYINT NOT NULL,
-  `date_added` DATETIME NOT NULL,
+  `voucher_id`           INT NOT NULL AUTO_INCREMENT,
+  `order_id`             INT NOT NULL,
+  `code`                 VARCHAR(10) NOT NULL,
+  `from_name`            VARCHAR(64) NOT NULL,
+  `from_email`           VARCHAR(96) NOT NULL,
+  `to_name`              VARCHAR(64) NOT NULL,
+  `to_email`             VARCHAR(96) NOT NULL,
+  `voucher_theme_id`     INT NOT NULL,
+  `message`              TEXT NOT NULL,
+  `amount`               DECIMAL(15,4) NOT NULL,
+  `status`               TINYINT NOT NULL,
+  `date_added`           DATETIME NOT NULL,
   PRIMARY KEY (`voucher_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -3013,11 +3013,11 @@ CREATE TABLE `oc_voucher` (
 
 DROP TABLE IF EXISTS `oc_voucher_history`;
 CREATE TABLE `oc_voucher_history` (
-  `voucher_history_id` INT NOT NULL AUTO_INCREMENT,
-  `voucher_id` INT NOT NULL,
-  `order_id` INT NOT NULL,
-  `amount` DECIMAL(15,4) NOT NULL,
-  `date_added` DATETIME NOT NULL,
+  `voucher_history_id`     INT NOT NULL AUTO_INCREMENT,
+  `voucher_id`             INT NOT NULL,
+  `order_id`               INT NOT NULL,
+  `amount`                 DECIMAL(15,4) NOT NULL,
+  `date_added`             DATETIME NOT NULL,
   PRIMARY KEY (`voucher_history_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -3029,8 +3029,8 @@ CREATE TABLE `oc_voucher_history` (
 
 DROP TABLE IF EXISTS `oc_voucher_theme`;
 CREATE TABLE `oc_voucher_theme` (
-  `voucher_theme_id` INT NOT NULL AUTO_INCREMENT,
-  `image` VARCHAR(255) NOT NULL,
+  `voucher_theme_id`      INT NOT NULL AUTO_INCREMENT,
+  `image`                 VARCHAR(255) NOT NULL,
   PRIMARY KEY (`voucher_theme_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -3043,9 +3043,9 @@ CREATE TABLE `oc_voucher_theme` (
 
 DROP TABLE IF EXISTS `oc_voucher_theme_description`;
 CREATE TABLE `oc_voucher_theme_description` (
-  `voucher_theme_id` INT NOT NULL,
-  `language_id` INT NOT NULL,
-  `name` VARCHAR(32) NOT NULL,
+  `voucher_theme_id`  INT NOT NULL,
+  `language_id`       INT NOT NULL,
+  `name`              VARCHAR(32) NOT NULL,
   PRIMARY KEY (`voucher_theme_id`,`language_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -3059,8 +3059,8 @@ CREATE TABLE `oc_voucher_theme_description` (
 
 DROP TABLE IF EXISTS `oc_weight_class`;
 CREATE TABLE `oc_weight_class` (
-  `weight_class_id` INT NOT NULL AUTO_INCREMENT,
-  `value` DECIMAL(15,8) NOT NULL DEFAULT '0.00000000',
+  `weight_class_id`   INT NOT NULL AUTO_INCREMENT,
+  `value`             DECIMAL(15,8) NOT NULL DEFAULT '0.00000000',
   PRIMARY KEY (`weight_class_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -3083,9 +3083,9 @@ INSERT INTO `oc_weight_class` (`weight_class_id`, `value`) VALUES
 DROP TABLE IF EXISTS `oc_weight_class_description`;
 CREATE TABLE `oc_weight_class_description` (
   `weight_class_id` INT NOT NULL,
-  `language_id` INT NOT NULL,
-  `title` VARCHAR(32) NOT NULL,
-  `unit` VARCHAR(4) NOT NULL,
+  `language_id`     INT NOT NULL,
+  `title`           VARCHAR(32) NOT NULL,
+  `unit`            VARCHAR(4) NOT NULL,
   PRIMARY KEY (`weight_class_id`,`language_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -3107,11 +3107,11 @@ INSERT INTO `oc_weight_class_description` (`weight_class_id`, `language_id`, `ti
 
 DROP TABLE IF EXISTS `oc_zone`;
 CREATE TABLE `oc_zone` (
-  `zone_id` INT NOT NULL AUTO_INCREMENT,
-  `country_id` INT NOT NULL,
-  `name` VARCHAR(128) NOT NULL,
-  `code` VARCHAR(32) NOT NULL,
-  `status` TINYINT NOT NULL DEFAULT '1',
+  `zone_id`        INT NOT NULL AUTO_INCREMENT,
+  `country_id`     INT NOT NULL,
+  `name`           VARCHAR(128) NOT NULL,
+  `code`           VARCHAR(32) NOT NULL,
+  `status`         TINYINT NOT NULL DEFAULT '1',
   PRIMARY KEY (`zone_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -3194,7 +3194,7 @@ INSERT INTO `oc_zone` (`zone_id`, `country_id`, `name`, `code`, `status`) VALUES
 (72, 3, 'Alger', 'ALG', 1),
 (73, 3, 'Annaba', 'ANN', 1),
 (74, 3, 'Batna', 'BAT', 1),
-(75, 3, 'Bechar', 'BEC', 1),
+(75, 3, 'BeCHAR', 'BEC', 1),
 (76, 3, 'Bejaia', 'BEJ', 1),
 (77, 3, 'Biskra', 'BIS', 1),
 (78, 3, 'Blida', 'BLI', 1),
@@ -7240,11 +7240,11 @@ INSERT INTO `oc_zone` (`zone_id`, `country_id`, `name`, `code`, `status`) VALUES
 DROP TABLE IF EXISTS `oc_zone_to_geo_zone`;
 CREATE TABLE `oc_zone_to_geo_zone` (
   `zone_to_geo_zone_id` INT NOT NULL AUTO_INCREMENT,
-  `country_id` INT NOT NULL,
-  `zone_id` INT NOT NULL DEFAULT '0',
-  `geo_zone_id` INT NOT NULL,
-  `date_added` DATETIME NOT NULL,
-  `date_modified` DATETIME NOT NULL,
+  `country_id`          INT NOT NULL,
+  `zone_id`             INT NOT NULL DEFAULT '0',
+  `geo_zone_id`         INT NOT NULL,
+  `date_added`          DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+  `date_modified`       DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP),
   PRIMARY KEY (`zone_to_geo_zone_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -7252,119 +7252,120 @@ CREATE TABLE `oc_zone_to_geo_zone` (
 -- Dumping data for table `oc_zone_to_geo_zone`
 --
 
-INSERT INTO `oc_zone_to_geo_zone` (`zone_to_geo_zone_id`, `country_id`, `zone_id`, `geo_zone_id`, `date_added`, `date_modified`) VALUES
-(1, 222, 0, 4, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(2, 222, 3513, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(3, 222, 3514, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(4, 222, 3515, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(5, 222, 3516, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(6, 222, 3517, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(7, 222, 3518, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(8, 222, 3519, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(9, 222, 3520, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(10, 222, 3521, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(11, 222, 3522, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(12, 222, 3523, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(13, 222, 3524, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(14, 222, 3525, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(15, 222, 3526, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(16, 222, 3527, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(17, 222, 3528, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(18, 222, 3529, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(19, 222, 3530, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(20, 222, 3531, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(21, 222, 3532, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(22, 222, 3533, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(23, 222, 3534, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(24, 222, 3535, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(25, 222, 3536, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(26, 222, 3537, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(27, 222, 3538, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(28, 222, 3539, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(29, 222, 3540, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(30, 222, 3541, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(31, 222, 3542, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(32, 222, 3543, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(33, 222, 3544, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(34, 222, 3545, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(35, 222, 3546, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(36, 222, 3547, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(37, 222, 3548, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(38, 222, 3549, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(39, 222, 3550, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(40, 222, 3551, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(41, 222, 3552, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(42, 222, 3553, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(43, 222, 3554, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(44, 222, 3555, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(45, 222, 3556, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(46, 222, 3557, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(47, 222, 3558, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(48, 222, 3559, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(49, 222, 3560, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(50, 222, 3561, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(51, 222, 3562, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(52, 222, 3563, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(53, 222, 3564, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(54, 222, 3565, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(55, 222, 3566, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(56, 222, 3567, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(57, 222, 3568, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(58, 222, 3569, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(59, 222, 3570, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(60, 222, 3571, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(61, 222, 3572, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(62, 222, 3573, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(63, 222, 3574, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(64, 222, 3575, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(65, 222, 3576, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(66, 222, 3577, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(67, 222, 3578, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(68, 222, 3579, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(69, 222, 3580, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(70, 222, 3581, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(71, 222, 3582, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(72, 222, 3583, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(73, 222, 3584, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(74, 222, 3585, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(75, 222, 3586, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(76, 222, 3587, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(77, 222, 3588, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(78, 222, 3589, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(79, 222, 3590, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(80, 222, 3591, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(81, 222, 3592, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(82, 222, 3593, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(83, 222, 3594, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(84, 222, 3595, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(85, 222, 3596, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(86, 222, 3597, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(87, 222, 3598, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(88, 222, 3599, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(89, 222, 3600, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(90, 222, 3601, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(91, 222, 3602, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(92, 222, 3603, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(93, 222, 3604, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(94, 222, 3605, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(95, 222, 3606, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(96, 222, 3607, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(97, 222, 3608, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(98, 222, 3609, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(99, 222, 3610, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(100, 222, 3611, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(101, 222, 3612, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(102, 222, 3949, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(103, 222, 3950, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(104, 222, 3951, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(105, 222, 3952, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(106, 222, 3953, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(107, 222, 3954, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(108, 222, 3955, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(109, 222, 3972, 3, '0000-00-00 00:00:00', '0000-00-00 00:00:00');
+INSERT INTO `oc_zone_to_geo_zone` (`zone_to_geo_zone_id`, `country_id`, `zone_id`, `geo_zone_id`) VALUES
+(1, 222, 0, 4),
+(2, 222, 3513, 3),
+(3, 222, 3514, 3),
+(4, 222, 3515, 3),
+(5, 222, 3516, 3),
+(6, 222, 3517, 3),
+(7, 222, 3518, 3),
+(8, 222, 3519, 3),
+(9, 222, 3520, 3),
+(10, 222, 3521, 3),
+(11, 222, 3522, 3),
+(12, 222, 3523, 3),
+(13, 222, 3524, 3),
+(14, 222, 3525, 3),
+(15, 222, 3526, 3),
+(16, 222, 3527, 3),
+(17, 222, 3528, 3),
+(18, 222, 3529, 3),
+(19, 222, 3530, 3),
+(20, 222, 3531, 3),
+(21, 222, 3532, 3),
+(22, 222, 3533, 3),
+(23, 222, 3534, 3),
+(24, 222, 3535, 3),
+(25, 222, 3536, 3),
+(26, 222, 3537, 3),
+(27, 222, 3538, 3),
+(28, 222, 3539, 3),
+(29, 222, 3540, 3),
+(30, 222, 3541, 3),
+(31, 222, 3542, 3),
+(32, 222, 3543, 3),
+(33, 222, 3544, 3),
+(34, 222, 3545, 3),
+(35, 222, 3546, 3),
+(36, 222, 3547, 3),
+(37, 222, 3548, 3),
+(38, 222, 3549, 3),
+(39, 222, 3550, 3),
+(40, 222, 3551, 3),
+(41, 222, 3552, 3),
+(42, 222, 3553, 3),
+(43, 222, 3554, 3),
+(44, 222, 3555, 3),
+(45, 222, 3556, 3),
+(46, 222, 3557, 3),
+(47, 222, 3558, 3),
+(48, 222, 3559, 3),
+(49, 222, 3560, 3),
+(50, 222, 3561, 3),
+(51, 222, 3562, 3),
+(52, 222, 3563, 3),
+(53, 222, 3564, 3),
+(54, 222, 3565, 3),
+(55, 222, 3566, 3),
+(56, 222, 3567, 3),
+(57, 222, 3568, 3),
+(58, 222, 3569, 3),
+(59, 222, 3570, 3),
+(60, 222, 3571, 3),
+(61, 222, 3572, 3),
+(62, 222, 3573, 3),
+(63, 222, 3574, 3),
+(64, 222, 3575, 3),
+(65, 222, 3576, 3),
+(66, 222, 3577, 3),
+(67, 222, 3578, 3),
+(68, 222, 3579, 3),
+(69, 222, 3580, 3),
+(70, 222, 3581, 3),
+(71, 222, 3582, 3),
+(72, 222, 3583, 3),
+(73, 222, 3584, 3),
+(74, 222, 3585, 3),
+(75, 222, 3586, 3),
+(76, 222, 3587, 3),
+(77, 222, 3588, 3),
+(78, 222, 3589, 3),
+(79, 222, 3590, 3),
+(80, 222, 3591, 3),
+(81, 222, 3592, 3),
+(82, 222, 3593, 3),
+(83, 222, 3594, 3),
+(84, 222, 3595, 3),
+(85, 222, 3596, 3),
+(86, 222, 3597, 3),
+(87, 222, 3598, 3),
+(88, 222, 3599, 3),
+(89, 222, 3600, 3),
+(90, 222, 3601, 3),
+(91, 222, 3602, 3),
+(92, 222, 3603, 3),
+(93, 222, 3604, 3),
+(94, 222, 3605, 3),
+(95, 222, 3606, 3),
+(96, 222, 3607, 3),
+(97, 222, 3608, 3),
+(98, 222, 3609, 3),
+(99, 222, 3610, 3),
+(100, 222, 3611, 3),
+(101, 222, 3612, 3),
+(102, 222, 3949, 3),
+(103, 222, 3950, 3),
+(104, 222, 3951, 3),
+(105, 222, 3952, 3),
+(106, 222, 3953, 3),
+(107, 222, 3954, 3),
+(108, 222, 3955, 3),
+(109, 222, 3972, 3);
 
 -- Image description tables
-DELETE TABLE IF EXISTS `oc_category_image_description`;
+
+DROP TABLE IF EXISTS `oc_category_image_description`;
 CREATE TABLE `oc_category_image_description` (
   `image_id`                INT NOT NULL,
   `category_id`             INT NOT NULL,
@@ -7374,7 +7375,7 @@ CREATE TABLE `oc_category_image_description` (
   KEY (`category_id`, `language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-DELETE TABLE IF EXISTS `oc_product_image_description`;
+DROP TABLE IF EXISTS `oc_product_image_description`;
 CREATE TABLE `oc_product_image_description` (
   `image_id`                INT NOT NULL,
   `product_id`              INT NOT NULL,
@@ -7384,7 +7385,7 @@ CREATE TABLE `oc_product_image_description` (
   KEY (`product_id`, `language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-DELETE TABLE IF EXISTS `oc_blog_article_image_description`;
+DROP TABLE IF EXISTS `oc_blog_article_image_description`;
 CREATE TABLE `oc_blog_article_image_description` (
   `image_id`                INT NOT NULL,
   `blog_article_id`         INT NOT NULL,
@@ -7394,7 +7395,7 @@ CREATE TABLE `oc_blog_article_image_description` (
   KEY (`blog_article_id`, `language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-DELETE TABLE IF EXISTS `oc_blog_category_image_description`;
+DROP TABLE IF EXISTS `oc_blog_category_image_description`;
 CREATE TABLE `oc_blog_category_image_description` (
   `image_id`                INT NOT NULL,
   `blog_category_id`        INT NOT NULL,
@@ -7404,7 +7405,7 @@ CREATE TABLE `oc_blog_category_image_description` (
   KEY (`blog_category_id`, `language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-DELETE TABLE IF EXISTS `oc_filter_page_image_description`;
+DROP TABLE IF EXISTS `oc_filter_page_image_description`;
 CREATE TABLE `oc_filter_page_image_description` (
   `image_id`                INT NOT NULL,
   `filter_page_id`          INT NOT NULL,
@@ -7414,7 +7415,7 @@ CREATE TABLE `oc_filter_page_image_description` (
   KEY (`filter_page_id`, `language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-DELETE TABLE IF EXISTS `oc_search_page_image_description`;
+DROP TABLE IF EXISTS `oc_search_page_image_description`;
 CREATE TABLE `oc_search_page_image_description` (
   `image_id`                INT NOT NULL,
   `search_page_id`          INT NOT NULL,
