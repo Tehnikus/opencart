@@ -41,6 +41,15 @@ class ModelCatalogProduct extends Model {
 			");
 	
 			$product_id = $this->db->getLastId();
+
+			// Insert into product stats to sort products in frontend by various product features
+			$this->db->query("
+				INSERT INTO " . DB_PREFIX . "product_stats
+				SET 
+					`product_id` 	= '" . (int) $product_id . "'
+					`store_id`		= '" . (int) $this->session->data['store_id'] . "'
+			");
+			
 	
 			// if (isset($data['image'])) {
 			// 	$this->db->query("
