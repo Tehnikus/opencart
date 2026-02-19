@@ -523,6 +523,12 @@ class ControllerCatalogProduct extends Controller {
 			$data['error_model'] = '';
 		}
 
+		if (isset($this->error['product_store'])) {
+			$data['error_product_store'] = $this->error['product_store'];
+		} else {
+			$data['error_product_store'] = '';
+		}
+
 		if (isset($this->error['keyword'])) {
 			$data['error_keyword'] = $this->error['keyword'];
 		} else {
@@ -1182,6 +1188,10 @@ class ControllerCatalogProduct extends Controller {
 
 		if ((utf8_strlen($this->request->post['model']) < 1) || (utf8_strlen($this->request->post['model']) > 64)) {
 			$this->error['model'] = $this->language->get('error_model');
+		}
+
+		if (!isset($this->request->post['product_store']) || empty($this->request->post['product_store'])) {
+			$this->error['product_store'] = $this->language->get('error_stores_association');
 		}
 
 		if ($this->request->post['product_seo_url']) {
