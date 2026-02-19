@@ -308,15 +308,57 @@ class ModelCatalogProduct extends Model {
 		return $product_data;
 	}
 
+	// TODO Rewrite in a single query
+	// DONE Select columns explicitly
 	public function getProductAttributes($product_id) {
 		$product_attribute_group_data = array();
 
-		$product_attribute_group_query = $this->db->query("SELECT ag.attribute_group_id, agd.name FROM " . DB_PREFIX . "product_attribute pa LEFT JOIN " . DB_PREFIX . "attribute a ON (pa.attribute_id = a.attribute_id) LEFT JOIN " . DB_PREFIX . "attribute_group ag ON (a.attribute_group_id = ag.attribute_group_id) LEFT JOIN " . DB_PREFIX . "attribute_group_description agd ON (ag.attribute_group_id = agd.attribute_group_id) WHERE pa.product_id = '" . (int)$product_id . "' AND agd.language_id = '" . (int)$this->config->get('config_language_id') . "' GROUP BY ag.attribute_group_id ORDER BY ag.sort_order, agd.name");
+		$product_attribute_group_query = $this->db->query("
+			SELECT 
+				ag2s.`attribute_group_id`, 
+				agd.`name` 
+			FROM " . DB_PREFIX . "product_attribute pa 
+			JOIN " . DB_PREFIX . "attribute a 
+				ON pa.`attribute_id` = a.`attribute_id`
+			JOIN " . DB_PREFIX . "attribute_to_store a2s 
+				ON  a2s.`attribute_id` = pa.`attribute_id`
+				AND a2s.`store_id` 		 = pa.`store_id`
+			JOIN " . DB_PREFIX . "attribute_group ag 
+				ON ag.`attribute_group_id` =  a2s.`attribute_group_id`
+			JOIN " . DB_PREFIX . "attribute_group_to_store ag2s 
+				ON ag2s.`attribute_group_id` 	=  a2s.`attribute_group_id`
+				AND ag2s.`store_id` 					= pa.`store_id`
+			JOIN " . DB_PREFIX . "attribute_group_description agd 
+				ON agd.`attribute_group_id` = ag2s.`attribute_group_id` 
+				AND agd.`language_id` 			= '" . (int) $this->config->get('config_language_id') . "'
+				AND agd.`store_id` = pa.`store_id`
+			WHERE pa.`product_id` = '" . (int) $product_id . "' 
+				AND pa.`store_id` 	= '" . (int) $this->config->get('config_store_id') . "'
+			GROUP BY ag.`attribute_group_id` 
+			ORDER BY ag.`sort_order`, agd.`name`
+		");
 
 		foreach ($product_attribute_group_query->rows as $product_attribute_group) {
 			$product_attribute_data = array();
 
-			$product_attribute_query = $this->db->query("SELECT a.attribute_id, ad.name, pa.text FROM " . DB_PREFIX . "product_attribute pa LEFT JOIN " . DB_PREFIX . "attribute a ON (pa.attribute_id = a.attribute_id) LEFT JOIN " . DB_PREFIX . "attribute_description ad ON (a.attribute_id = ad.attribute_id) WHERE pa.product_id = '" . (int)$product_id . "' AND a.attribute_group_id = '" . (int)$product_attribute_group['attribute_group_id'] . "' AND ad.language_id = '" . (int)$this->config->get('config_language_id') . "' AND pa.language_id = '" . (int)$this->config->get('config_language_id') . "' ORDER BY a.sort_order, ad.name");
+			$product_attribute_query = $this->db->query("
+				SELECT 
+					a.`attribute_id`, 
+					ad.`name`, 
+					pa.`text` 
+				FROM " . DB_PREFIX . "product_attribute pa 
+				JOIN " . DB_PREFIX . "attribute a 
+					ON a.`attribute_id` 			 = pa.`attribute_id`
+					AND a.`attribute_group_id` = '" . (int) $product_attribute_group['attribute_group_id'] . "' 
+				JOIN " . DB_PREFIX . "attribute_description ad 
+					ON a.`attribute_id`  = ad.`attribute_id`
+					AND ad.`language_id` = pa.`language_id`
+					AND ad.`store_id` 	 = pa.`store_id`
+				WHERE pa.`product_id` 	= '" . (int) $product_id . "' 
+					AND pa.`language_id` 	= '" . (int) $this->config->get('config_language_id') . "' 
+					AND pa.`store_id` 		= '" . (int) $this->config->get('config_store_id') . "' 
+				ORDER BY a.`sort_order`, ad.`name`
+			");
 
 			foreach ($product_attribute_query->rows as $product_attribute) {
 				$product_attribute_data[] = array(
