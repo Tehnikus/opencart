@@ -1471,7 +1471,8 @@ CREATE TABLE `oc_layout` (
   `layout_id` INT NOT NULL AUTO_INCREMENT,
   `name`      VARCHAR(64) NOT NULL,
   `store_id`  INT NOT NULL DEFAULT '0',
-  PRIMARY KEY (`layout_id`, `store_id`)
+  PRIMARY KEY (`layout_id`),
+  KEY (`store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `oc_layout` (`layout_id`, `name`) VALUES
@@ -1498,7 +1499,8 @@ CREATE TABLE `oc_layout_module` (
   `position`          VARCHAR(14) NOT NULL,
   `sort_order`        INT NOT NULL,
   `date_modified`     DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP),
-  PRIMARY KEY (`layout_module_id`)
+  PRIMARY KEY (`layout_module_id`),
+  KEY (`layout_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `oc_layout_route`;
@@ -1509,24 +1511,23 @@ CREATE TABLE `oc_layout_route` (
   `route`           VARCHAR(64) NOT NULL,
   `is_wildcard`     TINYINT NOT NULL DEFAULT '0',
   PRIMARY KEY (`layout_route_id`),
-  KEY (`route`),
-  KEY (`is_wildcard`)
+  KEY (`route`, `store_id`, `is_wildcard`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `oc_layout_route` (`layout_id`, `route`) VALUES
-(1,  'common/home'),
-(2,  'product/product'),
-(3,  'product/category'),
-(4,  ''),
-(5,  'product/manufacturer'),
-(6,  'account/%'),
-(7,  'checkout/%'),
-(8,  'information/contact'),
-(9,  'information/sitemap'),
-(10, 'affiliate/%'),
-(11, 'information/information'),
-(12, 'product/compare'),
-(13, 'product/search');
+INSERT INTO `oc_layout_route` (`layout_id`, `route`, `is_wildcard`) VALUES
+(1,  'common/home', 0),
+(2,  'product/product', 0),
+(3,  'product/category', 0),
+(4,  '', 0),
+(5,  'product/manufacturer', 0),
+(6,  'account/%', 1),
+(7,  'checkout/%', 1),
+(8,  'information/contact', 0),
+(9,  'information/sitemap', 0),
+(10, 'affiliate/%', 1),
+(11, 'information/information', 0),
+(12, 'product/compare', 0),
+(13, 'product/search', 0);
 
 
 
