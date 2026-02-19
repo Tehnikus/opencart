@@ -336,16 +336,50 @@ class ModelCatalogProduct extends Model {
 		return $product_attribute_group_data;
 	}
 
+	// TODO Rewrite in a single query
 	public function getProductOptions($product_id) {
 		$product_option_data = array();
 
-		$product_option_query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_option po LEFT JOIN `" . DB_PREFIX . "option` o ON (po.option_id = o.option_id) LEFT JOIN " . DB_PREFIX . "option_description od ON (o.option_id = od.option_id) WHERE po.product_id = '" . (int)$product_id . "' AND od.language_id = '" . (int)$this->config->get('config_language_id') . "' ORDER BY o.sort_order");
+		$product_option_query = $this->db->query("
+			SELECT 
+				* 
+			FROM `" . DB_PREFIX . "product_option` po 
+			JOIN `" . DB_PREFIX . "option` o 
+				ON po.option_id = o.option_id
+			JOIN " . DB_PREFIX . "option_to_store o2s 
+				ON o2s.option_id = po.option_id
+				AND o2s.store_id = po.store_id
+			JOIN " . DB_PREFIX . "option_description od 
+				ON  od.option_id 	 = o2s.option_id
+				AND od.language_id = '" . (int) $this->config->get('config_language_id') . "'
+				AND od.store_id    = po.store_id
+			WHERE po.product_id = '" . (int) $product_id . "' 
+				AND po.store_id 	= '" . (int) $this->config->get('config_store_id') . "'
+			ORDER BY o2s.sort_order
+		");
 
+		
 		foreach ($product_option_query->rows as $product_option) {
 			$product_option_value_data = array();
-
-			$product_option_value_query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_option_value pov LEFT JOIN " . DB_PREFIX . "option_value ov ON (pov.option_value_id = ov.option_value_id) LEFT JOIN " . DB_PREFIX . "option_value_description ovd ON (ov.option_value_id = ovd.option_value_id) WHERE pov.product_id = '" . (int)$product_id . "' AND pov.product_option_id = '" . (int)$product_option['product_option_id'] . "' AND ovd.language_id = '" . (int)$this->config->get('config_language_id') . "' ORDER BY ov.sort_order");
-
+			
+			$product_option_value_query = $this->db->query("
+				SELECT 
+					* 
+				FROM " . DB_PREFIX . "product_option_value pov 
+				JOIN " . DB_PREFIX . "option_value ov 
+					ON  ov.option_value_id = pov.option_value_id
+					AND ov.store_id 			 = pov.store_id
+				JOIN " . DB_PREFIX . "option_value_description ovd 
+					ON  ovd.option_value_id = ov.option_value_id
+					AND ovd.language_id = '" . (int) $this->config->get('config_language_id') . "'
+					AND ovd.store_id = pov.store_id
+				WHERE pov.product_id = '" . (int) $product_id . "' 
+					AND pov.store_id = '" . $this->config->get('config_store_id') . "'
+					AND pov.product_option_id = '" . (int)$product_option['product_option_id'] . "' 
+				ORDER BY ov.sort_order
+			");
+			
+			
 			foreach ($product_option_value_query->rows as $product_option_value) {
 				$product_option_value_data[] = array(
 					'product_option_value_id' => $product_option_value['product_option_value_id'],
@@ -360,7 +394,7 @@ class ModelCatalogProduct extends Model {
 					'weight_prefix'           => $product_option_value['weight_prefix']
 				);
 			}
-
+			
 			$product_option_data[] = array(
 				'product_option_id'    => $product_option['product_option_id'],
 				'product_option_value' => $product_option_value_data,
