@@ -88,6 +88,7 @@ class ModelCatalogProduct extends Model {
 								`sort_order` 		= '" . (int) $data['sort_order'] . "',
 								`parent_id`  		= '" . (isset($data['parent_id']) ? ((int) $data['parent_id']) : '1') . "',
 								`status`     		= '" . (int) $data['status'] . "',
+								`price`         = '" . (float) $data['price'] . "', 
 								`image` 				= '" . (isset($data['image']) ? ($this->db->escape($data['image'])) : '') . "'
 						");
 					} else {
