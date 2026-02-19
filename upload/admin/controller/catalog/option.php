@@ -351,8 +351,6 @@ class ControllerCatalogOption extends Controller {
 			$option_values = array();
 		}
 
-		$this->load->model('tool/image');
-
 		$data['option_values'] = array();
 
 		foreach ($option_values as $option_value) {
@@ -361,17 +359,19 @@ class ControllerCatalogOption extends Controller {
 				$thumb = $option_value['image'];
 			} else {
 				$image = '';
-				$thumb = 'no_image.png';
+				$thumb = 'no_image.webp';
 			}
 
 			$data['option_values'][] = array(
 				'option_value_id'          => $option_value['option_value_id'],
 				'option_value_description' => $option_value['option_value_description'],
 				'image'                    => $image,
-				'thumb'                    => $this->model_tool_image->resize($thumb, 100, 100),
+				'thumb'                    => HTTPS_CATALOG . 'image/' .$thumb,
 				'sort_order'               => $option_value['sort_order']
 			);
 		}
+
+		$data['placeholder'] = HTTPS_CATALOG . 'image/no_image.webp';
 
 		// Filter group to store association
 		$this->load->model('setting/store');
@@ -380,8 +380,6 @@ class ControllerCatalogOption extends Controller {
 		$data['currentStore'] = $this->session->data['store_id'];
 		$data['stores_association'] = $this->request->post['stores_association'] ?? $this->model_catalog_option->getStoresAssociation($this->request->get['option_id'] ?? null) ?? [];
 		// End store association
-
-		$data['placeholder'] = $this->model_tool_image->resize('no_image.png', 100, 100);
 
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
