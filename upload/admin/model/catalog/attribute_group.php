@@ -247,13 +247,9 @@ class ModelCatalogAttributeGroup extends Model {
 						LIMIT 1
 				) AS `name`,
 				(SELECT JSON_ARRAYAGG(ag2s.store_id) FROM " . DB_PREFIX . "attribute_group_to_store ag2s WHERE ag.attribute_group_id = ag2s.attribute_group_id) AS stores
-			FROM " . DB_PREFIX . "attribute_group ag 
-			LEFT JOIN " . DB_PREFIX . "attribute_group_description agd 
-				ON ag.attribute_group_id 	= agd.attribute_group_id
-				AND agd.store_id 					= '" . (int) $this->session->data['store_id'] . "'
-			LEFT JOIN " . DB_PREFIX . "attribute_group_to_store ag2s 
-				ON ag2s.attribute_group_id 	= ag.attribute_group_id
-				AND ag2s.store_id 					= '" . (int) $this->session->data['store_id'] . "'
+			FROM " . DB_PREFIX . "attribute_group_to_store ag2s
+			JOIN " . DB_PREFIX . "attribute_group ag
+				ON ag.attribute_group_id = ag2s.attribute_group_id
 			WHERE EXISTS (
 				SELECT
 					1
