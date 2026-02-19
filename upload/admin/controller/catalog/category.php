@@ -428,6 +428,7 @@ class ControllerCatalogCategory extends Controller {
 			$data['category_store'] = array();
 		}
 
+		// Image
 		if (isset($this->request->post['image'])) {
 			$data['image'] = $this->request->post['image'];
 		} elseif (!empty($category_info)) {
@@ -436,17 +437,16 @@ class ControllerCatalogCategory extends Controller {
 			$data['image'] = '';
 		}
 
-		$this->load->model('tool/image');
 
 		if (isset($this->request->post['image']) && is_file(DIR_IMAGE . $this->request->post['image'])) {
-			$data['thumb'] = $this->model_tool_image->resize($this->request->post['image'], 100, 100);
+			$data['thumb'] = HTTPS_CATALOG . 'image/' . $this->request->post['image'];
 		} elseif (!empty($category_info) && is_file(DIR_IMAGE . $category_info['image'])) {
-			$data['thumb'] = $this->model_tool_image->resize($category_info['image'], 100, 100);
+			$data['thumb'] = HTTPS_CATALOG . 'image/' . $category_info['image'];
 		} else {
-			$data['thumb'] = $this->model_tool_image->resize('no_image.png', 100, 100);
+			$data['thumb'] = HTTPS_CATALOG . 'image/no_image.webp';
 		}
 
-		$data['placeholder'] = $this->model_tool_image->resize('no_image.png', 100, 100);
+		$data['placeholder'] = HTTPS_CATALOG . 'image/no_image.webp';
 
 		if (isset($this->request->post['top'])) {
 			$data['top'] = $this->request->post['top'];

@@ -337,8 +337,6 @@ class ControllerCatalogProduct extends Controller {
 			'limit'           => $this->config->get('config_limit_admin')
 		);
 
-		$this->load->model('tool/image');
-
 		$product_total = $this->model_catalog_product->getTotalProducts($filter_data);
 
 		$results = $this->model_catalog_product->getProducts($filter_data);
@@ -1069,7 +1067,7 @@ class ControllerCatalogProduct extends Controller {
 				$thumb = $product_image['image'];
 			} else {
 				$image = '';
-				$thumb = 'no_image.png';
+				$thumb = 'no_image.webp';
 			}
 
 			$data['product_images'][] = array(
