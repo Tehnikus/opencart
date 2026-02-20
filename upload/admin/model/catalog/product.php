@@ -9,7 +9,7 @@ class ModelCatalogProduct extends Model {
 				INSERT INTO " . DB_PREFIX . "product 
 				SET 
 					`model`             = '" . $this->db->escape($data['model']) . "', 
-					`parent_id`  				= '" . (isset($data['parent_id']) ? ((int) $data['parent_id']) : '1') . "',
+					`parent_id`  				= '" . (isset($data['parent_id']) ? ((int) $data['parent_id']) : '0') . "',
 					`sku`               = '" . $this->db->escape($data['sku']) . "', 
 					`upc`               = '" . $this->db->escape($data['upc']) . "', 
 					`ean`               = '" . $this->db->escape($data['ean']) . "', 
@@ -471,7 +471,7 @@ class ModelCatalogProduct extends Model {
 								`product_id` 		= '" . (int) $product_id . "', 
 								`store_id` 			= '" . (int) $store_id . "',
 								`sort_order` 		= '" . (int) $data['sort_order'] . "',
-								`parent_id`  		= '" . (isset($data['parent_id']) ? ((int) $data['parent_id']) : '1') . "',
+								`parent_id`  		= '" . (isset($data['parent_id']) ? ((int) $data['parent_id']) : '0') . "',
 								`status`     		= '" . (int) $data['status'] . "',
 								`image` 				= '" . (isset($data['image']) ? ($this->db->escape($data['image'])) : '') . "'
 						");
