@@ -298,7 +298,7 @@ class ModelCatalogProduct extends Model {
 
 		$product = $this->db->query($sql);
 
-		return !empty($product->row) ? $product->rows : false ;
+		return !empty($product->row) ? $product->row : false ;
 		
 	}
 
