@@ -46,7 +46,7 @@ class ModelCatalogProduct extends Model {
 			$this->db->query("
 				INSERT INTO " . DB_PREFIX . "product_stats
 				SET 
-					`product_id` 	= '" . (int) $product_id . "'
+					`product_id` 	= '" . (int) $product_id . "',
 					`store_id`		= '" . (int) $this->session->data['store_id'] . "'
 			");
 			
