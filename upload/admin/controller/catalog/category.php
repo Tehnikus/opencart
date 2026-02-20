@@ -306,12 +306,12 @@ class ControllerCatalogCategory extends Controller {
 			$data['error_name'] = array();
 		}
 
-		if (isset($this->error['meta_title'])) {
-			$data['error_meta_title'] = $this->error['meta_title'];
+		if (isset($this->error['category_store'])) {
+			$data['error_category_store'] = $this->error['category_store'];
 		} else {
-			$data['error_meta_title'] = array();
+			$data['error_category_store'] = '';
 		}
-
+		
 		if (isset($this->error['keyword'])) {
 			$data['error_keyword'] = $this->error['keyword'];
 		} else {
@@ -510,6 +510,10 @@ class ControllerCatalogCategory extends Controller {
 	protected function validateForm() {
 		if (!$this->user->hasPermission('modify', 'catalog/category')) {
 			$this->error['warning'] = $this->language->get('error_permission');
+		}
+
+		if (!isset($this->request->post['category_store']) || empty($this->request->post['category_store'])) {
+			$this->error['category_store'] = $this->language->get('error_stores_association');
 		}
 
 		foreach ($this->request->post['category_description'] as $language_id => $value) {

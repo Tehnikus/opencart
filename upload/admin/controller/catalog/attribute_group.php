@@ -267,6 +267,12 @@ class ControllerCatalogAttributeGroup extends Controller {
 			$data['error_name'] = array();
 		}
 
+		if (isset($this->error['stores_association'])) {
+			$data['error_store_association'] = $this->error['stores_association'];
+		} else {
+			$data['error_store_association'] = '';
+		}
+
 		$url = '';
 
 		if (isset($this->request->get['sort'])) {
@@ -345,8 +351,12 @@ class ControllerCatalogAttributeGroup extends Controller {
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
 
+		if (!isset($this->request->post['stores_association']) || empty($this->request->post['stores_association'])) {
+			$this->error['stores_association'] = $this->language->get('error_stores_association');
+		}
+
 		foreach ($this->request->post['attribute_group_description'] as $language_id => $value) {
-			if ((utf8_strlen($value['name']) < 1) || (utf8_strlen($value['name']) > 64)) {
+			if ((utf8_strlen($value['name']) < 1) || (utf8_strlen($value['name']) > 255)) {
 				$this->error['name'][$language_id] = $this->language->get('error_name');
 			}
 		}

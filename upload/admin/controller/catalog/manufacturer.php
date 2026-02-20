@@ -267,6 +267,12 @@ class ControllerCatalogManufacturer extends Controller {
 			$data['error_name'] = '';
 		}
 
+		if (isset($this->error['stores_association'])) {
+			$data['error_store_association'] = $this->error['stores_association'];
+		} else {
+			$data['error_store_association'] = '';
+		}
+
 		if (isset($this->error['keyword'])) {
 			$data['error_keyword'] = $this->error['keyword'];
 		} else {
@@ -376,6 +382,10 @@ class ControllerCatalogManufacturer extends Controller {
 	protected function validateForm() {
 		if (!$this->user->hasPermission('modify', 'catalog/manufacturer')) {
 			$this->error['warning'] = $this->language->get('error_permission');
+		}
+
+		if (!isset($this->request->post['manufacturer_store']) || empty($this->request->post['manufacturer_store'])) {
+			$this->error['stores_association'] = $this->language->get('error_stores_association');
 		}
 
 		foreach ($this->request->post['manufacturer_description'] as $language_id => $value) {

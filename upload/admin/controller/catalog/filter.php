@@ -260,6 +260,12 @@ class ControllerCatalogFilter extends Controller {
 		} else {
 			$data['error_warning'] = '';
 		}
+		
+		if (isset($this->error['stores_association'])) {
+			$data['error_store_association'] = $this->error['stores_association'];
+		} else {
+			$data['error_store_association'] = '';
+		}
 
 		if (isset($this->error['group'])) {
 			$data['error_group'] = $this->error['group'];
@@ -360,8 +366,12 @@ class ControllerCatalogFilter extends Controller {
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
 
+		if (!isset($this->request->post['stores_association']) || empty($this->request->post['stores_association'])) {
+			$this->error['stores_association'] = $this->language->get('error_stores_association');
+		}
+
 		foreach ($this->request->post['filter_group_description'] as $language_id => $value) {
-			if ((utf8_strlen($value['name']) < 1) || (utf8_strlen($value['name']) > 64)) {
+			if ((utf8_strlen($value['name']) < 1) || (utf8_strlen($value['name']) > 255)) {
 				$this->error['group'][$language_id] = $this->language->get('error_group');
 			}
 		}
@@ -369,7 +379,7 @@ class ControllerCatalogFilter extends Controller {
 		if (isset($this->request->post['filter'])) {
 			foreach ($this->request->post['filter'] as $filter_id => $filter) {
 				foreach ($filter['filter_description'] as $language_id => $filter_description) {
-					if ((utf8_strlen($filter_description['name']) < 1) || (utf8_strlen($filter_description['name']) > 64)) {
+					if ((utf8_strlen($filter_description['name']) < 1) || (utf8_strlen($filter_description['name']) > 255)) {
 						$this->error['filter'][$filter_id][$language_id] = $this->language->get('error_name');
 					}
 				}

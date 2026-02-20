@@ -266,6 +266,12 @@ class ControllerCatalogAttribute extends Controller {
 			$data['error_warning'] = '';
 		}
 
+		if (isset($this->error['stores_association'])) {
+			$data['error_store_association'] = $this->error['stores_association'];
+		} else {
+			$data['error_store_association'] = '';
+		}
+
 		if (isset($this->error['name'])) {
 			$data['error_name'] = $this->error['name'];
 		} else {
@@ -367,6 +373,10 @@ class ControllerCatalogAttribute extends Controller {
 	protected function validateForm() {
 		if (!$this->user->hasPermission('modify', 'catalog/attribute')) {
 			$this->error['warning'] = $this->language->get('error_permission');
+		}
+
+		if (!isset($this->request->post['stores_association']) || empty($this->request->post['stores_association'])) {
+			$this->error['stores_association'] = $this->language->get('error_stores_association');
 		}
 
 		if (!$this->request->post['attribute_group_id']) {

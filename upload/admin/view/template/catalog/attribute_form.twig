@@ -41,7 +41,6 @@
             <label class="col-sm-2 control-label" for="input-attribute-group">{{ entry_attribute_group }}</label>
             <div class="col-sm-10">
               <select name="attribute_group_id" id="input-attribute-group" class="form-control">
-                <option value="0"></option>
                 {% for attribute_group in attribute_groups %}
                 {% if attribute_group.attribute_group_id == attribute_group_id %}
                 <option value="{{ attribute_group.attribute_group_id }}" selected="selected">{{ attribute_group.name }}</option>
@@ -57,7 +56,7 @@
           </div>
 
           {# Store association #}
-          <div class="form-group">
+          <div class="form-group required">
             <label class="col-sm-2 control-label">{{ entry_store_association }}</label>
             <div class="col-sm-10">
               <div class="well well-sm" style="height: 150px; overflow: auto;"> 
@@ -70,6 +69,9 @@
                   </div>
                 {% endfor %}
               </div>
+              {% if error_store_association %}
+                <div class="text-danger">{{ error_store_association }}</div>
+              {% endif %}
             </div>
           </div>
           {# End store association #}
