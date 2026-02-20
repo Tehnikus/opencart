@@ -2,6 +2,13 @@
 class ModelCatalogProduct extends Model {
 	public function updateViewed($product_id) {
 		$this->db->query("UPDATE " . DB_PREFIX . "product SET viewed = (viewed + 1) WHERE product_id = '" . (int)$product_id . "'");
+
+		$this->db->query("
+			INSERT INTO " . DB_PREFIX . "product_stats (product_id, store_id, viewed)
+			VALUES ('" . (int) $product_id . "', '" . $this->config->get('config_store_id') . "', 1)
+			ON DUPLICATE KEY UPDATE 
+				viewed = (viewed + 1) 
+		");
 	}
 
 	public function getProduct($product_id) {
