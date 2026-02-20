@@ -1294,7 +1294,7 @@ CREATE TABLE `oc_filter_description` (
   `language_id`     INT NOT NULL,
   `store_id`        INT NOT NULL DEFAULT '0',
   `filter_group_id` INT NOT NULL,
-  `name`            VARCHAR(128) NOT NULL,
+  `name`            VARCHAR(255) NOT NULL,
   PRIMARY KEY (`filter_id`, `language_id`, `store_id`),
   KEY (`language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1332,7 +1332,7 @@ CREATE TABLE `oc_filter_group_description` (
   `filter_group_id` INT NOT NULL,
   `language_id`     INT NOT NULL,
   `store_id`        INT NOT NULL DEFAULT '0',
-  `name`            VARCHAR(128) NOT NULL,
+  `name`            VARCHAR(255) NOT NULL,
   PRIMARY KEY (`filter_group_id`,`language_id`, `store_id`),
   KEY (`language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
