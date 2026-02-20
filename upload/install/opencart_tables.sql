@@ -2208,13 +2208,13 @@ CREATE TABLE `oc_product_discount` (
   `product_id`          INT NOT NULL,
   `store_id`            INT NOT NULL DEFAULT '0',
   `customer_group_id`   INT NOT NULL,
-  `quantity`            INT NOT NULL DEFAULT '0',
+  `quantity`            INT NOT NULL DEFAULT '1',
   `priority`            INT NOT NULL DEFAULT '1',
   `price`               DECIMAL(15,4) NOT NULL DEFAULT '0.0000',
   `date_start`          DATETIME DEFAULT NULL,
   `date_end`            DATETIME DEFAULT NULL,
   PRIMARY KEY (`product_discount_id`),
-  KEY (`product_id`, `store_id`)
+  KEY (`product_id`, `customer_group_id`, `quantity`, `date_start`, `date_end`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -2322,7 +2322,7 @@ CREATE TABLE `oc_product_related` (
   `product_id`  INT NOT NULL,
   `related_id`  INT NOT NULL,
   `store_id`    INT NOT NULL DEFAULT '0',
-  PRIMARY KEY (`product_id`,`related_id`, `store_id`)
+  PRIMARY KEY (`product_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
