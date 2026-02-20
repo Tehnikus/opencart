@@ -1059,3 +1059,8 @@ table td p {
         padding: 3px 7px;
     }
 }
+
+
+.has-error .well {
+    border-color: #e3503e;
+}
