@@ -163,6 +163,7 @@ $_['entry_store_association']       = 'Store association';
 $_['entry_language_association']    = 'Language association';
 $_['entry_language']                = 'Language';
 $_['entry_store']                   = 'Store';
+$_['entry_parent']                  = 'Main parent category';
 // List entries
 $_['edit_filter_group']             = 'Edit %s filter group';
 $_['edit_option_group']             = 'Edit %s option group';
@@ -189,6 +190,7 @@ $_['tab_languages']                 = 'Languages';
 // Errors
 $_['error_language_association']    = 'Select at least one language for this store';
 $_['error_stores_association']      = 'Select at least on store';
+$_['error_parent']                  = 'Select parent category';
 
 /* When doing translations only include the matching language code */
 
