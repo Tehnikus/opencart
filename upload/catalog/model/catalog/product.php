@@ -15,13 +15,13 @@ class ModelCatalogProduct extends Model {
 
 		$language_id = (int) $this->config->get('config_language_id');
 		$store_id = (int) $this->config->get('config_store_id');
+		$customer_group_id = (int) $this->config->get('config_customer_group_id');
 
 		$sql = "
 			SELECT
 				
 				p.`product_id`,
 				p.`model`,
-				p.`parent_id`,
 				p.`sku`,
 				p.`upc`,
 				p.`ean`,
@@ -53,7 +53,7 @@ class ModelCatalogProduct extends Model {
 				p2s.`date_modified`,
 
 				COALESCE(p2s.`image`, p.`image`) AS image,
-				COALESCE(p2s.`price`, p.`price`) AS price,
+				COALESCE(NULLIF(p2s.price, 0), p.price) AS price,
 
 				pd.`name`,
 				pd.`meta_title`,
@@ -71,7 +71,7 @@ class ModelCatalogProduct extends Model {
 	 			(
 	 				SELECT price FROM " . DB_PREFIX . "product_discount pd2 
 	 				WHERE pd2.product_id = p.product_id 
-	 					AND pd2.customer_group_id = '" . (int) $this->config->get('config_customer_group_id') . "' 
+	 					AND pd2.customer_group_id = {$customer_group_id} 
 	 					AND pd2.quantity = '1' 
 						AND (
 							(pd2.date_start 	IS NULL OR pd2.date_start = '0000-00-00 00:00:00' OR  pd2.date_start < NOW()) 
@@ -86,7 +86,7 @@ class ModelCatalogProduct extends Model {
 	 				SELECT 
 	 					price FROM " . DB_PREFIX . "product_special ps 
 	 				WHERE ps.product_id = p.product_id 
-	 					AND ps.customer_group_id = '" . (int) $this->config->get('config_customer_group_id') . "' 
+	 					AND ps.customer_group_id = {$customer_group_id} 
 	 					AND (
 							(ps.date_start 	 IS NULL OR ps.date_start = '0000-00-00 00:00:00' OR ps.date_start < NOW()) 
 	 						AND (ps.date_end IS NULL OR ps.date_end 	= '0000-00-00 00:00:00' OR ps.date_end 	 > NOW())
@@ -141,7 +141,7 @@ class ModelCatalogProduct extends Model {
 						points 
 					FROM " . DB_PREFIX . "product_reward pr 
 					WHERE pr.product_id = p.product_id 
-						AND pr.customer_group_id = '" . (int)$this->config->get('config_customer_group_id') . "'
+						AND pr.customer_group_id = {$customer_group_id}
 				) AS reward, 
 
 				(
@@ -149,21 +149,21 @@ class ModelCatalogProduct extends Model {
 						ss.name 
 					FROM " . DB_PREFIX . "stock_status ss 
 					WHERE ss.stock_status_id = p.stock_status_id 
-						AND ss.language_id = '" . (int)$this->config->get('config_language_id') . "'
+						AND ss.language_id = {$language_id}
 				) AS stock_status, 
 				(
 					SELECT 
 						wcd.unit 
 					FROM " . DB_PREFIX . "weight_class_description wcd 
 					WHERE p.weight_class_id = wcd.weight_class_id 
-						AND wcd.language_id = '" . (int)$this->config->get('config_language_id') . "'
+						AND wcd.language_id = {$language_id}
 				) AS weight_class, 
 				(
 					SELECT 
 						lcd.unit 
 					FROM " . DB_PREFIX . "length_class_description lcd 
 					WHERE p.length_class_id = lcd.length_class_id 
-						AND lcd.language_id = '" . (int)$this->config->get('config_language_id') . "'
+						AND lcd.language_id = {$language_id}
 				) AS length_class, 
 
 				-- (
@@ -288,10 +288,10 @@ class ModelCatalogProduct extends Model {
 				ON p.product_id = p2s.product_id
 			INNER JOIN " . DB_PREFIX . "product_description pd
 				ON 	pd.product_id  	= p2s.product_id
-				AND pd.language_id 	= '" . (int) $this->config->get('config_language_id') . "'
+				AND pd.language_id 	= {$language_id}
 				AND pd.store_id 		= p2s.store_id
 			WHERE p2s.product_id 	= '" . (int) $product_id . "'
-				AND p2s.store_id 		= '" . (int) $this->config->get('config_store_id') . "'
+				AND p2s.store_id 		= {$store_id}
 				AND p2s.status 			= 1
 			LIMIT 1
 		";
