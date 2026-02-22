@@ -414,14 +414,13 @@ class ModelCatalogProduct extends Model {
 				WHERE `product_id`    = '" . (int) $product_id . "'
 			");
 	
-			// if (isset($data['image'])) {
-			// 	$this->db->query("
-			// 		UPDATE " . DB_PREFIX . "product 
-			// 		SET 
-			// 			image = '" . $this->db->escape($data['image']) . "' 
-			// 		WHERE product_id 	= '" . (int) $product_id . "'
-			// 	");
-			// }
+			// Insert into product stats to sort products in frontend by various product features
+			$this->db->query("
+				INSERT IGNORE INTO " . DB_PREFIX . "product_stats
+				SET 
+					`product_id` 	= '" . (int) $product_id . "',
+					`store_id`		= '" . (int) $this->session->data['store_id'] . "'
+			");
 	
 			$this->db->query("
 				DELETE FROM " . DB_PREFIX . "product_description 
