@@ -200,6 +200,7 @@ class ModelCatalogProduct extends Model {
 					FROM " . DB_PREFIX . "product_reward pr 
 					WHERE pr.product_id = p.product_id 
 						AND pr.customer_group_id = {$customer_group_id}
+						AND pr.store_id = p2s.store_id
 				) AS reward, 
 
 				(
