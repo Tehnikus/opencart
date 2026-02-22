@@ -1093,7 +1093,7 @@ class ControllerCatalogProduct extends Controller {
 			}
 
 			$data['product_images'][] = array(
-				'image'      => HTTPS_CATALOG . 'image/' . $image,
+				'image'      => $image,
 				'thumb'      => HTTPS_CATALOG . 'image/' . $thumb,
 				'sort_order' => $product_image['sort_order']
 			);
