@@ -1712,8 +1712,7 @@ CREATE TABLE `oc_option_to_store` (
   `option_id`   INT NOT NULL,
   `store_id`    INT NOT NULL DEFAULT '0',
   `sort_order`  INT NOT NULL DEFAULT '0',
-  PRIMARY KEY (`option_id`, `store_id`),
-  KEY (`store_id`, `sort_order`)
+  PRIMARY KEY (`option_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -1723,7 +1722,7 @@ CREATE TABLE `oc_option_description` (
   `language_id` INT NOT NULL,
   `store_id`    INT NOT NULL DEFAULT '0',
   `name`        VARCHAR(255) NOT NULL,
-  PRIMARY KEY (`option_id`,`language_id`, `store_id`)
+  PRIMARY KEY (`option_id`, `language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -1734,8 +1733,7 @@ CREATE TABLE `oc_option_value` (
   `store_id`        INT NOT NULL DEFAULT '0',
   `image`           VARCHAR(255) NOT NULL,
   `sort_order`      INT NOT NULL,
-  PRIMARY KEY (`option_value_id`, `store_id`),
-  KEY (`option_id`, `store_id`, `sort_order`)
+  PRIMARY KEY (`option_value_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -2265,7 +2263,7 @@ CREATE TABLE `oc_product_option` (
   `value`             TEXT NOT NULL,
   `required`          TINYINT NOT NULL,
   PRIMARY KEY (`product_option_id`),
-  KEY (`product_id`, `store_id`)
+  KEY (`product_id`, `store_id`, `product_option_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -2292,7 +2290,7 @@ CREATE TABLE `oc_product_option_value` (
   `weight`                  DECIMAL(15,8) NOT NULL,
   `weight_prefix`           VARCHAR(1) NOT NULL,
   PRIMARY KEY (`product_option_value_id`),
-  KEY (`product_id`, `store_id`)
+  KEY (`product_id`, `product_option_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -2339,7 +2337,8 @@ CREATE TABLE `oc_product_reward` (
   `customer_group_id` INT NOT NULL DEFAULT '0',
   `points`            INT NOT NULL DEFAULT '0',
   `store_id`          INT NOT NULL DEFAULT '0',
-  PRIMARY KEY (`product_reward_id`)
+  PRIMARY KEY (`product_reward_id`),
+  KEY (`product_id`, `customer_group_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
