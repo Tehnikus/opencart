@@ -11,11 +11,42 @@ class ModelCatalogProduct extends Model {
 		");
 	}
 
+	private function getValidDiscount(array $rows, int $customerGroupId): ?array {
+    $now = time();
+
+    $valid = array_filter($rows, function ($r) use ($customerGroupId, $now) : bool {
+
+			// Remove all rows that don't match customer_group_id 
+			if ((int) $r['customer_group_id'] !== $customerGroupId) {
+				return false;
+			}
+
+			// Normalize null dates from non strict SQL to null
+			$start 	= (!$r['date_start'] || str_starts_with($r['date_start'],	'0000-00-00')) ? null : strtotime($r['date_start']);
+			$end 	= (!$r['date_end'] || str_starts_with($r['date_end'],	'0000-00-00')) ? null : strtotime($r['date_end']);;
+			
+			// Remove all rows where discount starts later then now
+			if ($start && $start > $now) {return false;}
+			// remove all rows where discount ends earlier then now 
+			if ($end && $end < $now) {return false;}
+
+			return true;
+    });
+
+		// Order rows first by priority then by price
+    usort($valid, fn($a,$b) =>
+			[$a['priority'], $a['price']] <=> [$b['priority'], $b['price']]
+    );
+
+		// Return first valid row
+    return $valid[0] ?? null;
+	}
+
 	public function getProduct($product_id) : array|bool {
 
-		$language_id = (int) $this->config->get('config_language_id');
-		$store_id = (int) $this->config->get('config_store_id');
-		$customer_group_id = (int) $this->config->get('config_customer_group_id');
+		$language_id 				= (int) $this->config->get('config_language_id');
+		$store_id 					= (int) $this->config->get('config_store_id');
+		$customer_group_id 	= (int) $this->config->get('config_customer_group_id');
 
 		$sql = "
 			SELECT
@@ -241,10 +272,22 @@ class ModelCatalogProduct extends Model {
 			LIMIT 1
 		";
 
-		$product = $this->db->query($sql);
+		$product = $this->db->query($sql)->row;
 
-		return !empty($product->row) ? $product->row : false ;
-		
+		if (empty($product)) {
+			return false;
+		}
+
+		$product['images'] 							= json_decode($product['images'] ?? '[]', true);
+		$product['product_specials'] 		= json_decode($product['product_specials'] ?? '[]', true);
+		$product['product_discounts'] 	= json_decode($product['product_discounts'] ?? '[]', true);
+		$product['product_options'] 		= json_decode($product['product_options'] ?? '[]', true);
+		$product['discount'] 						= $this->getValidDiscount($product['product_discounts'], $customer_group_id)['price'] ?? null;
+		$product['special'] 						= $this->getValidDiscount($product['product_specials'], $customer_group_id)['price'] ?? null;
+		$product['discount_date_end'] 	= $this->getValidDiscount($product['product_discounts'], $customer_group_id)['date_end'];
+		$product['special_date_end'] 		= $this->getValidDiscount($product['product_specials'], $customer_group_id)['date_end'];
+
+		return $product;
 	}
 
 	public function getProducts($data = array()) {
