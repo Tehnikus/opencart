@@ -342,9 +342,12 @@ class ModelCatalogProduct extends Model {
 				) AS product_stats
 
 			FROM " . DB_PREFIX . "product_to_store p2s
-			INNER JOIN " . DB_PREFIX . "product p
+			LEFT JOIN " . DB_PREFIX . "product_stats pst
+				ON pst.product_id = p2s.product_id
+				AND pst.store_id = p2s.store_id
+			JOIN " . DB_PREFIX . "product p
 				ON p.product_id = p2s.product_id
-			INNER JOIN " . DB_PREFIX . "product_description pd
+			JOIN " . DB_PREFIX . "product_description pd
 				ON 	pd.product_id  	= p2s.product_id
 				AND pd.language_id 	= {$language_id}
 				AND pd.store_id 		= p2s.store_id
