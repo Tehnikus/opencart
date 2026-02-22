@@ -92,8 +92,107 @@ class ModelCatalogProduct extends Model {
 					)
 					FROM " . DB_PREFIX . "product_image pi
 					WHERE pi.product_id = p2s.product_id
-						AND pi.store_id = p2s.store_id
+						AND pi.store_id   = p2s.store_id
 				) AS images,
+
+				(
+					SELECT JSON_OBJECTAGG(
+						ps.product_special_id, JSON_OBJECT(
+							'product_id',         ps.`product_id`,
+							'store_id',           ps.`store_id`,
+							'customer_group_id',  ps.`customer_group_id`,
+							'priority',           ps.`priority`,
+							'price',              ps.`price`,
+							'date_start',         ps.`date_start`,
+							'date_end',           ps.`date_end`
+						)
+					) FROM " . DB_PREFIX . "product_special ps
+					 WHERE ps.product_id = p2s.product_id
+					 AND ps.store_id = p2s.store_id
+				) AS product_specials,
+
+				(
+					SELECT JSON_OBJECTAGG(
+						pd.product_discount_id, JSON_OBJECT(
+							'product_id',          pd.`product_id`,
+							'store_id',            pd.`store_id`,
+							'customer_group_id',   pd.`customer_group_id`,
+							'quantity',            pd.`quantity`,
+							'priority',            pd.`priority`,
+							'price',               pd.`price`,
+							'date_start',          pd.`date_start`,
+							'date_end',            pd.`date_end`
+						)
+					) FROM " . DB_PREFIX . "product_discount pd
+					 WHERE pd.product_id = p2s.product_id
+					 AND pd.store_id = p2s.store_id
+				) AS product_discounts,
+
+				(
+					SELECT JSON_OBJECTAGG(
+						po.product_option_id, JSON_OBJECT(
+
+							'product_option_id', 		po.`product_option_id`,
+							'product_id', 					po.`product_id`,
+							'store_id', 						po.`store_id`,
+							'option_id', 						po.`option_id`,
+							'value', 								po.`value`,
+							'required', 						po.`required`,
+							'type', 								o.`type`,
+							'sort_order', 					(SELECT o2s.sort_order FROM " . DB_PREFIX . "option_to_store o2s WHERE o2s.option_id = po.option_id AND o2s.store_id = po.store_id LIMIT 1),
+							'language_id', 					od.`language_id`,
+							'name', 								od.`name`,
+						
+							'values', (
+								SELECT JSON_ARRAYAGG(
+									JSON_OBJECT(
+										'product_option_value_id',	pov.`product_option_value_id`,
+										'product_option_id',				pov.`product_option_id`,
+										'product_id',								pov.`product_id`,
+										'store_id',									pov.`store_id`,
+										'option_id',								pov.`option_id`,
+										'option_value_id',					pov.`option_value_id`,
+										'quantity',									pov.`quantity`,
+										'subtract',									pov.`subtract`,
+										'price',										pov.`price`,
+										'price_prefix',							pov.`price_prefix`,
+										'points',										pov.`points`,
+										'points_prefix',						pov.`points_prefix`,
+										'weight',										pov.`weight`,
+										'weight_prefix',						pov.`weight_prefix`,
+										'image',										ov.`image`,
+										'sort_order',								ov.`sort_order`,
+										'language_id',							ovd.`language_id`,
+										'name',											ovd.`name`
+									)
+								)
+								FROM " . DB_PREFIX . "product_option_value pov
+								JOIN " . DB_PREFIX . "option_value ov
+									ON ov.option_value_id 		= pov.option_value_id
+									AND ov.store_id 					= p2s.store_id
+								JOIN " . DB_PREFIX . "option_value_description ovd
+									ON ovd.option_value_id 		= pov.option_value_id
+									AND ovd.language_id 			= pd.language_id
+									AND ovd.store_id 					= p2s.store_id
+								WHERE pov.product_id 				= p2s.product_id
+									AND pov.product_option_id = po.product_option_id
+									AND pov.store_id 					= p2s.store_id
+							)
+						)
+					)
+					FROM " . DB_PREFIX . "product_option po
+					JOIN " . DB_PREFIX . "option o
+						ON o.option_id 			= po.option_id
+					JOIN " . DB_PREFIX . "option_to_store o2s
+						ON 	o2s.option_id 	= po.option_id
+						AND o2s.store_id 		= p2s.store_id
+					JOIN " . DB_PREFIX . "option_description od
+						ON 	od.option_id 		= po.option_id
+						AND od.language_id	= pd.language_id
+						AND od.store_id 		= p2s.store_id
+					WHERE po.product_id 	= p.product_id
+						AND po.store_id 		= p2s.store_id
+				) AS product_options,
 
 				(
 					SELECT 
