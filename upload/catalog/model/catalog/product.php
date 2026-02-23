@@ -43,10 +43,11 @@ class ModelCatalogProduct extends Model {
 	}
 
 	public function getProduct($product_id) : array|bool {
-
+		$product_id 				= (int) $product_id;
 		$language_id 				= (int) $this->config->get('config_language_id');
 		$store_id 					= (int) $this->config->get('config_store_id');
 		$customer_group_id 	= (int) $this->config->get('config_customer_group_id');
+		$cache_name 				= "product.store_{$store_id}.language_{$language_id}." . (floor($product_id / 100)) . ".product_{$product_id}";
 
 		$sql = "
 			SELECT
