@@ -365,6 +365,8 @@ class ControllerCatalogProduct extends Controller {
 				'product_id' 					=> $result['product_id'],
 				'image'      					=> $image,
 				'name'       					=> $result['name'],
+				'parent_id' 					=> $result['parent_id'],
+				'parent_name' 				=> $result['parent_name'],
 				'stores'		 					=> $result['stores'],
 				'model'      					=> $result['model'],
 				'product_filters' 		=> $result['product_filters'],

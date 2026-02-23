@@ -118,6 +118,13 @@
                     <td class="text-left">
                       <p><b>{{ product.name }}</b>&nbsp;({{ product.model }})</p>
                       <p>
+                        {% if product.parent_id %}
+                          <a href="{{ store.url }}index.php?route=product/category&category_id={{ product.parent_id }}">{{ product.parent_name }}</a>
+                        {% else %}
+                          <span class="text-danger">{{ error_no_parent }}</span>
+                        {% endif %}
+                      </p>
+                      <p>
                         {% for store in stores %}
                           {% if store.store_id in product.stores %}
                             {% if product.status_to_store[store.store_id] == 1 %}

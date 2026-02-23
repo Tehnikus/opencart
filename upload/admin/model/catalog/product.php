@@ -1061,6 +1061,7 @@ class ModelCatalogProduct extends Model {
 				p2s.status,
 				p2s.sort_order,
 				p2s.date_modified,
+				p2s.parent_id,
 				(
 					SELECT 
 						pd.name 
@@ -1071,6 +1072,32 @@ class ModelCatalogProduct extends Model {
 						FIELD(pd.language_id, '" . (int) $this->config->get('config_language_id') . "') DESC
 						LIMIT 1
 				) AS `name`,
+				(
+					SELECT 
+						GROUP_CONCAT(t.name ORDER BY t.level SEPARATOR '&nbsp;&#9656;&nbsp; ')
+					FROM (
+						SELECT
+							cp.level,
+							(
+								SELECT cd2.name
+								FROM " . DB_PREFIX . "category_description cd2
+								WHERE cd2.category_id = cp.path_id
+								ORDER BY
+									FIELD(cd2.store_id, '" . (int)$this->session->data['store_id'] . "') DESC,
+									FIELD(cd2.language_id, '" . (int)$this->config->get('config_language_id') . "') DESC
+								LIMIT 1
+							) AS name
+					FROM " . DB_PREFIX . "category_path cp
+					WHERE cp.category_id = p2s.parent_id
+						AND cp.store_id = (
+							SELECT cp2.store_id
+							FROM " . DB_PREFIX . "category_path cp2
+							WHERE cp2.category_id = p2s.parent_id
+							ORDER BY FIELD(cp2.store_id, '" . (int)$this->session->data['store_id'] . "') DESC
+							LIMIT 1
+						)
+					) t
+				) AS `parent_name`,
 				(SELECT JSON_ARRAYAGG(p2s.store_id) FROM " . DB_PREFIX . "product_to_store p2s WHERE p2s.product_id = p.product_id) AS stores,
 				(SELECT JSON_OBJECTAGG(p2s.store_id, p2s.status) FROM " . DB_PREFIX . "product_to_store p2s WHERE p2s.product_id = p.product_id) AS status_to_store,
 				(SELECT COUNT(pa.attribute_id) FROM " . DB_PREFIX . "product_attribute pa WHERE pa.product_id = p.product_id AND pa.store_id = p2s.store_id) AS product_attributes,

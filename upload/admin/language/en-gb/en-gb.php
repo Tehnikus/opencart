@@ -192,6 +192,7 @@ $_['tab_languages']                 = 'Languages';
 $_['error_language_association']    = 'Select at least one language for this store';
 $_['error_stores_association']      = 'Select at least on store';
 $_['error_parent']                  = 'Select parent category';
+$_['error_no_parent']               = 'No parent category';
 
 /* When doing translations only include the matching language code */
 
