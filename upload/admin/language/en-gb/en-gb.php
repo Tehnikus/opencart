@@ -164,6 +164,7 @@ $_['entry_language_association']    = 'Language association';
 $_['entry_language']                = 'Language';
 $_['entry_store']                   = 'Store';
 $_['entry_parent']                  = 'Main parent category';
+$_['entry_keyword']                 = 'URL';
 // List entries
 $_['edit_filter_group']             = 'Edit %s filter group';
 $_['edit_option_group']             = 'Edit %s option group';
