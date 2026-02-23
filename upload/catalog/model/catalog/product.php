@@ -284,8 +284,8 @@ class ModelCatalogProduct extends Model {
 		$product['product_options'] 		= json_decode($product['product_options'] ?? '[]', true);
 		$product['discount'] 						= $this->getValidDiscount($product['product_discounts'], $customer_group_id)['price'] ?? null;
 		$product['special'] 						= $this->getValidDiscount($product['product_specials'], $customer_group_id)['price'] ?? null;
-		$product['discount_date_end'] 	= $this->getValidDiscount($product['product_discounts'], $customer_group_id)['date_end'];
-		$product['special_date_end'] 		= $this->getValidDiscount($product['product_specials'], $customer_group_id)['date_end'];
+		$product['discount_date_end'] 	= $this->getValidDiscount($product['product_discounts'], $customer_group_id)['date_end'] ?? null;
+		$product['special_date_end'] 		= $this->getValidDiscount($product['product_specials'], $customer_group_id)['date_end'] ?? null;
 
 		return $product;
 	}
