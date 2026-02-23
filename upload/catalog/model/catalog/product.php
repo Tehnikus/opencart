@@ -164,23 +164,18 @@ class ModelCatalogProduct extends Model {
 						po.product_option_id, JSON_OBJECT(
 
 							'product_option_id', 		po.`product_option_id`,
-							'product_id', 					po.`product_id`,
-							'store_id', 						po.`store_id`,
 							'option_id', 						po.`option_id`,
 							'value', 								po.`value`,
 							'required', 						po.`required`,
 							'type', 								o.`type`,
 							'sort_order', 					(SELECT o2s.sort_order FROM " . DB_PREFIX . "option_to_store o2s WHERE o2s.option_id = po.option_id AND o2s.store_id = po.store_id LIMIT 1),
-							'language_id', 					od.`language_id`,
 							'name', 								od.`name`,
 						
-							'values', (
+							'product_option_value', (
 								SELECT JSON_ARRAYAGG(
 									JSON_OBJECT(
 										'product_option_value_id',	pov.`product_option_value_id`,
 										'product_option_id',				pov.`product_option_id`,
-										'product_id',								pov.`product_id`,
-										'store_id',									pov.`store_id`,
 										'option_id',								pov.`option_id`,
 										'option_value_id',					pov.`option_value_id`,
 										'quantity',									pov.`quantity`,
@@ -193,7 +188,6 @@ class ModelCatalogProduct extends Model {
 										'weight_prefix',						pov.`weight_prefix`,
 										'image',										ov.`image`,
 										'sort_order',								ov.`sort_order`,
-										'language_id',							ovd.`language_id`,
 										'name',											ovd.`name`
 									)
 								)
