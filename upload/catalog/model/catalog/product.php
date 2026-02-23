@@ -226,13 +226,17 @@ class ModelCatalogProduct extends Model {
 				) AS product_options,
 
 				(
-					SELECT 
-						points 
-					FROM " . DB_PREFIX . "product_reward pr 
-					WHERE pr.product_id = p.product_id 
-						AND pr.customer_group_id = {$customer_group_id}
-						AND pr.store_id = p2s.store_id
-				) AS reward, 
+					SELECT JSON_OBJECTAGG(
+						pr.customer_group_id, JSON_OBJECT(
+							'product_reward_id', 	pr.`product_reward_id`,
+							'customer_group_id', 	pr.`customer_group_id`,
+							'points',            	pr.`points`
+						)
+					)
+						FROM " . DB_PREFIX . "product_reward pr
+						WHERE pr.product_id = p2s.product_id
+							AND pr.store_id 	= p2s.store_id
+				) AS rewards, 
 
 				(
 					SELECT 
@@ -282,6 +286,7 @@ class ModelCatalogProduct extends Model {
 		$product['product_specials'] 		= json_decode($product['product_specials'] ?? '[]', true);
 		$product['product_discounts'] 	= json_decode($product['product_discounts'] ?? '[]', true);
 		$product['product_options'] 		= json_decode($product['product_options'] ?? '[]', true);
+		$product['reward'] 							= json_decode($product['rewards'] ?? '[]', true)[$customer_group_id] ?? null;
 		$product['discount'] 						= $this->getValidDiscount($product['product_discounts'], $customer_group_id)['price'] ?? null;
 		$product['special'] 						= $this->getValidDiscount($product['product_specials'], $customer_group_id)['price'] ?? null;
 		$product['discount_date_end'] 	= $this->getValidDiscount($product['product_discounts'], $customer_group_id)['date_end'] ?? null;
