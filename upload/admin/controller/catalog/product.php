@@ -705,6 +705,14 @@ class ControllerCatalogProduct extends Controller {
 			$data['price'] = '';
 		}
 
+		if (isset($this->request->post['wholesale_price'])) {
+			$data['price'] = $this->request->post['wholesale_price'];
+		} elseif (!empty($product_info)) {
+			$data['wholesale_price'] = $product_info['wholesale_price'];
+		} else {
+			$data['wholesale_price'] = '';
+		}
+
 		$this->load->model('catalog/recurring');
 
 		$data['recurrings'] = $this->model_catalog_recurring->getRecurrings();
@@ -779,6 +787,15 @@ class ControllerCatalogProduct extends Controller {
 			$data['stock_status_id'] = $product_info['stock_status_id'];
 		} else {
 			$data['stock_status_id'] = 0;
+		}
+
+		// Available for order switch
+		if (isset($this->request->post['is_available'])) {
+			$data['is_available'] = $this->request->post['is_available'];
+		} elseif (!empty($product_info)) {
+			$data['is_available'] = $product_info['is_available'];
+		} else {
+			$data['is_available'] = true;
 		}
 
 		if (isset($this->request->post['status'])) {

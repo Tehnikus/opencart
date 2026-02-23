@@ -165,6 +165,8 @@ $_['entry_language']                = 'Language';
 $_['entry_store']                   = 'Store';
 $_['entry_parent']                  = 'Main parent category';
 $_['entry_keyword']                 = 'URL';
+$_['entry_wholesale_price']         = 'Wholesale price';
+$_['entry_is_available']            = 'Availble for order';
 // List entries
 $_['edit_filter_group']             = 'Edit %s filter group';
 $_['edit_option_group']             = 'Edit %s option group';
