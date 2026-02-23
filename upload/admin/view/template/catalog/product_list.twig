@@ -128,7 +128,9 @@
                         {% for store in stores %}
                           {% if store.store_id in product.stores %}
                             {% if product.status_to_store[store.store_id] == 1 %}
+                            <a href="{{ store.url }}index.php?route=product/product{% if product.parent_id %}&category_id={{ product.parent_id }}{% endif %}&product_id={{ product.product_id }}" target="_blank">
                               <span class="badge alert-success"><i class="fa fa-play"></i>&nbsp;{{ store.name }}</span>
+                            </a>
                             {% else %}
                               <span class="badge"><i class="fa fa-pause"></i>&nbsp;{{ store.name }}</span>
                             {% endif %}
