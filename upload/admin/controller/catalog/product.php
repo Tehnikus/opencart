@@ -358,8 +358,11 @@ class ControllerCatalogProduct extends Controller {
 				}
 			}
 
+		// Get stores list
 		$this->load->model('setting/store');
 		$data['stores'] = $this->model_setting_store->getMultistores();
+		// Get current store context
+		$data['currentStore'] = $this->session->data['store_id'];
 
 			$data['products'][] = array(
 				'product_id' 					=> $result['product_id'],
@@ -1357,6 +1360,23 @@ class ControllerCatalogProduct extends Controller {
 				);
 			}
 		}
+
+		$this->response->addHeader('Content-Type: application/json');
+		$this->response->setOutput(json_encode($json));
+	}
+
+	public function fetchSetProductStatus() : void {
+		$productId 			= (int) $this->request->post['product_id'];
+		$currentStatus 	= (int) $this->request->post['status'];
+		$newStatus 			= 0;
+
+		if ($currentStatus === 0) {
+			$newStatus = 1;
+		}
+
+		$this->load->model('catalog/product');
+		$newStatus = $this->model_catalog_product->setProductStatus($productId, $newStatus);
+		$json = ['productId' => $productId, 'newStatus' => $newStatus];
 
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));
