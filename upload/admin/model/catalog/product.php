@@ -129,11 +129,12 @@ class ModelCatalogProduct extends Model {
 							$this->db->query("
 								INSERT INTO " . DB_PREFIX . "product_attribute 
 								SET 
-									`product_id` 		= '" . (int) $product_id . "', 
-									`attribute_id` 	= '" . (int) $product_attribute['attribute_id'] . "', 
-									`store_id` 			= '" . (int) $this->session->data['store_id'] . "',
-									`language_id` 	= '" . (int) $language_id . "', 
-									`text` 					= '" . $this->db->escape($product_attribute_description['text']) . "'
+									`product_id` 					= '" . (int) $product_id . "', 
+									`attribute_id` 				= '" . (int) $product_attribute['attribute_id'] . "', 
+									`attribute_group_id` 	= (SELECT a2s.attribute_group_id FROM " . DB_PREFIX . "attribute_to_store a2s WHERE a2s.attribute_id = '" . (int) $product_attribute['attribute_id'] . "' AND a2s.store_id = '" . (int) $this->session->data['store_id'] . "'),
+									`store_id` 						= '" . (int) $this->session->data['store_id'] . "',
+									`language_id` 				= '" . (int) $language_id . "', 
+									`text` 								= '" . $this->db->escape($product_attribute_description['text']) . "'
 							");
 						}
 					}
@@ -513,11 +514,12 @@ class ModelCatalogProduct extends Model {
 							$this->db->query("
 								INSERT INTO " . DB_PREFIX . "product_attribute 
 								SET 
-									product_id 		= '" . (int) $product_id . "', 
-									store_id 			= '" . (int) $this->session->data['store_id'] . "',
-									attribute_id 	= '" . (int) $product_attribute['attribute_id'] . "', 
-									language_id 	= '" . (int) $language_id . "', 
-									text 					= '" .  $this->db->escape($product_attribute_description['text']) . "'
+									`product_id` 		= '" . (int) $product_id . "', 
+									`store_id` 			= '" . (int) $this->session->data['store_id'] . "',
+									`attribute_id` 	= '" . (int) $product_attribute['attribute_id'] . "', 
+									`attribute_group_id` = (SELECT a2s.attribute_group_id FROM " . DB_PREFIX . "attribute_to_store a2s WHERE a2s.attribute_id = '" . (int) $product_attribute['attribute_id'] . "' AND a2s.store_id = '" . (int) $this->session->data['store_id'] . "'),
+									`language_id` 	= '" . (int) $language_id . "', 
+									`text` 					= '" .  $this->db->escape($product_attribute_description['text']) . "'
 							");
 						}
 					}
