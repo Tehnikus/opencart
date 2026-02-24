@@ -2225,9 +2225,10 @@ CREATE TABLE `oc_product_discount` (
 
 DROP TABLE IF EXISTS `oc_product_filter`;
 CREATE TABLE `oc_product_filter` (
-  `product_id`  INT NOT NULL,
-  `filter_id`   INT NOT NULL,
-  `store_id`    INT NOT NULL DEFAULT '0',
+  `product_id`        INT NOT NULL,
+  `filter_id`         INT NOT NULL,
+  `filter_group_id`   INT NOT NULL,
+  `store_id`          INT NOT NULL DEFAULT '0',
   PRIMARY KEY (`product_id`, `store_id`, `filter_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

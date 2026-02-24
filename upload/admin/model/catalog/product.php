@@ -291,9 +291,10 @@ class ModelCatalogProduct extends Model {
 					$this->db->query("
 						INSERT INTO " . DB_PREFIX . "product_filter 
 						SET 
-							`product_id` 	= '" . (int) $product_id . "', 
-							`store_id` 		= '" . (int) $this->session->data['store_id'] . "',
-							`filter_id` 	= '" . (int) $filter_id . "'
+							`product_id` 			= '" . (int) $product_id . "', 
+							`store_id` 				= '" . (int) $this->session->data['store_id'] . "',
+							`filter_id` 			= '" . (int) $filter_id . "',
+							`filter_group_id` = (SELECT f.`filter_group_id` FROM `" . DB_PREFIX . "filter` f WHERE f.`filter_id` = '" . (int) $filter_id . "' AND f.`store_id` = '" . (int) $this->session->data['store_id'] . "' LIMIT 1)
 					");
 				}
 			}
@@ -730,9 +731,10 @@ class ModelCatalogProduct extends Model {
 					$this->db->query("
 						INSERT INTO " . DB_PREFIX . "product_filter
 						SET 
-							`product_id`  = '" . (int) $product_id . "', 
-							`store_id` 		= '" . (int) $this->session->data['store_id'] . "', 
-							`filter_id`   = '" . (int) $filter_id . "'
+							`product_id`  		= '" . (int) $product_id . "', 
+							`store_id` 				= '" . (int) $this->session->data['store_id'] . "', 
+							`filter_id`   		= '" . (int) $filter_id . "',
+							`filter_group_id` = (SELECT f.`filter_group_id` FROM `" . DB_PREFIX . "filter` f WHERE f.`filter_id` = '" . (int) $filter_id . "' AND f.`store_id` = '" . (int) $this->session->data['store_id'] . "' LIMIT 1)
 					");
 				}
 			}
