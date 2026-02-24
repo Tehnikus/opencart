@@ -1701,14 +1701,18 @@ class ModelCatalogProduct extends Model {
 	public function setProductStatus($product_id, $status) : int {
 		$this->db->query("
 			UPDATE " . DB_PREFIX . "product_to_store
-				SET `status` = '" . (int) $status . "'
+				SET 
+					`status` = '" . (int) $status . "',
+					`date_modified` = NOW()
 			WHERE `product_id` = '" . (int) $product_id . "'
 				AND `store_id` = '" . (int) $this->session->data['store_id'] . "'
 		");
 
 		$this->db->query("
 			UPDATE " . DB_PREFIX . "product
-				SET `status` = '" . (int) $status . "'
+				SET 
+					`status` = '" . (int) $status . "',
+					`date_modified` = NOW()
 			WHERE `product_id` = '" . (int) $product_id . "'
 		");
 
