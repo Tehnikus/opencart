@@ -867,5 +867,36 @@ class ModelCatalogCategory extends Model {
 		$query = $this->db->query("SELECT COUNT(*) AS total FROM " . DB_PREFIX . "category_to_layout WHERE layout_id = '" . (int)$layout_id . "'");
 
 		return $query->row['total'];
-	}	
+	}
+
+	// Set category status
+	public function setCategoryStatus($category_id, $status) : int {
+		$this->db->query("
+			UPDATE " . DB_PREFIX . "category_to_store
+				SET `status` = '" . (int) $status . "',
+				`date_modified` = NOW()
+			WHERE `category_id` = '" . (int) $category_id . "'
+				AND `store_id` = '" . (int) $this->session->data['store_id'] . "'
+		");
+
+		$this->db->query("
+			UPDATE " . DB_PREFIX . "category
+				SET `status` = '" . (int) $status . "',
+				`date_modified` = NOW()
+			WHERE `category_id` = '" . (int) $category_id . "'
+		");
+
+		$query = $this->db->query("
+			SELECT c2s.`status` 
+			FROM " . DB_PREFIX . "category_to_store c2s
+			JOIN " . DB_PREFIX . "category c
+				ON c2s.`category_id` = c.`category_id`
+			WHERE c2s.category_id 	= '" . (int) $category_id . "'
+				AND c2s.store_id 		= '" . (int) $this->session->data['store_id'] . "'
+			LIMIT 1
+		")->row;
+
+		$newStatus = $query['status'];
+		return (int) $newStatus;
+	}
 }

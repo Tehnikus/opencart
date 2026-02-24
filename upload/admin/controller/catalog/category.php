@@ -221,8 +221,12 @@ class ControllerCatalogCategory extends Controller {
 			);
 		}
 
+		// Get stores list
 		$this->load->model('setting/store');
 		$data['stores'] = $this->model_setting_store->getMultistores();
+		// Get current store context
+		$data['currentStore'] = $this->session->data['store_id'];
+		$data['user_token'] = $this->session->data['user_token'];
 
 		if (isset($this->error['warning'])) {
 			$data['error_warning'] = $this->error['warning'];
@@ -613,6 +617,23 @@ class ControllerCatalogCategory extends Controller {
 		}
 
 		array_multisort($sort_order, SORT_ASC, $json);
+
+		$this->response->addHeader('Content-Type: application/json');
+		$this->response->setOutput(json_encode($json));
+	}
+
+	public function fetchSetCategoryStatus() : void {
+		$categoryId 			= (int) $this->request->post['category_id'];
+		$currentStatus 	= (int) $this->request->post['status'];
+		$newStatus 			= 0;
+
+		if ($currentStatus === 0) {
+			$newStatus = 1;
+		}
+
+		$this->load->model('catalog/category');
+		$newStatus = $this->model_catalog_category->setCategoryStatus($categoryId, $newStatus);
+		$json = ['categoryId' => $categoryId, 'newStatus' => $newStatus];
 
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));
