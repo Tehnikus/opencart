@@ -47,7 +47,14 @@ class ModelCatalogProduct extends Model {
 		$language_id 				= (int) $this->config->get('config_language_id');
 		$store_id 					= (int) $this->config->get('config_store_id');
 		$customer_group_id 	= (int) $this->config->get('config_customer_group_id');
-		$cache_name 				= "product.store_{$store_id}.language_{$language_id}." . (floor($product_id / 100)) . ".product_{$product_id}";
+		
+		// TODO Cache
+		// $cacheName 					= "product.store_{$store_id}.language_{$language_id}." . (floor($product_id / 100)) . ".product_{$product_id}";
+		// $cachedData 				= $this->cache->get($cacheName);
+		
+		// if ($cachedData) {
+		// 	return $cachedData;
+		// }
 
 		$sql = "
 			SELECT
@@ -85,7 +92,7 @@ class ModelCatalogProduct extends Model {
 				p2s.`date_modified`,
 
 				COALESCE(p2s.`image`, p.`image`) AS image,
-				COALESCE(NULLIF(p2s.price, 0), p.price) AS price,
+				COALESCE(NULLIF(p2s.`price`, 0), p.`price`) AS price,
 
 				pd.`name`,
 				pd.`meta_title`,
@@ -118,13 +125,13 @@ class ModelCatalogProduct extends Model {
 				(
 					SELECT JSON_OBJECTAGG(
 						pi.product_image_id, JSON_OBJECT(
-							'image', 			pi.image,
-							'sort_order', pi.sort_order
+							'image', 			pi.`image`,
+							'sort_order', pi.`sort_order`
 						)
 					)
 					FROM " . DB_PREFIX . "product_image pi
-					WHERE pi.product_id = p2s.product_id
-						AND pi.store_id   = p2s.store_id
+					WHERE pi.`product_id` = p2s.`product_id`
+						AND pi.`store_id`   = p2s.`store_id`
 				) AS images,
 
 				(
@@ -139,8 +146,8 @@ class ModelCatalogProduct extends Model {
 							'date_end',           ps.`date_end`
 						)
 					) FROM " . DB_PREFIX . "product_special ps
-					 WHERE ps.product_id = p2s.product_id
-					 AND ps.store_id = p2s.store_id
+					 WHERE ps.`product_id` = p2s.`product_id`
+					 AND ps.`store_id` 		 = p2s.`store_id`
 				) AS product_specials,
 
 				(
@@ -156,8 +163,8 @@ class ModelCatalogProduct extends Model {
 							'date_end',            pd.`date_end`
 						)
 					) FROM " . DB_PREFIX . "product_discount pd
-					 WHERE pd.product_id = p2s.product_id
-					 AND pd.store_id = p2s.store_id
+					 WHERE pd.`product_id` = p2s.`product_id`
+					 AND pd.`store_id` 		 = p2s.`store_id`
 				) AS product_discounts,
 
 				(
@@ -171,7 +178,7 @@ class ModelCatalogProduct extends Model {
 					FROM (
 						SELECT
 							pa.attribute_group_id,
-							agd.name AS group_name,
+							agd.`name` AS `group_name`,
 				
 							JSON_ARRAYAGG(
 								JSON_OBJECT(
@@ -183,19 +190,19 @@ class ModelCatalogProduct extends Model {
 								)
 							) AS `attributes_json`
 				
-						FROM oc_product_attribute pa
+						FROM " . DB_PREFIX . "product_attribute pa
 				
-						LEFT JOIN oc_attribute_description ad
+						LEFT JOIN " . DB_PREFIX . "attribute_description ad
 							ON ad.`attribute_id` = pa.`attribute_id`
 							AND ad.`language_id` = pa.`language_id`
 							AND ad.`store_id` = pa.`store_id`
 				
-						LEFT JOIN oc_attribute_group_description agd
+						LEFT JOIN " . DB_PREFIX . "attribute_group_description agd
 							ON agd.`attribute_group_id` = pa.`attribute_group_id`
 							AND agd.`language_id` = pa.`language_id`
 							AND agd.`store_id` = pa.`store_id`
 				
-						LEFT JOIN oc_attribute_to_store a2s
+						LEFT JOIN " . DB_PREFIX . "attribute_to_store a2s
 							ON a2s.`attribute_id` = pa.`attribute_id`
 							AND a2s.`store_id` = pa.`store_id`
 				
@@ -216,7 +223,7 @@ class ModelCatalogProduct extends Model {
 							'value', 								po.`value`,
 							'required', 						po.`required`,
 							'type', 								o.`type`,
-							'sort_order', 					(SELECT o2s.sort_order FROM " . DB_PREFIX . "option_to_store o2s WHERE o2s.option_id = po.option_id AND o2s.store_id = po.store_id LIMIT 1),
+							'sort_order', 					(SELECT o2s.`sort_order` FROM " . DB_PREFIX . "option_to_store o2s WHERE o2s.`option_id` = po.`option_id` AND o2s.`store_id` = po.`store_id` LIMIT 1),
 							'name', 								od.`name`,
 						
 							'product_option_value', (
@@ -247,17 +254,17 @@ class ModelCatalogProduct extends Model {
 						)
 					)
 					FROM " . DB_PREFIX . "product_option po
-					JOIN " . DB_PREFIX . "option o
-						ON o.option_id 			= po.option_id
+					JOIN `" . DB_PREFIX . "option` o
+						ON o.`option_id` 			= po.`option_id`
 					JOIN " . DB_PREFIX . "option_to_store o2s
-						ON 	o2s.option_id 	= po.option_id
+						ON 	o2s.`option_id` 	= po.`option_id`
 						AND o2s.store_id 		= p2s.store_id
 					JOIN " . DB_PREFIX . "option_description od
-						ON 	od.option_id 		= po.option_id
-						AND od.language_id	= pd.language_id
-						AND od.store_id 		= p2s.store_id
-					WHERE po.product_id 	= p.product_id
-						AND po.store_id 		= p2s.store_id
+						ON 	od.`option_id` 		= po.`option_id`
+						AND od.`language_id`	= pd.`language_id`
+						AND od.`store_id` 		= p2s.`store_id`
+					WHERE po.`product_id` 	= p.`product_id`
+						AND po.`store_id` 		= p2s.`store_id`
 				) AS product_options,
 
 				(
@@ -269,45 +276,47 @@ class ModelCatalogProduct extends Model {
 						)
 					)
 						FROM " . DB_PREFIX . "product_reward pr
-						WHERE pr.product_id = p2s.product_id
-							AND pr.store_id 	= p2s.store_id
+						WHERE pr.`product_id` = p2s.`product_id`
+							AND pr.`store_id` 	= p2s.`store_id`
 				) AS rewards, 
 
 				(
 					SELECT 
 						ss.name 
 					FROM " . DB_PREFIX . "stock_status ss 
-					WHERE ss.stock_status_id = p.stock_status_id 
-						AND ss.language_id = {$language_id}
+					WHERE ss.`stock_status_id` = p.`stock_status_id` 
+						AND ss.`language_id` = {$language_id}
 				) AS stock_status, 
+
 				(
 					SELECT 
-						wcd.unit 
+						wcd.`unit` 
 					FROM " . DB_PREFIX . "weight_class_description wcd 
-					WHERE p.weight_class_id = wcd.weight_class_id 
-						AND wcd.language_id = {$language_id}
+					WHERE p.`weight_class_id` = wcd.`weight_class_id` 
+						AND wcd.`language_id` = {$language_id}
 				) AS weight_class, 
+
 				(
 					SELECT 
-						lcd.unit 
+						lcd.`unit` 
 					FROM " . DB_PREFIX . "length_class_description lcd 
-					WHERE p.length_class_id = lcd.length_class_id 
-						AND lcd.language_id = {$language_id}
+					WHERE p.`length_class_id` = lcd.`length_class_id` 
+						AND lcd.`language_id` = {$language_id}
 				) AS length_class
 
 			FROM " . DB_PREFIX . "product_to_store p2s
 			LEFT JOIN " . DB_PREFIX . "product_stats pst
-				ON pst.product_id = p2s.product_id
-				AND pst.store_id = p2s.store_id
+				ON pst.`product_id` = p2s.`product_id`
+				AND pst.`store_id` = p2s.`store_id`
 			JOIN " . DB_PREFIX . "product p
-				ON p.product_id = p2s.product_id
+				ON p.`product_id` = p2s.`product_id`
 			JOIN " . DB_PREFIX . "product_description pd
-				ON 	pd.product_id  	= p2s.product_id
-				AND pd.language_id 	= {$language_id}
-				AND pd.store_id 		= p2s.store_id
-			WHERE p2s.product_id 	= '" . (int) $product_id . "'
-				AND p2s.store_id 		= {$store_id}
-				AND p2s.status 			= 1
+				ON 	pd.`product_id`  	= p2s.`product_id`
+				AND pd.`language_id` 	= {$language_id}
+				AND pd.`store_id` 		= p2s.`store_id`
+			WHERE p2s.`product_id` 	= '" . (int) $product_id . "'
+				AND p2s.`store_id` 		= {$store_id}
+				AND p2s.`status` 			= 1
 			LIMIT 1
 		";
 
@@ -321,12 +330,15 @@ class ModelCatalogProduct extends Model {
 		$product['product_specials'] 		= json_decode($product['product_specials'] ?? '[]', true);
 		$product['product_discounts'] 	= json_decode($product['product_discounts'] ?? '[]', true);
 		$product['product_options'] 		= json_decode($product['product_options'] ?? '[]', true);
+		$product['product_attributes'] 	= json_decode($product['product_attributes'] ?? '[]', true);
 		$product['reward'] 							= json_decode($product['rewards'] ?? '[]', true)[$customer_group_id] ?? null;
 		$product['discount'] 						= $this->getValidDiscount($product['product_discounts'], $customer_group_id)['price'] ?? null;
 		$product['special'] 						= $this->getValidDiscount($product['product_specials'], $customer_group_id)['price'] ?? null;
 		$product['discount_date_end'] 	= $this->getValidDiscount($product['product_discounts'], $customer_group_id)['date_end'] ?? null;
 		$product['special_date_end'] 		= $this->getValidDiscount($product['product_specials'], $customer_group_id)['date_end'] ?? null;
 
+		// TODO Cache
+		// $this->cache->set($cacheName, $product);
 		return $product;
 	}
 
