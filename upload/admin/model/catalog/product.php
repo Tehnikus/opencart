@@ -1721,12 +1721,45 @@ class ModelCatalogProduct extends Model {
 			FROM " . DB_PREFIX . "product_to_store p2s
 			JOIN " . DB_PREFIX . "product p
 				ON p2s.`product_id` = p.`product_id`
-			WHERE p2s.product_id 	= '" . (int) $product_id . "'
-				AND p2s.store_id 		= '" . (int) $this->session->data['store_id'] . "'
+			WHERE p2s.`product_id` 	= '" . (int) $product_id . "'
+				AND p2s.`store_id` 		= '" . (int) $this->session->data['store_id'] . "'
 			LIMIT 1
 		")->row;
 
 		$newStatus = $query['status'];
 		return (int) $newStatus;
+	}
+
+	// Set product is available for order
+	public function setProductIsAvailable($product_id, $is_available) : int {
+		$this->db->query("
+			UPDATE " . DB_PREFIX . "product_to_store
+				SET 
+					`is_available` = '" . (int) $is_available . "',
+					`date_modified` = NOW()
+			WHERE `product_id` = '" . (int) $product_id . "'
+				AND `store_id` = '" . (int) $this->session->data['store_id'] . "'
+		");
+
+		$this->db->query("
+			UPDATE " . DB_PREFIX . "product
+				SET 
+					`is_available` = '" . (int) $is_available . "',
+					`date_modified` = NOW()
+			WHERE `product_id` = '" . (int) $product_id . "'
+		");
+
+		$query = $this->db->query("
+			SELECT p2s.`is_available` 
+			FROM " . DB_PREFIX . "product_to_store p2s
+			JOIN " . DB_PREFIX . "product p
+				ON p2s.`product_id` = p.`product_id`
+			WHERE p2s.`product_id` 	= '" . (int) $product_id . "'
+				AND p2s.`store_id` 		= '" . (int) $this->session->data['store_id'] . "'
+			LIMIT 1
+		")->row;
+
+		$newIsAvailable = $query['is_available'];
+		return (int) $newIsAvailable;
 	}
 }

@@ -379,6 +379,7 @@ class ControllerCatalogProduct extends Controller {
 				'special'    					=> $special,
 				'quantity'   					=> $result['quantity'],
 				'status'     					=> $result['status'],
+				'is_available'     		=> $result['is_available'],
 				'status_to_store'     => $result['status_to_store'],
 				'edit'       					=> $this->url->link('catalog/product/edit', 'user_token=' . $this->session->data['user_token'] . '&product_id=' . $result['product_id'] . $url, true)
 			);
@@ -1364,7 +1365,8 @@ class ControllerCatalogProduct extends Controller {
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));
 	}
-
+	
+	// Set product status with JS
 	public function fetchSetProductStatus() : void {
 		$productId 			= (int) $this->request->post['product_id'];
 		$currentStatus 	= (int) $this->request->post['status'];
@@ -1377,6 +1379,24 @@ class ControllerCatalogProduct extends Controller {
 		$this->load->model('catalog/product');
 		$newStatus = $this->model_catalog_product->setProductStatus($productId, $newStatus);
 		$json = ['productId' => $productId, 'newStatus' => $newStatus];
+
+		$this->response->addHeader('Content-Type: application/json');
+		$this->response->setOutput(json_encode($json));
+	}
+	
+	// Set product availability with JS
+	public function fetchSetProductIsAvailable() : void {
+		$productId 			= (int) $this->request->post['product_id'];
+		$currentIsAvailable 	= (int) $this->request->post['is_available'];
+		$newIsAvailable 			= 0;
+
+		if ($currentIsAvailable === 0) {
+			$newIsAvailable = 1;
+		}
+
+		$this->load->model('catalog/product');
+		$newIsAvailable = $this->model_catalog_product->setProductIsAvailable($productId, $newIsAvailable);
+		$json = ['productId' => $productId, 'newIsAvailable' => $newIsAvailable];
 
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));

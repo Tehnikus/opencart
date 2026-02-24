@@ -98,7 +98,7 @@
                       <td style="width: 50px" class="text-center">{{ column_attributes }}</td>
                       <td style="width: 50px" class="text-center">{% if sort == 'p.price' %} <a href="{{ sort_price }}" class="{{ order|lower }}">{{ column_price }}</a> {% else %} <a href="{{ sort_price }}">{{ column_price }}</a> {% endif %}</td>
                       <td style="width: 50px" class="text-center">{% if sort == 'p.quantity' %} <a href="{{ sort_quantity }}" class="{{ order|lower }}">{{ column_quantity }}</a> {% else %} <a href="{{ sort_quantity }}">{{ column_quantity }}</a> {% endif %}</td>
-                      <td style="width: 50px" class="text-center">{% if sort == 'p2s.status' %} <a href="{{ sort_status }}" class="{{ order|lower }}">{{ column_status }}</a> {% else %} <a href="{{ sort_status }}">{{ column_status }}</a> {% endif %}</td>
+                      <td style="width: 100px" class="text-center">{% if sort == 'p2s.status' %} <a href="{{ sort_status }}" class="{{ order|lower }}">{{ column_status }}</a> {% else %} <a href="{{ sort_status }}">{{ column_status }}</a> {% endif %}</td>
                       <td style="width: 50px" class="text-center">{{ column_action }}</td>
                     </tr>
                   </thead>
@@ -176,11 +176,18 @@
                     </td>
                     <td class="text-center">{% if product.quantity <= 0 %} <span class="label label-warning">{{ product.quantity }}</span> {% elseif product.quantity <= 5 %} <span class="label label-danger">{{ product.quantity }}</span> {% else %} <span class="label label-success">{{ product.quantity }}</span> {% endif %}</td>
                     <td class="text-center">
-                      {% if product.status_to_store[currentStore] == '1' %}
-                        <button class="btn btn-success statusBtn" data-product-id="{{ product.product_id }}" data-product-status="{{ product.status_to_store[currentStore] }}" type="button"><i class="fa fa-play"></i></button>
-                      {% else %}
-                        <button class="btn btn-danger statusBtn" data-product-id="{{ product.product_id }}" data-product-status="{{ product.status_to_store[currentStore] }}" type="button"><i class="fa fa-stop"></i></button>
-                      {% endif %}
+                      <div class="btn-group">
+                        {% if product.status_to_store[currentStore] == '1' %}
+                          <button class="btn btn-success statusBtn" data-product-id="{{ product.product_id }}" data-product-status="{{ product.status_to_store[currentStore] }}" type="button"><i class="fa fa-play"></i></button>
+                        {% else %}
+                          <button class="btn btn-danger statusBtn" data-product-id="{{ product.product_id }}" data-product-status="{{ product.status_to_store[currentStore] }}" type="button"><i class="fa fa-stop"></i></button>
+                        {% endif %}
+                        {% if product.is_available == '1' %}
+                          <button class="btn btn-success isAvailableBtn" data-product-id="{{ product.product_id }}" data-product-is-available="{{ product.is_available }}" type="button"><i class="fa fa-shopping-cart"></i></button>
+                        {% else %}
+                          <button class="btn btn-danger isAvailableBtn" data-product-id="{{ product.product_id }}" data-product-is-available="{{ product.is_available }}" type="button"><i class="fa fa-shopping-cart"></i></button>
+                        {% endif %}
+                      </div>
                     </td>
                     <td class="text-center"><a href="{{ product.edit }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a></td>
                   </tr>
@@ -305,6 +312,22 @@ document.addEventListener('click', async e => {
       statusBtn.outerHTML = `<button class="btn btn-success statusBtn" data-product-id="${productId}" data-product-status="${response.newStatus}" type="button"><i class="fa fa-play"></i></button>`;
     } else {
       statusBtn.outerHTML = `<button class="btn btn-danger statusBtn" data-product-id="${productId}" data-product-status="${response.newStatus}" type="button"><i class="fa fa-stop"></i></button>`;
+    }
+  }
+  if (e.target.closest('.isAvailableBtn')) {
+    const userToken = "{{ user_token }}";
+    const isAvailableBtn = e.target.closest('.isAvailableBtn');
+    const productId = isAvailableBtn.dataset.productId
+    const isAvailable = isAvailableBtn.dataset.productIsAvailable
+    const body = new FormData();
+    body.append('product_id', productId);
+    body.append('is_available', isAvailable);
+
+    let response = await fetch(`index.php?route=catalog/product/fetchSetProductIsAvailable&user_token=${userToken}`, {method: "POST", body}).then(r => r.json());
+    if (response.newIsAvailable === 1) {
+      isAvailableBtn.outerHTML = `<button class="btn btn-success isAvailableBtn" data-product-id="${productId}" data-product-is-available="${response.newIsAvailable}" type="button"><i class="fa fa-shopping-cart"></i></button>`;
+    } else {
+      isAvailableBtn.outerHTML = `<button class="btn btn-danger isAvailableBtn" data-product-id="${productId}" data-product-is-available="${response.newIsAvailable}" type="button"><i class="fa fa-shopping-cart"></i></button>`;
     }
   }
 })
