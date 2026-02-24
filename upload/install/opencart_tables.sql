@@ -2159,11 +2159,12 @@ CREATE TABLE `oc_googleshopping_product_target` (
 
 DROP TABLE IF EXISTS `oc_product_attribute`;
 CREATE TABLE `oc_product_attribute` (
-  `product_id`    INT NOT NULL,
-  `attribute_id`  INT NOT NULL,
-  `store_id`      INT NOT NULL DEFAULT '0',
-  `language_id`   INT NOT NULL,
-  `text`          TEXT NOT NULL,
+  `product_id`          INT NOT NULL,
+  `attribute_id`        INT NOT NULL,
+  `attribute_group_id`  INT NOT NULL,
+  `store_id`            INT NOT NULL DEFAULT '0',
+  `language_id`         INT NOT NULL,
+  `text`                TEXT NOT NULL,
   PRIMARY KEY (`product_id`,`attribute_id`,`language_id`,`store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
