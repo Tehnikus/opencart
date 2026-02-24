@@ -161,6 +161,53 @@ class ModelCatalogProduct extends Model {
 				) AS product_discounts,
 
 				(
+					SELECT JSON_ARRAYAGG(
+						JSON_OBJECT(
+							'attribute_group_id', t.`attribute_group_id`,
+							'name', 							t.`group_name`,
+							'attribute', 					t.`attributes_json`
+						)
+					)
+					FROM (
+						SELECT
+							pa.attribute_group_id,
+							agd.name AS group_name,
+				
+							JSON_ARRAYAGG(
+								JSON_OBJECT(
+									'name', 				ad.`name`,
+									'attribute_id', pa.`attribute_id`,
+									'language_id', 	pa.`language_id`,
+									'text', 				pa.`text`,
+									'sort_order', 	a2s.`sort_order`
+								)
+							) AS `attributes_json`
+				
+						FROM oc_product_attribute pa
+				
+						LEFT JOIN oc_attribute_description ad
+							ON ad.`attribute_id` = pa.`attribute_id`
+							AND ad.`language_id` = pa.`language_id`
+							AND ad.`store_id` = pa.`store_id`
+				
+						LEFT JOIN oc_attribute_group_description agd
+							ON agd.`attribute_group_id` = pa.`attribute_group_id`
+							AND agd.`language_id` = pa.`language_id`
+							AND agd.`store_id` = pa.`store_id`
+				
+						LEFT JOIN oc_attribute_to_store a2s
+							ON a2s.`attribute_id` = pa.`attribute_id`
+							AND a2s.`store_id` = pa.`store_id`
+				
+						WHERE pa.product_id = p2s.product_id
+							AND pa.`language_id` = pd.`language_id`
+							AND pa.`store_id` = p2s.`store_id`
+				
+						GROUP BY pa.`attribute_group_id`
+					) t
+				) AS product_attributes,
+
+				(
 					SELECT JSON_OBJECTAGG(
 						po.product_option_id, JSON_OBJECT(
 
