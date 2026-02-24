@@ -234,19 +234,12 @@ class ModelCatalogProduct extends Model {
 										'points_prefix',						pov.`points_prefix`,
 										'weight',										pov.`weight`,
 										'weight_prefix',						pov.`weight_prefix`,
-										'image',										ov.`image`,
-										'sort_order',								ov.`sort_order`,
-										'name',											ovd.`name`
+										'image',										(SELECT ov.`image` FROM " . DB_PREFIX . "option_value ov WHERE ov.`option_value_id` = pov.`option_value_id` AND ov.`store_id` = p2s.`store_id`),
+										'sort_order',								(SELECT ov.`sort_order` FROM " . DB_PREFIX . "option_value ov WHERE ov.`option_value_id` = pov.`option_value_id` AND ov.`store_id` = p2s.`store_id`),
+										'name',											(SELECT ovd.`name` FROM " . DB_PREFIX . "option_value_description ovd WHERE ovd.`option_value_id` = pov.`option_value_id` AND ovd.`language_id` = pd.`language_id` AND ovd.`store_id` = p2s.`store_id`)
 									)
 								)
 								FROM " . DB_PREFIX . "product_option_value pov
-								JOIN " . DB_PREFIX . "option_value ov
-									ON ov.option_value_id 		= pov.option_value_id
-									AND ov.store_id 					= p2s.store_id
-								JOIN " . DB_PREFIX . "option_value_description ovd
-									ON ovd.option_value_id 		= pov.option_value_id
-									AND ovd.language_id 			= pd.language_id
-									AND ovd.store_id 					= p2s.store_id
 								WHERE pov.product_id 				= p2s.product_id
 									AND pov.product_option_id = po.product_option_id
 									AND pov.store_id 					= p2s.store_id
