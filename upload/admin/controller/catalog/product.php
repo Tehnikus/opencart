@@ -1365,7 +1365,7 @@ class ControllerCatalogProduct extends Controller {
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));
 	}
-	
+
 	// Set product status with JS
 	public function fetchSetProductStatus() : void {
 		$productId 			= (int) $this->request->post['product_id'];
@@ -1383,7 +1383,7 @@ class ControllerCatalogProduct extends Controller {
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));
 	}
-	
+
 	// Set product availability with JS
 	public function fetchSetProductIsAvailable() : void {
 		$productId 			= (int) $this->request->post['product_id'];
