@@ -370,21 +370,15 @@ class ModelCatalogProduct extends Model {
 		}
 
 		// Facet filter
-		// Get filter ids by filter groups
-		// Logic: (
-		// (filter_group_1 => [
-		// 			filter_1 
-		// 				OR 
-		// 			filter_2 
-		// 				OR 
-		// 			filter_3
-		//	]) 
-		// 		AND 
-		// 	(filter_group_2 => [filter_4 OR filter_5 OR ...])
-		// 		AND 
-		// 	(filter_group_3 ... 
-		// )
 		if (!empty($data['filter_filter'])) {
+			// Get filter ids by filter groups
+			// Logic: (
+			// 	(filter_group_1 => [ filter_1 OR filter_2 OR filter_3 ]) 
+			// 		AND 
+			// 	(filter_group_2 => [ filter_4 OR filter_5 OR ... ])
+			// 		AND 
+			// 	(filter_group_3 => [ ... ])
+			// )
 
 			$filters_by_group = [];
 			
@@ -403,7 +397,7 @@ class ModelCatalogProduct extends Model {
 				SELECT 
 					filter_id, 
 					filter_group_id
-				FROM oc_product_filter
+				FROM " . DB_PREFIX . "product_filter
 				WHERE store_id = '" . (int) $this->config->get('config_store_id') . "'
 					AND filter_id IN (" . implode(',', $filter_ids) .")
 			";
@@ -427,13 +421,10 @@ class ModelCatalogProduct extends Model {
 				$where[] = "
 					EXISTS (
 						SELECT 1
-						FROM oc_product_filter pf
-						JOIN oc_filter f
-							ON f.filter_id = pf.filter_id
-							AND f.store_id = pf.store_id
+						FROM " . DB_PREFIX . "product_filter pf
 						WHERE pf.product_id = p2s.product_id
 							AND pf.store_id = '" . (int) $this->config->get('config_store_id') . "'
-							AND f.filter_group_id = {$groupId}
+							AND pf.filter_group_id = {$groupId}
 							AND pf.filter_id IN ({$ids})
 					)
 				";
