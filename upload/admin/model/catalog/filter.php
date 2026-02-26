@@ -55,7 +55,7 @@ class ModelCatalogFilter extends Model {
 								AND `store_id` 		= '" . (int) $this->session->data['store_id'] . "'
 						");
 	
-						if (isset($filter_description['url'])) {
+						if (isset($filter_description['url']) && !empty($filter_description['url'])) {
 							$this->db->query("
 								INSERT INTO " . DB_PREFIX . "seo_url
 								SET
