@@ -19,7 +19,7 @@ class ControllerExtensionModuleFacetFilter extends Controller {
 			$languages = $this->model_localisation_language->getLanguages();
 
 			// Delete existing category cache
-			foreach ($this->request->post['module_facet_filter_settings']['category'] as $category_id => $category) {
+			foreach ($this->request->post['module_facet_filter_settings']['category'] ?? [] as $category_id => $category) {
 				foreach ($languages as $language) {
 					$language_id = $language['language_id'];
 					$cacheName = "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . ".filters_{$category_id}";
