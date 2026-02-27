@@ -487,6 +487,61 @@ class ModelCatalogProduct extends Model {
 			}
 		}
 
+		// Attribute filter
+		// Same as facet filter
+		if (!empty($data['filter_attribute'])) {
+
+			$attributes_by_group = [];
+			
+			// Sanitize and unique
+			$attribute_ids = array_values(
+				array_unique(
+					array_map(
+						'intval', 
+						explode(',', $data['filter_attribute'])
+					)
+				)
+			);
+
+			// Get attribute groups
+			$sql = "
+				SELECT 
+					attribute_id, 
+					attribute_group_id
+				FROM " . DB_PREFIX . "product_attribute
+				WHERE store_id = '" . (int) $this->config->get('config_store_id') . "'
+					AND attribute_id IN (" . implode(',', $attribute_ids) .")
+			";
+
+			$attribute_groups = $this->db->query($sql)->rows;
+
+			// Group attribute ids by attribute group
+			foreach ($attribute_groups as $attribute_group) {
+				$attribute_group_id	= (int) $attribute_group['attribute_group_id'];
+				$attribute_id 				= (int) $attribute_group['attribute_id'];
+
+				$attributes_by_group[$attribute_group_id][] = $attribute_id;
+			}
+
+			// Build EXISTS string
+			foreach ($attributes_by_group as $groupId => $attributeIds) {
+
+				$ids = implode(',', $attributeIds);
+
+				// Put EXISTS string to WHERE clause
+				$where[] = "
+					EXISTS (
+						SELECT 1
+						FROM " . DB_PREFIX . "product_attribute pf
+						WHERE pf.product_id = p2s.product_id
+							AND pf.store_id = '" . (int) $this->config->get('config_store_id') . "'
+							AND pf.attribute_group_id = {$groupId}
+							AND pf.attribute_id IN ({$ids})
+					)
+				";
+			}
+		}
+
 		$sql = "
 			SELECT
 				p2s2.product_id
