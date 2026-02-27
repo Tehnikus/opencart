@@ -11,13 +11,12 @@ class ControllerExtensionModuleFacetFilter extends Controller {
 		$this->load->language('extension/module/facet_filter');
 		$settings = $this->config->get('module_facet_filter_settings');
 
-
-		$route = (string) $this->request->get['route'];
-		$path = $this->request->get['category_id'] ?? $this->request->get['path'] ?? '';
-		$category_id = explode('_', (string) $path);
-		$category_id = end($category_id) ?? null;
-		$store_id = (int) $this->config->get('config_store_id');
-		$language_id = (int) $this->config->get('config_language_id');
+		$route 				= (string) $this->request->get['route'];
+		$path 				= $this->request->get['category_id'] ?? $this->request->get['path'] ?? '';
+		$category_id 	= explode('_', (string) $path);
+		$category_id 	= end($category_id) ?? null;
+		$store_id 		= (int) $this->config->get('config_store_id');
+		$language_id 	= (int) $this->config->get('config_language_id');
 
 		// Interface data
 		if (isset($settings['cache'])) {
@@ -168,7 +167,7 @@ class ControllerExtensionModuleFacetFilter extends Controller {
 			$filterSets = [
 				'filter'						=> (isset($settings['search']['show_filters'])) 				? $filters : [],
 				'option' 						=> (isset($settings['search']['show_options'])) 				? $options : [], 			
-				'attribute' 				=> (isset($settings['search']['show_attributes'])) 		? $attributes : [], 	
+				'attribute' 				=> (isset($settings['search']['show_attributes'])) 		  ? $attributes : [], 	
 				'manufacturer_id' 	=> (isset($settings['search']['show_manufacturers'])) 	? $manufacturers : [],
 			];
 		}
@@ -178,7 +177,7 @@ class ControllerExtensionModuleFacetFilter extends Controller {
 			$filterSets = [
 				'filter'						=> (isset($settings['manufacturer']['show_filters'])) 				? $filters : [],
 				'option' 						=> (isset($settings['manufacturer']['show_options'])) 				? $options : [], 			
-				'attribute' 				=> (isset($settings['manufacturer']['show_attributes'])) 		? $attributes : [], 	
+				'attribute' 				=> (isset($settings['manufacturer']['show_attributes'])) 		  ? $attributes : [], 	
 				'manufacturer_id' 	=> (isset($settings['manufacturer']['show_manufacturers'])) 	? $manufacturers : [],
 			];
 		}
