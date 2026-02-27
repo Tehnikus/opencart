@@ -62,9 +62,36 @@
                       </tr>
                     </thead>
                     <tbody id="settingsTable">
-                      {# Default settings #}
+                      {# Special product settings #}
                       <tr>
-                        <td>{{ text_default_settings }}</td>
+                        <td>{{ text_manufacturer_settings }}</td>
+                        <td class="text-center"><input style="all: revert" type="checkbox" name="module_facet_filter_settings[manufacterer][show_filters]"       value="1" {% if settings.manufacturer.show_filters %} checked {% endif %} /></td>
+                        <td class="text-center"><input style="all: revert" type="checkbox" name="module_facet_filter_settings[manufacterer][show_options]"       value="1" {% if settings.manufacturer.show_options %} checked {% endif %} /></td>
+                        <td class="text-center"><input style="all: revert" type="checkbox" name="module_facet_filter_settings[manufacterer][show_attributes]"    value="1" {% if settings.manufacturer.show_attributes %} checked {% endif %} /></td>
+                        <td class="text-center"><input style="all: revert" type="checkbox" name="module_facet_filter_settings[manufacterer][show_manufacturers]" value="1" {% if settings.manufacturer.show_manufacturers %} checked {% endif %} /></td>
+                        <td class="text-center"><input style="all: revert" type="checkbox" name="module_facet_filter_settings[manufacterer][show_subcategories]" value="1" {% if settings.manufacturer.show_subcategories %} checked {% endif %} /></td>
+                      </tr>
+                      {# Special product settings #}
+                      <tr>
+                        <td>{{ text_special_settings }}</td>
+                        <td class="text-center"><input style="all: revert" type="checkbox" name="module_facet_filter_settings[special][show_filters]"       value="1" {% if settings.spaecial.show_filters %} checked {% endif %} /></td>
+                        <td class="text-center"><input style="all: revert" type="checkbox" name="module_facet_filter_settings[special][show_options]"       value="1" {% if settings.spaecial.show_options %} checked {% endif %} /></td>
+                        <td class="text-center"><input style="all: revert" type="checkbox" name="module_facet_filter_settings[special][show_attributes]"    value="1" {% if settings.spaecial.show_attributes %} checked {% endif %} /></td>
+                        <td class="text-center"><input style="all: revert" type="checkbox" name="module_facet_filter_settings[special][show_manufacturers]" value="1" {% if settings.spaecial.show_manufacturers %} checked {% endif %} /></td>
+                        <td class="text-center"><input style="all: revert" type="checkbox" name="module_facet_filter_settings[special][show_subcategories]" value="1" {% if settings.spaecial.show_subcategories %} checked {% endif %} /></td>
+                      </tr>
+                      {# Search product settings #}
+                      <tr>
+                        <td>{{ text_search_settings }}</td>
+                        <td class="text-center"><input style="all: revert" type="checkbox" name="module_facet_filter_settings[search][show_filters]"       value="1" {% if settings.search.show_filters %} checked {% endif %} /></td>
+                        <td class="text-center"><input style="all: revert" type="checkbox" name="module_facet_filter_settings[search][show_options]"       value="1" {% if settings.search.show_options %} checked {% endif %} /></td>
+                        <td class="text-center"><input style="all: revert" type="checkbox" name="module_facet_filter_settings[search][show_attributes]"    value="1" {% if settings.search.show_attributes %} checked {% endif %} /></td>
+                        <td class="text-center"><input style="all: revert" type="checkbox" name="module_facet_filter_settings[search][show_manufacturers]" value="1" {% if settings.search.show_manufacturers %} checked {% endif %} /></td>
+                        <td class="text-center"><input style="all: revert" type="checkbox" name="module_facet_filter_settings[search][show_subcategories]" value="1" {% if settings.search.show_subcategories %} checked {% endif %} /></td>
+                      </tr>
+                      {# Default category settings #}
+                      <tr style="background: #cbeacb;">
+                        <td><b>{{ text_default_settings }}</b></td>
                         <td class="text-center"><input style="all: revert" type="checkbox" name="module_facet_filter_settings[default][show_filters]"       value="1" {% if settings.default.show_filters %} checked {% endif %} /></td>
                         <td class="text-center"><input style="all: revert" type="checkbox" name="module_facet_filter_settings[default][show_options]"       value="1" {% if settings.default.show_options %} checked {% endif %} /></td>
                         <td class="text-center"><input style="all: revert" type="checkbox" name="module_facet_filter_settings[default][show_attributes]"    value="1" {% if settings.default.show_attributes %} checked {% endif %} /></td>
@@ -72,7 +99,7 @@
                         <td class="text-center"><input style="all: revert" type="checkbox" name="module_facet_filter_settings[default][show_subcategories]" value="1" {% if settings.default.show_subcategories %} checked {% endif %} /></td>
                       </tr>
                       {# Individual category settings #}
-                      <tr><td colspan="6" class="text-center"><b>{{ text_category }}</b></td></tr>
+                      <tr><td colspan="6" class="text-center"><b>{{ text_individual_categories }}</b></td></tr>
                       {% for id, category in settings.category %}
                         <tr class="niftyItem" data-id="{{ id }}">
                           <td>
