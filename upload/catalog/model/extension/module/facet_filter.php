@@ -46,15 +46,15 @@ class ModelExtensionModuleFacetFilter extends Model {
 		$result = [];
 
 		$query = $this->db->query("
+			SELECT 
+				product_id
+			FROM " . DB_PREFIX . "product_special
+			WHERE store_id = '" . (int) $this->config->get('config_store_id') . "'
+			UNION
 			SELECT
-				p2s.product_id AS product_id
-			FROM oc_product_to_store p2s
-			JOIN oc_product_special ps
-				ON ps.product_id = p2s.product_id
-			JOIN oc_product_discount pd
-				ON pd.product_id = p2s.product_id
-			WHERE p2s.status = 1
-				AND p2s.store_id = '" . (int) $this->config->get('config_store_id') . "'
+				product_id
+			FROM " . DB_PREFIX . "product_discount
+			WHERE store_id = '" . (int) $this->config->get('config_store_id') . "'
 		");
 
 		foreach ($query->rows as $row) {
