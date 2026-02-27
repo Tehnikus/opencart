@@ -9,11 +9,11 @@ class ControllerProductCategory extends Controller {
 
 		$this->load->model('tool/image');
 
-		if (isset($this->request->get['filter'])) {
-			$filter = $this->request->get['filter'];
-		} else {
-			$filter = '';
-		}
+
+		$filter 					= $this->request->get['filter'] 					?? null;
+		$option 					= $this->request->get['option'] 					?? null;
+		$attribute 				= $this->request->get['attribute'] 				?? null;
+		$manufacturer_id 	= $this->request->get['manufacturer_id'] 	?? null;
 
 		if (isset($this->request->get['sort'])) {
 			$sort = $this->request->get['sort'];
@@ -150,12 +150,15 @@ class ControllerProductCategory extends Controller {
 			$data['products'] = array();
 
 			$filter_data = array(
-				'filter_category_id' => $category_id,
-				'filter_filter'      => $filter,
-				'sort'               => $sort,
-				'order'              => $order,
-				'start'              => ($page - 1) * $limit,
-				'limit'              => $limit
+				'filter_category_id' 			=> $category_id,
+				'filter_filter'      			=> $filter,
+				'filter_option' 					=> $option,
+				'filter_attribute' 				=> $attribute,
+				'filter_manufacturer_id' 	=> $manufacturer_id,
+				'sort'               			=> $sort,
+				'order'              			=> $order,
+				'start'              			=> ($page - 1) * $limit,
+				'limit'              			=> $limit
 			);
 
 			$product_total = $this->model_catalog_product->getTotalProducts($filter_data);
