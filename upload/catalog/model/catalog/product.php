@@ -432,6 +432,61 @@ class ModelCatalogProduct extends Model {
 
 		}
 
+		// Options filter
+		// Same as facet filter
+		if (!empty($data['filter_option'])) {
+
+			$options_by_group = [];
+			
+			// Sanitize and unique
+			$option_ids = array_values(
+				array_unique(
+					array_map(
+						'intval', 
+						explode(',', $data['filter_option'])
+					)
+				)
+			);
+
+			// Get option groups
+			$sql = "
+				SELECT 
+					option_value_id, 
+					option_id
+				FROM " . DB_PREFIX . "product_option_value
+				WHERE store_id = '" . (int) $this->config->get('config_store_id') . "'
+					AND option_value_id IN (" . implode(',', $option_ids) .")
+			";
+
+			$option_groups = $this->db->query($sql)->rows;
+
+			// Group option ids by option group
+			foreach ($option_groups as $option_group) {
+				$option_group_id	= (int) $option_group['option_id'];
+				$option_id 				= (int) $option_group['option_value_id'];
+
+				$options_by_group[$option_group_id][] = $option_id;
+			}
+
+			// Build EXISTS string
+			foreach ($options_by_group as $groupId => $optionIds) {
+
+				$ids = implode(',', $optionIds);
+
+				// Put EXISTS string to WHERE clause
+				$where[] = "
+					EXISTS (
+						SELECT 1
+						FROM " . DB_PREFIX . "product_option_value pf
+						WHERE pf.product_id = p2s.product_id
+							AND pf.store_id = '" . (int) $this->config->get('config_store_id') . "'
+							AND pf.option_id = {$groupId}
+							AND pf.option_value_id IN ({$ids})
+					)
+				";
+			}
+		}
+
 		$sql = "
 			SELECT
 				p2s2.product_id
