@@ -32,10 +32,10 @@ class ControllerExtensionModuleFacetFilter extends Controller {
 		
 		// Request data to check applied filters
 		$data['requests'] = [
-			'filter' 						=> $this->request->get['filter'] ?? null,
-			'option' 						=> $this->request->get['option'] ?? null,
-			'attribute' 				=> $this->request->get['attribute'] ?? null,
-			'manufacturer_id' 	=> $this->request->get['manufacturer_id'] ?? null,
+			'filter' 						=> explode(',', $this->request->get['filter'] ?? '') 					?? null,
+			'option' 						=> explode(',', $this->request->get['option'] ?? '') 					?? null,
+			'attribute' 				=> explode(',', $this->request->get['attribute'] ?? '') 				?? null,
+			'manufacturer_id' 	=> explode(',', $this->request->get['manufacturer_id'] ?? '') 	?? null,
 		];
 			
 		foreach ($data['filter_sets'] as $filter_type_key => &$filter_type) {
