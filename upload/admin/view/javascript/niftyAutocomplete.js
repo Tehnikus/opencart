@@ -1,21 +1,7 @@
 /**
- * niftyAutocomplete - easy flexible and lightweight autocomplete written in pure JavaScript
- * @param {Element} input Autocomplete input
- * @param {Object || Function} options Object with autocomplete options for static autocomplete options or function that returns object for dynamic autocomplete options 
- * Example: 
- * options = {
- *  idKey                     // @param {String}    idKey: The unique id of every key is needed to exclude already selected items from search and add hidden input like <input name="someName[${row[idKey]}]" value="${row[idKey]}">,
- *  selectedItemsBox:         // @param {Element}   selectedItemsBox: an element where selected items will be added,
- *  url                       // @param {String || Function} url: an url string or function that returns url string,
- *  links,                    // @param {Array}     links: Array of strings or functions that return strings. Links will be added to div.autocomplete-button-group before delete button
- *  itemTemplate,             // @param {Function}  itemTemplate(row): function(row) yhat accepts row JSON as argument and returns HTML string, e.g. `<div><p>${row.name}</p></div>`
- *  onSelectCallback,         // @param {Function}  onSelectCallback(selectedItemsBox, resultBox, row): function that is fired when item is selected. Arguments: selectedItemsBox, resultBox, row
- *  disableEmptyQueries       // @param {Bool}      disableEmptyQueries Disables request if input value is empty
- *  }
- * @returns {void}
- */
-
-
+* niftyAutocomplete - easy flexible and lightweight autocomplete written in pure JavaScript
+* Author https://github.com/Tehnikus
+*/
 
 class niftyAutocomplete {
   constructor(options) {
