@@ -12,6 +12,7 @@ class ModelExtensionModuleFacetFilter extends Model {
       JOIN " . DB_PREFIX . "category c
         ON c.category_id = c2s.category_id
       WHERE c2s.category_id = '" . (int) $category_id . "'
+				AND c2s.store_id = '" . (int) $this->config->get('config_store_id') . "'
       LIMIT 1
     ");
 
@@ -76,12 +77,12 @@ class ModelExtensionModuleFacetFilter extends Model {
 				pov.option_value_id AS filter_id,
 				od.name AS group_name,
 				ovd.name AS filter_name
-			FROM oc_product_option_value pov
-			JOIN oc_option_description od
+			FROM " . DB_PREFIX . "product_option_value pov
+			JOIN " . DB_PREFIX . "option_description od
 				ON od.option_id = pov.option_id
 				AND od.language_id = '" . (int) $this->config->get('config_language_id') . "'
 				AND od.store_id = '" . (int) $this->config->get('config_store_id') . "'
-			JOIN oc_option_value_description ovd
+			JOIN " . DB_PREFIX . "option_value_description ovd
 				ON ovd.option_value_id = pov.option_value_id
 				AND ovd.language_id = '" . (int) $this->config->get('config_language_id') . "'
 				AND ovd.store_id = '" . (int) $this->config->get('config_store_id') . "'
@@ -119,12 +120,12 @@ class ModelExtensionModuleFacetFilter extends Model {
 				pa.attribute_id AS filter_id,
 				agd.name AS group_name,
 				ad.name AS filter_name
-			FROM oc_product_attribute pa
-			JOIN oc_attribute_description ad
+			FROM " . DB_PREFIX . "product_attribute pa
+			JOIN " . DB_PREFIX . "attribute_description ad
 				ON ad.attribute_id = pa.attribute_id
 				AND ad.language_id = '" . (int) $this->config->get('config_language_id') . "'
 				AND ad.store_id = '" . (int) $this->config->get('config_store_id') . "'
-			JOIN oc_attribute_group_description agd
+			JOIN " . DB_PREFIX . "attribute_group_description agd
 				ON agd.attribute_group_id = pa.attribute_group_id
 				AND agd.language_id = '" . (int) $this->config->get('config_language_id') . "'
 				AND agd.store_id = '" . (int) $this->config->get('config_store_id') . "'
@@ -160,8 +161,8 @@ class ModelExtensionModuleFacetFilter extends Model {
 			SELECT
 				p.manufacturer_id AS filter_id,
 				md.name AS filter_name
-			FROM oc_product p
-			JOIN oc_manufacturer_description md
+			FROM " . DB_PREFIX . "product p
+			JOIN " . DB_PREFIX . "manufacturer_description md
 				ON md.manufacturer_id = p.manufacturer_id
 				AND md.language_id = '" . (int) $this->config->get('config_language_id') . "'
 				AND md.store_id = '" . (int) $this->config->get('config_store_id') . "'
@@ -199,7 +200,7 @@ class ModelExtensionModuleFacetFilter extends Model {
 				ON cf.filter_id = f.filter_id 
 				AND f.store_id = cf.store_id
 
-			JOIN oc_filter_group fg
+			JOIN " . DB_PREFIX . "filter_group fg
 				ON fg.filter_group_id = f.filter_group_id
 
 			JOIN " . DB_PREFIX . "filter_description fd 
@@ -262,12 +263,12 @@ class ModelExtensionModuleFacetFilter extends Model {
 				pf.filter_group_id AS filter_group_id,
 				fd.name AS filter_name,
 				fgd.name AS group_name
-			FROM oc_product_filter pf
-			JOIN oc_filter_description fd
+			FROM " . DB_PREFIX . "product_filter pf
+			JOIN " . DB_PREFIX . "filter_description fd
 				ON fd.filter_id = pf.filter_id
 				AND fd.language_id = '" . (int) $this->config->get('config_language_id') . "'
 				AND fd.store_id = '" . (int) $this->config->get('config_store_id') . "'
-			JOIN oc_filter_group_description fgd
+			JOIN " . DB_PREFIX . "filter_group_description fgd
 				ON fgd.filter_group_id = pf.filter_group_id
 				AND fgd.language_id = '" . (int) $this->config->get('config_language_id') . "'
 				AND fgd.store_id = '" . (int) $this->config->get('config_store_id') . "'
