@@ -355,6 +355,7 @@ class ModelCatalogProduct extends Model {
 		// Only products from current store
 		$where[] = "p2s.store_id = '" . (int) $this->config->get('config_store_id') . "'";
 
+		// Start filters
 		// Conditions
 		// Category
 		if (!empty($data['filter_category_id'])) {
@@ -551,10 +552,13 @@ class ModelCatalogProduct extends Model {
 
 		// End filters
 
+		// Main query
 		$sql = "
 			SELECT
 				p2s2.product_id
 			FROM " . DB_PREFIX . "product_to_store p2s2
+			JOIN " . DB_PREFIX . "product p
+				ON p.product_id = p2s2.product_id
 
 			-- Sort joins
 
@@ -563,7 +567,7 @@ class ModelCatalogProduct extends Model {
 				SELECT 
 					1
 				FROM " . DB_PREFIX . "product_to_store p2s
-				" . implode(' \n ', $join) . "
+				" . implode(" \n ", $join) . "
 				WHERE
 				" . implode(" \nAND ", $where) . "
 			)
