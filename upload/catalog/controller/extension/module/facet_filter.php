@@ -132,12 +132,56 @@ class ControllerExtensionModuleFacetFilter extends Controller {
 		$manufacturers 	= $this->model_extension_module_facet_filter->getManufacturersByProductSet($products);
 
 		// Interface data
-		$filterSets = [
-			'filter'						=> (isset($settings['category'][$category_id]['show_filters'])) 			? $filters : [],
-			'option' 						=> (isset($settings['category'][$category_id]['show_options'])) 			? $options : [], 			
-			'attribute' 				=> (isset($settings['category'][$category_id]['show_attributes'])) 		? $attributes : [], 	
-			'manufacturer_id' 	=> (isset($settings['category'][$category_id]['show_manufacturers'])) ? $manufacturers : [],
-		];
+		// Category settings
+		if ($route === 'product/category' && $category_id) {
+			if (isset($settings['category'][$category_id])) {
+				// Individual category settings
+				$filterSets = [
+					'filter'						=> (isset($settings['category'][$category_id]['show_filters'])) 			? $filters : [],
+					'option' 						=> (isset($settings['category'][$category_id]['show_options'])) 			? $options : [], 			
+					'attribute' 				=> (isset($settings['category'][$category_id]['show_attributes'])) 		? $attributes : [], 	
+					'manufacturer_id' 	=> (isset($settings['category'][$category_id]['show_manufacturers'])) ? $manufacturers : [],
+				];
+			} else {
+				// Default category settings
+				$filterSets = [
+					'filter'						=> (isset($settings['default']['show_filters'])) 			 ? $filters : [],
+					'option' 						=> (isset($settings['default']['show_options'])) 			 ? $options : [], 			
+					'attribute' 				=> (isset($settings['default']['show_attributes'])) 	 ? $attributes : [], 	
+					'manufacturer_id' 	=> (isset($settings['default']['show_manufacturers'])) ? $manufacturers : [],
+				];
+			}
+		}
+		
+		// Special/discount products
+		if ($route === 'product/special') {
+			$filterSets = [
+				'filter'						=> (isset($settings['special']['show_filters'])) 				? $filters : [],
+				'option' 						=> (isset($settings['special']['show_options'])) 				? $options : [], 			
+				'attribute' 				=> (isset($settings['special']['show_attributes'])) 		? $attributes : [], 	
+				'manufacturer_id' 	=> (isset($settings['special']['show_manufacturers'])) 	? $manufacturers : [],
+			];
+		}
+
+		// Search page
+		if ($route === 'product/search') {
+			$filterSets = [
+				'filter'						=> (isset($settings['search']['show_filters'])) 				? $filters : [],
+				'option' 						=> (isset($settings['search']['show_options'])) 				? $options : [], 			
+				'attribute' 				=> (isset($settings['search']['show_attributes'])) 		? $attributes : [], 	
+				'manufacturer_id' 	=> (isset($settings['search']['show_manufacturers'])) 	? $manufacturers : [],
+			];
+		}
+
+		// Manufacturer page
+		if ($route === 'product/manufacturer') {
+			$filterSets = [
+				'filter'						=> (isset($settings['manufacturer']['show_filters'])) 				? $filters : [],
+				'option' 						=> (isset($settings['manufacturer']['show_options'])) 				? $options : [], 			
+				'attribute' 				=> (isset($settings['manufacturer']['show_attributes'])) 		? $attributes : [], 	
+				'manufacturer_id' 	=> (isset($settings['manufacturer']['show_manufacturers'])) 	? $manufacturers : [],
+			];
+		}
 
 		return $filterSets;
 	}
