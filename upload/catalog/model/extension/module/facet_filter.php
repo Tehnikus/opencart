@@ -160,8 +160,11 @@ class ModelExtensionModuleFacetFilter extends Model {
 		$query = $this->db->query("
 			SELECT
 				p.manufacturer_id AS filter_id,
-				md.name AS filter_name
+				md.name AS filter_name,
+				m.sort_order AS sort_order 
 			FROM " . DB_PREFIX . "product p
+			JOIN oc_manufacturer m
+				ON m.manufacturer_id = p.manufacturer_id
 			JOIN " . DB_PREFIX . "manufacturer_description md
 				ON md.manufacturer_id = p.manufacturer_id
 				AND md.language_id = '" . (int) $this->config->get('config_language_id') . "'
@@ -173,13 +176,18 @@ class ModelExtensionModuleFacetFilter extends Model {
 		foreach ($query->rows as $row) {
 			$result[0]['filters'][$row['filter_id']] = [
 				'filter_id' => $row['filter_id'],
-				'name' 			=> $row['filter_name']
+				'name' 			=> $row['filter_name'],
+				'sort_order' => $row['sort_order'],
 			];
 		}
 
 		$this->language->load('extension/module/facet_filter');
 		$result['0']['group_name'] = $this->language->get('text_manufacturers');
 		$result['0']['filter_group_id'] = 1;
+
+		if (isset($result[0]['filters'])) {	
+			usort($result[0]['filters'], fn ($a, $b) =>  $a['sort_order'] <=> $b['sort_order'] );
+		}
 
 		return $result;
 	}
