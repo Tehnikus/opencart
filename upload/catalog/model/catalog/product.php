@@ -542,6 +542,15 @@ class ModelCatalogProduct extends Model {
 			}
 		}
 
+		// Manufacturers
+		if (!empty($data['filter_manufacturer_id'])) {
+			$where[] = "
+				p.manufacturer_id IN(" . $data['filter_manufacturer_id'] . ")
+			";
+		}
+
+		// End filters
+
 		$sql = "
 			SELECT
 				p2s2.product_id
