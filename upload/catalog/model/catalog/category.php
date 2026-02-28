@@ -1,8 +1,15 @@
 <?php
 class ModelCatalogCategory extends Model {
-public function getCategory($category_id) : array {
+	public function getCategory($category_id) : array {
+		$category_id 	= (int) $category_id;
+		$language_id 	= (int) $this->config->get('config_language_id');
+		$store_id 		= (int) $this->config->get('config_store_id');
 
-    $query = $this->db->query("
+		// TODO Cache
+		// $cacheName 	= "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . "00.category_{$category_id}";
+		// $cachedData 	= $this->cache->get($cacheName);
+
+		$query = $this->db->query("
 			SELECT 
 				c.`category_id`,
 				c2s.`store_id`,
@@ -34,13 +41,21 @@ public function getCategory($category_id) : array {
 				AND c2s.`store_id` 		= '" . (int) $this->config->get('config_store_id') . "'
 				AND c2s.`status` 			= 1
 			LIMIT 1
-    ");
+		");
 
-    return $query->row ?? [];
-}
+		return $query->row ?? [];
+	}
 
 
 	public function getCategories($parent_id = 0) : array {
+
+		$parent_id 		= (int) $parent_id;
+		$language_id 	= (int) $this->config->get('config_language_id');
+		$store_id 		= (int) $this->config->get('config_store_id');
+
+		// TODO Cache
+		// $cacheName 	= "category.store_{$store_id}.language_{$language_id}." . (floor($parent_id / 100)) . "00.child_categories_{$parent_id}";
+		// $cachedData 	= $this->cache->get($cacheName);
 
 		$sql = "
 			SELECT 
