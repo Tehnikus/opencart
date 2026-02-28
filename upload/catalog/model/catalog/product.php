@@ -650,7 +650,7 @@ class ModelCatalogProduct extends Model {
 		$store_id 					= (int) $this->config->get('config_store_id');
 		$language_id 				= (int) $this->config->get('config_language_id');
 		$limit 							= (int) $limit;
-		$cacheName 					= "product.store_{$store_id}.language_{$language_id}.latest_{$limit}";
+		$cacheName 					= "product.store_{$store_id}.language_{$language_id}.latest.{$limit}";
 
 		$product_data = $this->cache->get($cacheName);
 
@@ -683,7 +683,7 @@ class ModelCatalogProduct extends Model {
 		$store_id 					= (int) $this->config->get('config_store_id');
 		$language_id 				= (int) $this->config->get('config_language_id');
 		$limit 							= (int) $limit;
-		$cacheName 					= "product.store_{$store_id}.language_{$language_id}.popular_{$limit}";
+		$cacheName 					= "product.store_{$store_id}.language_{$language_id}.popular.{$limit}";
 
 		$product_data = $this->cache->get($cacheName);
 	
@@ -717,7 +717,7 @@ class ModelCatalogProduct extends Model {
 		$store_id 					= (int) $this->config->get('config_store_id');
 		$language_id 				= (int) $this->config->get('config_language_id');
 		$limit 							= (int) $limit;
-		$cacheName 					= "product.store_{$store_id}.language_{$language_id}.bestseller_{$limit}";
+		$cacheName 					= "product.store_{$store_id}.language_{$language_id}.bestseller.{$limit}";
 
 		$product_data = $this->cache->get($cacheName);
 
