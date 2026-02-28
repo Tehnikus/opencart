@@ -154,7 +154,24 @@ class ModelCatalogCategory extends Model {
 			
 			$this->db->query("COMMIT");
 			
-			$this->cache->delete('category');
+			// Delete cache
+			$store_id = $this->session->data['store_id'];
+			$this->load->model('localisation/language');
+			$languages = $this->model_localisation_language->getLanguages();
+			
+			foreach ($languages as $language) {
+				$language_id = $language['language_id'];
+
+				// Delete children categories cache of parent category 
+				$parent_id = $data['parent_id'];
+				$childrenCacheName 	= "category.store_{$store_id}.language_{$language_id}." . (floor($parent_id / 100)) . "00.child_categories_{$parent_id}";
+				$this->cache->delete($childrenCacheName);
+
+				// Delete URL cache
+				$urlCacheName = "url.store_{$store_id}.language_{$language_id}.url";
+				$this->cache->delete($urlCacheName);
+			}
+
 			return $category_id;
 		} catch (\Throwable $e) {
 			$this->db->query("ROLLBACK");
@@ -447,8 +464,33 @@ class ModelCatalogCategory extends Model {
 				");
 			}
 	
-			$this->cache->delete('category');
 			$this->db->query("COMMIT");
+
+			// Delete cache
+			$store_id = $this->session->data['store_id'];
+			$this->load->model('localisation/language');
+			$languages = $this->model_localisation_language->getLanguages();
+			
+			foreach ($languages as $language) {
+				$language_id = $language['language_id'];
+
+				// Main cache
+				$categoryCacheName 	= "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . "00.category_{$category_id}";
+				$this->cache->delete($categoryCacheName);
+
+				// Filter cache
+				$filterCacheName = "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . "00.filters_{$category_id}";
+				$this->cache->delete($filterCacheName);
+
+				// Children categories cache of parent category 
+				$parent_id = $data['parent_id'];
+				$childrenCacheName 	= "category.store_{$store_id}.language_{$language_id}." . (floor($parent_id / 100)) . "00.child_categories_{$parent_id}";
+				$this->cache->delete($childrenCacheName);
+
+				// URL cache
+				$urlCacheName = "url.store_{$store_id}.language_{$language_id}.url";
+				$this->cache->delete($urlCacheName);
+			}
 
 			return $category_id;
 
