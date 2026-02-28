@@ -49,8 +49,8 @@ class ModelCatalogProduct extends Model {
 		$customer_group_id 	= (int) $this->config->get('config_customer_group_id');
 		
 		// TODO Cache
-		// $cacheName 					= "product.store_{$store_id}.language_{$language_id}." . (floor($product_id / 100)) . ".product_{$product_id}";
-		// $cachedData 				= $this->cache->get($cacheName);
+		// $cacheName 	= "product.store_{$store_id}.language_{$language_id}." . (floor($product_id / 100)) . "00.product_{$product_id}";
+		// $cachedData 	= $this->cache->get($cacheName);
 		
 		// if ($cachedData) {
 		// 	return $cachedData;
@@ -649,11 +649,10 @@ class ModelCatalogProduct extends Model {
 
 		$store_id 					= (int) $this->config->get('config_store_id');
 		$language_id 				= (int) $this->config->get('config_language_id');
-		$customer_group_id 	= (int) $this->config->get('config_customer_group_id');
 		$limit 							= (int) $limit;
-		$cache_key 					= "product.latest.{$store_id}.{$language_id}.{$customer_group_id}.{$limit}";
+		$cacheName 					= "product.store_{$store_id}.language_{$language_id}.latest_{$limit}";
 
-		$product_data = $this->cache->get($cache_key);
+		$product_data = $this->cache->get($cacheName);
 
 		if (!$product_data) {
 			$product_data = [];
@@ -673,7 +672,7 @@ class ModelCatalogProduct extends Model {
 				$product_data[$result['product_id']] = $this->getProduct($result['product_id']);
 			}
 
-			$this->cache->set($cache_key, $product_data);
+			$this->cache->set($cacheName, $product_data);
 		}
 
 		return $product_data;
@@ -683,11 +682,10 @@ class ModelCatalogProduct extends Model {
 
 		$store_id 					= (int) $this->config->get('config_store_id');
 		$language_id 				= (int) $this->config->get('config_language_id');
-		$customer_group_id 	= (int) $this->config->get('config_customer_group_id');
 		$limit 							= (int) $limit;
-		$cache_key 					= "product.popular.{$store_id}.{$language_id}.{$customer_group_id}.{$limit}";
+		$cacheName 					= "product.store_{$store_id}.language_{$language_id}.popular_{$limit}";
 
-		$product_data = $this->cache->get($cache_key);
+		$product_data = $this->cache->get($cacheName);
 	
 		if (!$product_data) {
 			$product_data = [];
@@ -708,7 +706,7 @@ class ModelCatalogProduct extends Model {
 				$product_data[$result['product_id']] = $this->getProduct($result['product_id']);
 			}
 			
-			$this->cache->set($cache_key, $product_data);
+			$this->cache->set($cacheName, $product_data);
 		}
 		
 		return $product_data;
@@ -718,11 +716,10 @@ class ModelCatalogProduct extends Model {
 
 		$store_id 					= (int) $this->config->get('config_store_id');
 		$language_id 				= (int) $this->config->get('config_language_id');
-		$customer_group_id 	= (int) $this->config->get('config_customer_group_id');
 		$limit 							= (int) $limit;
-		$cache_key 					= "product.bestseller.{$store_id}.{$language_id}.{$customer_group_id}.{$limit}";
+		$cacheName 					= "product.store_{$store_id}.language_{$language_id}.bestseller_{$limit}";
 
-		$product_data = $this->cache->get($cache_key);
+		$product_data = $this->cache->get($cacheName);
 
 		if (!$product_data) {
 			$product_data = [];
@@ -743,7 +740,7 @@ class ModelCatalogProduct extends Model {
 				$product_data[$result['product_id']] = $this->getProduct($result['product_id']);
 			}
 
-			$this->cache->set($cache_key, $product_data);
+			$this->cache->set($cacheName, $product_data);
 		}
 
 		return $product_data;

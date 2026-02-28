@@ -361,9 +361,6 @@ class ModelCatalogProduct extends Model {
 					$this->db->query("INSERT INTO " . DB_PREFIX . "product_to_layout SET `product_id` = '" . (int)$product_id . "', `store_id` = '" . (int)$store_id . "', `layout_id` = '" . (int)$layout_id . "'");
 				}
 			}
-	
-	
-			$this->cache->delete('product');
 
 			$this->db->query("COMMIT");
 			
@@ -823,9 +820,10 @@ class ModelCatalogProduct extends Model {
 				}
 			}
 
-
-
 			$this->db->query("COMMIT");
+
+			$cacheName 	= "product.store_{$store_id}.language_{$language_id}." . (floor($product_id / 100)) . "00.product_{$product_id}";
+			$this->cache->delete($cacheName);			
 			
 		} catch (\Throwable $e) {
 
