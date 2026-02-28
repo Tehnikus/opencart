@@ -15,19 +15,29 @@ class ControllerExtensionModuleFacetFilter extends Controller {
 		$path 				= $this->request->get['category_id'] ?? $this->request->get['path'] ?? '';
 		$category_id 	= explode('_', (string) $path);
 		$category_id 	= end($category_id) ?? null;
-		$store_id 		= (int) $this->config->get('config_store_id');
-		$language_id 	= (int) $this->config->get('config_language_id');
-
+		
 		// Interface data
-		if (isset($settings['cache'])) {
-			$cacheName 	= "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . ".filters_{$category_id}";
+		if (isset($settings['cache']) && $settings['cache'] === '1') {
+			// Cache
+			$store_id 		= (int) $this->config->get('config_store_id');
+			$language_id 	= (int) $this->config->get('config_language_id');
+			$cachePrefix = explode('/', $route)[1] ?? $route;
+			$cachePostfix = "filters";
+			if ($category_id) {
+				$cachePostfix = (floor($category_id / 100)) . "00.filters_{$category_id}";
+			}
+			$cacheName 	= "{$cachePrefix}.store_{$store_id}.language_{$language_id}.{$cachePostfix}";
 			$data['filter_sets'] 	= $this->cache->get($cacheName);
+			if (!$data['filter_sets']) {
+				$data['filter_sets'] = $this->getFilterSets();
+				$this->cache->set($cacheName, $data['filter_sets']);
+			}
+		} else {
+			// No cache 
+			$data['filter_sets'] = $this->getFilterSets();
 		}
 
-		if (!$data['filter_sets']) {
-			$data['filter_sets'] = $this->getFilterSets();
-			$this->cache->set($cacheName, $data['filter_sets']);
-		}
+		$data['filter_sets'] = $this->getFilterSets();
 		
 		// Request data to check applied filters
 		$data['requests'] = [
@@ -61,7 +71,6 @@ class ControllerExtensionModuleFacetFilter extends Controller {
 						$current[] = $id;
 					}
 					
-					// нормализуем
 					$current = array_values(array_unique($current));
 					
 					sort($current);
