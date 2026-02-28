@@ -582,6 +582,12 @@ class ModelCatalogProduct extends Model {
 	}
 
 	public function getProductSpecials($data = array()) {
+
+	$store_id 					= (int) $this->config->get('config_store_id');
+	$language_id 				= (int) $this->config->get('config_language_id');
+	$limit 							= (int) $data['limit'];
+	$cacheName 					= "product.store_{$store_id}.language_{$language_id}.special.{$limit}";
+
 		$sql = "
 			SELECT 
 				DISTINCT ps.product_id, 
