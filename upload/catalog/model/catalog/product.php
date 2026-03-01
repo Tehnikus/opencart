@@ -360,13 +360,27 @@ class ModelCatalogProduct extends Model {
 		// Category
 		if (!empty($data['filter_category_id'])) {
 			$where[] = "
-				p2c.category_id = " . (int) $data['filter_category_id'] . "
+				p2c.`category_id` = " . (int) $data['filter_category_id'] . "
 			";
 
 			$join[] = "
 				JOIN " . DB_PREFIX . "product_to_category p2c
-					ON p2c.product_id = p2s.product_id
-					AND p2c.store_id = p2s.store_id
+					ON p2c.`product_id` = p2s.`product_id`
+					AND p2c.`store_id` = p2s.`store_id`
+			";
+		}
+
+		if (!empty($data['filter_sub_category'])) {
+			$where[] = "
+				cp.`path_id` = '" . (int) $data['filter_category_id'] . "'
+			";
+			$join[] = "
+				JOIN " . DB_PREFIX . "product_to_category p2c
+					ON p2c.`product_id` = p2s.`product_id`
+					AND p2c.`store_id` 	= p2s.`store_id`
+				JOIN " . DB_PREFIX . "category_path cp
+					ON cp.`category_id` = p2c.`category_id`
+					AND pc.`store_id` 	= p2s.`store_id`
 			";
 		}
 
