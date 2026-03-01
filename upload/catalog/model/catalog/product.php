@@ -349,11 +349,11 @@ class ModelCatalogProduct extends Model {
 
 		// Set mandatory WHEREs
 		// Connect to external query
-		$where[] = "p2s.product_id = p2s2.product_id";
+		$where[] = "p2s.`product_id` = p2s2.`product_id`";
 		// Only available products
-		$where[] = "p2s.status = 1";
+		$where[] = "p2s.`status` = 1";
 		// Only products from current store
-		$where[] = "p2s.store_id = '" . (int) $this->config->get('config_store_id') . "'";
+		$where[] = "p2s.`store_id` = '" . (int) $this->config->get('config_store_id') . "'";
 
 		// Start filters
 		// Conditions
@@ -410,11 +410,11 @@ class ModelCatalogProduct extends Model {
 			// Get filter groups
 			$sql = "
 				SELECT 
-					filter_id, 
-					filter_group_id
+					`filter_id`, 
+					`filter_group_id`
 				FROM " . DB_PREFIX . "product_filter
-				WHERE store_id = '" . (int) $this->config->get('config_store_id') . "'
-					AND filter_id IN (" . implode(',', $filter_ids) .")
+				WHERE `store_id` = '" . (int) $this->config->get('config_store_id') . "'
+					AND `filter_id` IN (" . implode(',', $filter_ids) .")
 			";
 
 			$filter_groups = $this->db->query($sql)->rows;
@@ -466,11 +466,11 @@ class ModelCatalogProduct extends Model {
 			// Get option groups
 			$sql = "
 				SELECT 
-					option_value_id, 
-					option_id
+					`option_value_id`, 
+					`option_id`
 				FROM " . DB_PREFIX . "product_option_value
-				WHERE store_id = '" . (int) $this->config->get('config_store_id') . "'
-					AND option_value_id IN (" . implode(',', $option_ids) .")
+				WHERE `store_id` = '" . (int) $this->config->get('config_store_id') . "'
+					AND `option_value_id` IN (" . implode(',', $option_ids) .")
 			";
 
 			$option_groups = $this->db->query($sql)->rows;
@@ -521,11 +521,11 @@ class ModelCatalogProduct extends Model {
 			// Get attribute groups
 			$sql = "
 				SELECT 
-					attribute_id, 
-					attribute_group_id
+					`attribute_id`, 
+					`attribute_group_id`
 				FROM " . DB_PREFIX . "product_attribute
-				WHERE store_id = '" . (int) $this->config->get('config_store_id') . "'
-					AND attribute_id IN (" . implode(',', $attribute_ids) .")
+				WHERE `store_id` = '" . (int) $this->config->get('config_store_id') . "'
+					AND `attribute_id` IN (" . implode(',', $attribute_ids) .")
 			";
 
 			$attribute_groups = $this->db->query($sql)->rows;
@@ -560,7 +560,7 @@ class ModelCatalogProduct extends Model {
 		// Manufacturers
 		if (!empty($data['filter_manufacturer_id'])) {
 			$where[] = "
-				p.manufacturer_id IN(" . $data['filter_manufacturer_id'] . ")
+				p.`manufacturer_id` IN(" . $data['filter_manufacturer_id'] . ")
 			";
 		}
 
@@ -592,15 +592,15 @@ class ModelCatalogProduct extends Model {
 		// Main query
 		$sql = "
 			SELECT
-				p.product_id
+				p.`product_id`
 			FROM " . DB_PREFIX . "product p
 			JOIN " . DB_PREFIX . "product_to_store p2s2
-				ON p.product_id = p2s2.product_id
-				AND p2s2.store_id = '" . (int) $this->config->get('config_store_id') . "'
+				ON p.`product_id` = p2s2.`product_id`
+				AND p2s2.`store_id` = '" . (int) $this->config->get('config_store_id') . "'
 			JOIN " . DB_PREFIX . "product_description pd
 				ON pd.`product_id` = p.`product_id`
-				AND pd.`language_id` = '" . (int) $this->config->get('config_language_id') . "'
-				AND pd.`store_id` = '" . (int) $this->config->get('config_store_id') . "'
+				AND pd.`language_id` 	= '" . (int) $this->config->get('config_language_id') . "'
+				AND pd.`store_id` 		= '" . (int) $this->config->get('config_store_id') . "'
 
 			-- Sort joins
 
