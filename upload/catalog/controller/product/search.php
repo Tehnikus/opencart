@@ -173,15 +173,19 @@ class ControllerProductSearch extends Controller {
 
 		if (isset($this->request->get['search']) || isset($this->request->get['tag'])) {
 			$filter_data = array(
-				'filter_name'         => $search,
-				'filter_tag'          => $tag,
-				'filter_description'  => $description,
-				'filter_category_id'  => $category_id,
-				'filter_sub_category' => $sub_category,
-				'sort'                => $sort,
-				'order'               => $order,
-				'start'               => ($page - 1) * $limit,
-				'limit'               => $limit
+				'filter_name'         		=> $search,
+				'filter_filter'      			=> $this->request->get['filter'] 					?? null,
+				'filter_option' 					=> $this->request->get['option'] 					?? null,
+				'filter_attribute' 				=> $this->request->get['attribute'] 			?? null,
+				'filter_manufacturer_id' 	=> $this->request->get['manufacturer_id'] ?? null,
+				'filter_tag'          		=> $tag,
+				'filter_description'  		=> $description,
+				'filter_category_id'  		=> $category_id,
+				'filter_sub_category' 		=> $sub_category,
+				'sort'                		=> $sort,
+				'order'               		=> $order,
+				'start'               		=> ($page - 1) * $limit,
+				'limit'               		=> $limit
 			);
 
 			$product_total = $this->model_catalog_product->getTotalProducts($filter_data);
