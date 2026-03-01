@@ -6,8 +6,8 @@ class ModelCatalogCategory extends Model {
 		$store_id 		= (int) $this->config->get('config_store_id');
 
 		// TODO Cache
-		// $cacheName 	= "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . "00.category_{$category_id}";
-		// $cachedData 	= $this->cache->get($cacheName);
+		// $categoryCacheName 	= "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . "00.category_{$category_id}";
+		// $cachedData 	= $this->cache->get($categoryCacheName);
 
 		$query = $this->db->query("
 			SELECT 
@@ -54,8 +54,8 @@ class ModelCatalogCategory extends Model {
 		$store_id 		= (int) $this->config->get('config_store_id');
 
 		// TODO Cache
-		// $cacheName 	= "category.store_{$store_id}.language_{$language_id}." . (floor($parent_id / 100)) . "00.child_categories_{$parent_id}";
-		// $cachedData 	= $this->cache->get($cacheName);
+		// $childrenCacheName 	= "category.store_{$store_id}.language_{$language_id}." . (floor($parent_id / 100)) . "00.child_categories_{$parent_id}";
+		// $cachedData 	= $this->cache->get($childrenCacheName);
 
 		$sql = "
 			SELECT 
@@ -88,6 +88,7 @@ class ModelCatalogCategory extends Model {
 		return $query->rows ?? [];
 	}
 
+	// Only used in upload\catalog\controller\extension\module\filter.php
 	public function getCategoryFilters($category_id) {
 
 		$sql = "
