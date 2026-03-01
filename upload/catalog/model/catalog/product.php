@@ -550,15 +550,43 @@ class ModelCatalogProduct extends Model {
 			";
 		}
 
+		// Search by name/description/model
+		if (isset($data['filter_name'])) {
+			$words 		= [];
+			$implode 	= [];
+			$orCondition = [];
+			$words = explode(' ', trim(preg_replace('/\s+/', ' ', $data['filter_name'])));
+			foreach ($words as $word) {
+				$implode['name'][]  = "pd.`name` LIKE '%" . $this->db->escape($word) . "%'";
+				$implode['model'][] = "p.`model` LIKE '%" . $this->db->escape($word) . "%'";
+			}
+
+			foreach ($implode as $searchColumn) {
+				foreach ($searchColumn as $searchTerm) {
+					$andCondition[] = $searchTerm;
+				}
+				$orCondition[] = "(" . implode(' AND ', $andCondition) . ")";
+			}
+
+			$where[] = "
+				(" . implode(' OR ', $orCondition) . ")
+			";
+		}
+
 		// End filters
 
 		// Main query
 		$sql = "
 			SELECT
-				p2s2.product_id
-			FROM " . DB_PREFIX . "product_to_store p2s2
-			JOIN " . DB_PREFIX . "product p
+				p.product_id
+			FROM " . DB_PREFIX . "product p
+			JOIN " . DB_PREFIX . "product_to_store p2s2
 				ON p.product_id = p2s2.product_id
+				AND p2s2.store_id = '" . (int) $this->config->get('config_store_id') . "'
+			JOIN " . DB_PREFIX . "product_description pd
+				ON pd.`product_id` = p.`product_id`
+				AND pd.`language_id` = '" . (int) $this->config->get('config_language_id') . "'
+				AND pd.`store_id` = '" . (int) $this->config->get('config_store_id') . "'
 
 			-- Sort joins
 
