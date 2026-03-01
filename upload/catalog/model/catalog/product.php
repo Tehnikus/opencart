@@ -573,6 +573,9 @@ class ModelCatalogProduct extends Model {
 			foreach ($words as $word) {
 				$implode['name'][]  = "pd.`name` LIKE '%" . $this->db->escape($word) . "%'";
 				$implode['model'][] = "p.`model` LIKE '%" . $this->db->escape($word) . "%'";
+				if (!empty($data['filter_description'])) {
+					$implode['description'][] = "pd.`description` LIKE '%" . $this->db->escape($word) . "%'";
+				}
 			}
 
 			foreach ($implode as $searchColumn) {
