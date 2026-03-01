@@ -579,8 +579,8 @@ class ModelCatalogProduct extends Model {
 			}
 
 			foreach ($implode as $searchColumn) {
-				foreach ($searchColumn as $searchTerm) {
-					$andCondition[] = $searchTerm;
+				foreach ($searchColumn as $key => $searchTerm) {
+					$andCondition[$key] = $searchTerm;
 				}
 				$orCondition[] = "(" . implode(' AND ', $andCondition) . ")";
 			}
