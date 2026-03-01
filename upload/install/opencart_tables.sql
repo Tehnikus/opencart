@@ -2061,7 +2061,7 @@ CREATE TABLE `oc_product_to_store` (
   `image`             VARCHAR(255) DEFAULT NULL,
   `price`             DECIMAL(15,4) NOT NULL DEFAULT '0.0000',
   `date_modified`     DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP),
-  PRIMARY KEY (`product_id`,`store_id`),
+  PRIMARY KEY (`product_id`,`store_id`, `status`),
   KEY (`store_id`, `parent_id`, `sort_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -2229,7 +2229,7 @@ CREATE TABLE `oc_product_filter` (
   `filter_id`         INT NOT NULL,
   `filter_group_id`   INT NOT NULL,
   `store_id`          INT NOT NULL DEFAULT '0',
-  PRIMARY KEY (`product_id`, `store_id`, `filter_id`)
+  PRIMARY KEY (`product_id`, `store_id`, `filter_group_id`, `filter_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -2292,7 +2292,8 @@ CREATE TABLE `oc_product_option_value` (
   `weight`                  DECIMAL(15,8) NOT NULL,
   `weight_prefix`           VARCHAR(1) NOT NULL,
   PRIMARY KEY (`product_option_value_id`),
-  KEY (`product_id`, `product_option_id`, `store_id`)
+  KEY `getProduct` (`product_id`, `product_option_id`, `store_id`),
+  KEY `getProducts` (`product_id`, `store_id`, `option_id`, `option_value_id`) -- TODO Maybe needs UNINQUE, needs testing
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
