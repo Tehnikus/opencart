@@ -416,7 +416,7 @@ class ModelCatalogProduct extends Model {
 			// Build EXISTS string
 			foreach ($filters_by_group as $groupId => $filterIds) {
 
-				$ids = implode(',', $filterIds);
+				$ids = implode(',', array_unique($filterIds));
 
 				// Put EXISTS string to WHERE clause
 				$where[] = "
@@ -472,17 +472,17 @@ class ModelCatalogProduct extends Model {
 			// Build EXISTS string
 			foreach ($options_by_group as $groupId => $optionIds) {
 
-				$ids = implode(',', $optionIds);
+				$ids = implode(',', array_unique($optionIds));
 
 				// Put EXISTS string to WHERE clause
 				$where[] = "
 					EXISTS (
 						SELECT 1
-						FROM " . DB_PREFIX . "product_option_value pf
-						WHERE pf.product_id = p2s.product_id
-							AND pf.store_id = '" . (int) $this->config->get('config_store_id') . "'
-							AND pf.option_id = {$groupId}
-							AND pf.option_value_id IN ({$ids})
+						FROM " . DB_PREFIX . "product_option_value po
+						WHERE po.product_id = p2s.product_id
+							AND po.store_id = '" . (int) $this->config->get('config_store_id') . "'
+							AND po.option_id = {$groupId}
+							AND po.option_value_id IN ({$ids})
 					)
 				";
 			}
@@ -527,17 +527,17 @@ class ModelCatalogProduct extends Model {
 			// Build EXISTS string
 			foreach ($attributes_by_group as $groupId => $attributeIds) {
 
-				$ids = implode(',', $attributeIds);
+				$ids = implode(',', array_unique($attributeIds));
 
 				// Put EXISTS string to WHERE clause
 				$where[] = "
 					EXISTS (
 						SELECT 1
-						FROM " . DB_PREFIX . "product_attribute pf
-						WHERE pf.product_id = p2s.product_id
-							AND pf.store_id = '" . (int) $this->config->get('config_store_id') . "'
-							AND pf.attribute_group_id = {$groupId}
-							AND pf.attribute_id IN ({$ids})
+						FROM " . DB_PREFIX . "product_attribute pa
+						WHERE pa.product_id = p2s.product_id
+							AND pa.store_id = '" . (int) $this->config->get('config_store_id') . "'
+							AND pa.attribute_group_id = {$groupId}
+							AND pa.attribute_id IN ({$ids})
 					)
 				";
 			}
