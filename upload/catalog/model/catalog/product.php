@@ -192,7 +192,6 @@ class ModelCatalogProduct extends Model {
 								JSON_OBJECT(
 									'name', 				ad.`name`,
 									'attribute_id', pa.`attribute_id`,
-									'language_id', 	pa.`language_id`,
 									'text', 				pa.`text`,
 									'sort_order', 	a2s.`sort_order`
 								)
