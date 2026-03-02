@@ -6,9 +6,9 @@ class ModelLocalisationLanguage extends Model {
 				* 
 			FROM " . DB_PREFIX . "language l
 			INNER JOIN " . DB_PREFIX . "language_to_store l2s
-				ON l.language_id = l2s.language_id
-				AND l2s.store_id = '" . (int) $this->config->get('config_store_id') . "'
-			WHERE language_id = '" . (int)$language_id . "'
+				ON l.`language_id` = l2s.language_id
+				AND l2s.`store_id` = '" . (int) $this->config->get('config_store_id') . "'
+			WHERE l.`language_id` = '" . (int)$language_id . "'
 		");
 
 		return $query->row;
@@ -23,10 +23,10 @@ class ModelLocalisationLanguage extends Model {
 				* 
 			FROM " . DB_PREFIX . "language l
 			INNER JOIN " . DB_PREFIX . "language_to_store l2s
-				ON l.language_id = l2s.language_id
-				AND l2s.store_id = '" . (int) $this->config->get('config_store_id') . "'
-			WHERE status = '1' 
-			ORDER BY sort_order, name
+				ON l.`language_id` = l2s.`language_id`
+				AND l2s.`store_id` = '" . (int) $this->config->get('config_store_id') . "'
+			WHERE l.`status` = '1' 
+			ORDER BY `sort_order`, `name`
 		");
 
 		foreach ($query->rows as $result) {
