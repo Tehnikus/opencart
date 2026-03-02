@@ -178,7 +178,7 @@ class ModelDesignLayout extends Model {
 						GROUP BY lm.position
 					) t
 				) AS modules,
-				(SELECT route FROM " . DB_PREFIX . "layout_route lr WHERE lr.layout_id = l.layout_id) AS route
+				(SELECT route FROM " . DB_PREFIX . "layout_route lr WHERE lr.layout_id = l.layout_id AND lr.store_id = l.store_id) AS route
 			FROM " . DB_PREFIX . "layout l
 			WHERE l.`store_id` = '" . (int) $this->session->data['store_id'] . "'
 		";
