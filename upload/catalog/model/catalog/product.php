@@ -148,7 +148,7 @@ class ModelCatalogProduct extends Model {
 					) FROM " . DB_PREFIX . "product_special ps
 					 WHERE ps.`product_id` = p2s.`product_id`
 					 AND ps.`store_id` 		 = p2s.`store_id`
-				) AS product_specials,
+				) AS specials,
 
 				(
 					SELECT JSON_OBJECTAGG(
@@ -165,7 +165,7 @@ class ModelCatalogProduct extends Model {
 					) FROM " . DB_PREFIX . "product_discount pd
 					 WHERE pd.`product_id` = p2s.`product_id`
 					 AND pd.`store_id` 		 = p2s.`store_id`
-				) AS product_discounts,
+				) AS discounts,
 
 				(
 					SELECT JSON_ARRAYAGG(
@@ -212,7 +212,7 @@ class ModelCatalogProduct extends Model {
 				
 						GROUP BY pa.`attribute_group_id`
 					) t
-				) AS product_attributes,
+				) AS attributes,
 
 				(
 					SELECT JSON_OBJECTAGG(
@@ -265,7 +265,7 @@ class ModelCatalogProduct extends Model {
 						AND od.`store_id` 		= p2s.`store_id`
 					WHERE po.`product_id` 	= p.`product_id`
 						AND po.`store_id` 		= p2s.`store_id`
-				) AS product_options,
+				) AS options,
 
 				(
 					SELECT JSON_OBJECTAGG(
@@ -326,19 +326,29 @@ class ModelCatalogProduct extends Model {
 			return false;
 		}
 
-		$product['images'] 							= json_decode($product['images'] ?? '[]', true);
-		$product['product_specials'] 		= json_decode($product['product_specials'] ?? '[]', true);
-		$product['product_discounts'] 	= json_decode($product['product_discounts'] ?? '[]', true);
-		$product['product_options'] 		= json_decode($product['product_options'] ?? '[]', true);
-		$product['product_attributes'] 	= json_decode($product['product_attributes'] ?? '[]', true);
-		$product['reward'] 							= json_decode($product['rewards'] ?? '[]', true)[$customer_group_id] ?? null;
-		$product['discount'] 						= $this->getValidDiscount($product['product_discounts'], $customer_group_id)['price'] ?? null;
-		$product['special'] 						= $this->getValidDiscount($product['product_specials'], $customer_group_id)['price'] ?? null;
-		$product['discount_date_end'] 	= $this->getValidDiscount($product['product_discounts'], $customer_group_id)['date_end'] ?? null;
-		$product['special_date_end'] 		= $this->getValidDiscount($product['product_specials'], $customer_group_id)['date_end'] ?? null;
-
-		// TODO Cache
-		// $this->cache->set($cacheName, $product);
+		// Decode data
+		$product['images'] 							= json_decode($product['images'] 			?? '[]', true);
+		$product['specials'] 						= json_decode($product['specials'] 		?? '[]', true);
+		$product['discounts'] 					= json_decode($product['discounts'] 	?? '[]', true);
+		$product['options'] 						= json_decode($product['options'] 		?? '[]', true);
+		$product['attributes'] 					= json_decode($product['attributes'] 	?? '[]', true);
+		$product['reward'] 							= json_decode($product['rewards'] 		?? '[]', true)[$customer_group_id] ?? null;
+		// Get valid discount float prices and dates in YYYY-MM-DD format
+		$product['discount'] 						= $this->getValidDiscount($product['discounts'], $customer_group_id)['price'] 		?? null;
+		$product['special'] 						= $this->getValidDiscount($product['specials'],  $customer_group_id)['price'] 		?? null;
+		$product['discount_date_end'] 	= $this->getValidDiscount($product['discounts'], $customer_group_id)['date_end'] ?? null;
+		$product['special_date_end'] 		= $this->getValidDiscount($product['specials'],  $customer_group_id)['date_end'] ?? null;
+		// Sort data
+		usort(array: $product['images'], 		callback: fn ($a, $b) =>  $a['sort_order'] <=> $b['sort_order']);
+		usort(array: $product['options'], 		callback: fn ($a, $b) =>  $a['sort_order'] <=> $b['sort_order']);
+		usort(array: $product['attributes'], callback: fn ($a, $b) =>  $a['sort_order'] <=> $b['sort_order']);
+		usort(array: $product['specials'], 	callback: fn ($a, $b) =>  $a['priority'] 	<=> $b['priority']);
+		array_multisort(
+			$product['discounts'],
+			array_column($product['discounts'], 'quantity'),  SORT_ASC,
+			array_column($product['discounts'], 'priority'),  SORT_ASC,
+			array_column($product['discounts'], 'price'),  SORT_ASC,
+		);
 		return $product;
 	}
 
