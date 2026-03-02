@@ -123,7 +123,7 @@ class ModelExtensionModuleFacetFilter extends Model {
 		}
 
 		if (!empty($result)) {	
-			usort($result, fn ($a, $b) =>  $a['group_sort_order'] <=> $b['group_sort_order'] );
+			usort(array: $result, callback: fn ($a, $b) =>  $a['group_sort_order'] <=> $b['group_sort_order'] );
 			foreach ($result as &$group) {
 				if (isset($group['filters'])) {
 					usort(array: $group['filters'], callback: fn ($a, $b) =>  $a['filter_sort_order'] <=> $b['filter_sort_order'] );
@@ -187,7 +187,7 @@ class ModelExtensionModuleFacetFilter extends Model {
 		}
 
 		if (!empty($result)) {	
-			usort($result, fn ($a, $b) =>  $a['group_sort_order'] <=> $b['group_sort_order'] );
+			usort(array: $result, callback: fn ($a, $b) =>  $a['group_sort_order'] <=> $b['group_sort_order'] );
 			foreach ($result as &$group) {
 				if (isset($group['filters'])) {
 					usort(array: $group['filters'], callback: fn ($a, $b) =>  $a['filter_sort_order'] <=> $b['filter_sort_order'] );
@@ -236,7 +236,7 @@ class ModelExtensionModuleFacetFilter extends Model {
 		$result['0']['filter_group_id'] = 1;
 
 		if (isset($result[0]['filters'])) {	
-			usort($result[0]['filters'], fn ($a, $b) =>  $a['sort_order'] <=> $b['sort_order'] );
+			usort(array: $result[0]['filters'], callback: fn ($a, $b) =>  $a['sort_order'] <=> $b['sort_order'] );
 		}
 
 		return $result;
@@ -361,7 +361,7 @@ class ModelExtensionModuleFacetFilter extends Model {
 		}
 
 		if (!empty($result)) {	
-			usort($result, fn ($a, $b) =>  $a['group_sort_order'] <=> $b['group_sort_order'] );
+			usort(array: $result, callback: fn ($a, $b) =>  $a['group_sort_order'] <=> $b['group_sort_order'] );
 			foreach ($result as &$group) {
 				if (isset($group['filters'])) {
 					usort(array: $group['filters'], callback: fn ($a, $b) =>  $a['filter_sort_order'] <=> $b['filter_sort_order'] );
