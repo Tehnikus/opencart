@@ -854,211 +854,30 @@ class ModelCatalogProduct extends Model {
 		return $product_data;
 	}
 
-	// TODO Rewrite in a single query
-	// DONE Select columns explicitly
-	public function getProductAttributes($product_id) {
-		$product_attribute_group_data = array();
-
-		$product_attribute_group_query = $this->db->query("
-			SELECT 
-				ag2s.`attribute_group_id`, 
-				agd.`name` 
-			FROM " . DB_PREFIX . "product_attribute pa 
-			JOIN " . DB_PREFIX . "attribute a 
-				ON pa.`attribute_id` = a.`attribute_id`
-			JOIN " . DB_PREFIX . "attribute_to_store a2s 
-				ON  a2s.`attribute_id` = pa.`attribute_id`
-				AND a2s.`store_id` 		 = pa.`store_id`
-			JOIN " . DB_PREFIX . "attribute_group ag 
-				ON ag.`attribute_group_id` =  a2s.`attribute_group_id`
-			JOIN " . DB_PREFIX . "attribute_group_to_store ag2s 
-				ON ag2s.`attribute_group_id` 	=  a2s.`attribute_group_id`
-				AND ag2s.`store_id` 					= pa.`store_id`
-			JOIN " . DB_PREFIX . "attribute_group_description agd 
-				ON agd.`attribute_group_id` = ag2s.`attribute_group_id` 
-				AND agd.`language_id` 			= '" . (int) $this->config->get('config_language_id') . "'
-				AND agd.`store_id` = pa.`store_id`
-			WHERE pa.`product_id` = '" . (int) $product_id . "' 
-				AND pa.`store_id` 	= '" . (int) $this->config->get('config_store_id') . "'
-			GROUP BY ag.`attribute_group_id` 
-			ORDER BY ag.`sort_order`, agd.`name`
-		");
-
-		foreach ($product_attribute_group_query->rows as $product_attribute_group) {
-			$product_attribute_data = array();
-
-			$product_attribute_query = $this->db->query("
-				SELECT 
-					a.`attribute_id`, 
-					ad.`name`, 
-					pa.`text` 
-				FROM " . DB_PREFIX . "product_attribute pa 
-				JOIN " . DB_PREFIX . "attribute a 
-					ON a.`attribute_id` 			 = pa.`attribute_id`
-					AND a.`attribute_group_id` = '" . (int) $product_attribute_group['attribute_group_id'] . "' 
-				JOIN " . DB_PREFIX . "attribute_description ad 
-					ON a.`attribute_id`  = ad.`attribute_id`
-					AND ad.`language_id` = pa.`language_id`
-					AND ad.`store_id` 	 = pa.`store_id`
-				WHERE pa.`product_id` 	= '" . (int) $product_id . "' 
-					AND pa.`language_id` 	= '" . (int) $this->config->get('config_language_id') . "' 
-					AND pa.`store_id` 		= '" . (int) $this->config->get('config_store_id') . "' 
-				ORDER BY a.`sort_order`, ad.`name`
-			");
-
-			foreach ($product_attribute_query->rows as $product_attribute) {
-				$product_attribute_data[] = array(
-					'attribute_id' => $product_attribute['attribute_id'],
-					'name'         => $product_attribute['name'],
-					'text'         => $product_attribute['text']
-				);
-			}
-
-			$product_attribute_group_data[] = array(
-				'attribute_group_id' => $product_attribute_group['attribute_group_id'],
-				'name'               => $product_attribute_group['name'],
-				'attribute'          => $product_attribute_data
-			);
-		}
-
-		return $product_attribute_group_data;
+	public function getProductAttributes($product_id) : array {
+		$product = $this->getProduct($product_id);
+		$attributes = $product['attributes'] ?? [];
+		return $attributes;
 	}
 
-	// DONE Rewrite in a single query
-	// DONE Select columns explicitly
-	public function getProductOptions($product_id) {
-		$product_option_data = [];
-
-		$product_option_query = $this->db->query("
-			SELECT 
-
-				po.`product_option_id`,
-				po.`product_id`,
-				po.`store_id`,
-				po.`option_id`,
-				po.`value`,
-				po.`required`,
-				o.`type`,
-				o2s.`sort_order`,
-				od.`language_id`,
-				od.`name`
-
-			FROM `" . DB_PREFIX . "product_option` po 
-			JOIN `" . DB_PREFIX . "option` o 
-				ON po.`option_id` = o.`option_id`
-			JOIN " . DB_PREFIX . "option_to_store o2s 
-				ON o2s.`option_id` = po.`option_id`
-				AND o2s.`store_id` = po.`store_id`
-			JOIN " . DB_PREFIX . "option_description od 
-				ON  od.`option_id` 	 = o2s.`option_id`
-				AND od.`language_id` = '" . (int) $this->config->get('config_language_id') . "'
-				AND od.`store_id`    = po.`store_id`
-			WHERE po.`product_id` = '" . (int) $product_id . "' 
-				AND po.`store_id` 	= '" . (int) $this->config->get('config_store_id') . "'
-			ORDER BY o2s.`sort_order`
-		");
-
-		
-		
-		foreach ($product_option_query->rows as $product_option) {
-			$product_option_value_data = [];
-			
-			$product_option_value_query = $this->db->query("
-				SELECT 
-
-					pov.`product_option_value_id`,
-					pov.`product_option_id`,
-					pov.`product_id`,
-					pov.`store_id`,
-					pov.`option_id`,
-					pov.`option_value_id`,
-					pov.`quantity`,
-					pov.`subtract`,
-					pov.`price`,
-					pov.`price_prefix`,
-					pov.`points`,
-					pov.`points_prefix`,
-					pov.`weight`,
-					pov.`weight_prefix`,
-					ov.`image`,
-					ov.`sort_order`,
-					ovd.`language_id`,
-					ovd.`name`
-
-				FROM " . DB_PREFIX . "product_option_value pov 
-				JOIN " . DB_PREFIX . "option_value ov 
-					ON  ov.`option_value_id` = pov.`option_value_id`
-					AND ov.`store_id` 			 = pov.`store_id`
-				JOIN " . DB_PREFIX . "option_value_description ovd 
-					ON  ovd.`option_value_id` = ov.`option_value_id`
-					AND ovd.`language_id` = '" . (int) $this->config->get('config_language_id') . "'
-					AND ovd.`store_id` = pov.`store_id`
-				WHERE pov.`product_id` = '" . (int) $product_id . "' 
-					AND pov.`store_id` = '" . $this->config->get('config_store_id') . "'
-					AND pov.`product_option_id` = '" . (int)$product_option['product_option_id'] . "' 
-				ORDER BY ov.sort_order
-			");
-			
-			
-			foreach ($product_option_value_query->rows as $product_option_value) {
-				$product_option_value_data[] = array(
-					'product_option_value_id' => $product_option_value['product_option_value_id'],
-					'option_value_id'         => $product_option_value['option_value_id'],
-					'name'                    => $product_option_value['name'],
-					'image'                   => $product_option_value['image'],
-					'quantity'                => $product_option_value['quantity'],
-					'subtract'                => $product_option_value['subtract'],
-					'price'                   => $product_option_value['price'],
-					'price_prefix'            => $product_option_value['price_prefix'],
-					'weight'                  => $product_option_value['weight'],
-					'weight_prefix'           => $product_option_value['weight_prefix']
-				);
-			}
-			
-			$product_option_data[] = array(
-				'product_option_id'    => $product_option['product_option_id'],
-				'product_option_value' => $product_option_value_data,
-				'option_id'            => $product_option['option_id'],
-				'name'                 => $product_option['name'],
-				'type'                 => $product_option['type'],
-				'value'                => $product_option['value'],
-				'required'             => $product_option['required']
-			);
-		}
-
-		return $product_option_data;
+	public function getProductOptions($product_id) : array {
+		$product = $this->getProduct($product_id);
+		$options = $product['options'] ?? [];
+		return $options;
 	}
 
 	// Product bulk discounts
-	// TODO Should be also displayed in product list?
 	public function getProductDiscounts($product_id) {
-		$query = $this->db->query("
-			SELECT 
-				* 
-			FROM " . DB_PREFIX . "product_discount 
-			WHERE product_id = '" . (int) $product_id . "' 
-				AND customer_group_id = '" . (int) $this->config->get('config_customer_group_id') . "' 
-				AND quantity > 1 
-				AND ((date_start = '0000-00-00' OR date_start < NOW()) AND (date_end = '0000-00-00' OR date_end > NOW())) 
-				AND store_id = '" . (int) $this->config->get('config_store_id') . "'
-			ORDER BY quantity ASC, priority ASC, price ASC
-		");
-
-		return $query->rows;
+		$product = $this->getProduct($product_id);
+		$discounts = $product['discounts'] ?? [];
+		return $discounts;
 	}
 
 	// Additional product images
-	public function getProductImages($product_id) {
-		$query = $this->db->query("
-			SELECT 
-				* 
-			FROM " . DB_PREFIX . "product_image 
-			WHERE product_id = '" . (int) $product_id . "' 
-				AND store_id   = '" . (int) $this->config->get('config_store_id') . "'
-			ORDER BY sort_order ASC
-		");
-
-		return $query->rows;
+	public function getProductImages($product_id) : array {
+		$product = $this->getProduct($product_id);
+		$images = $product['images'] ?? [];
+		return $images;
 	}
 
 	// Related products list in the bottom of product page
