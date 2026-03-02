@@ -50,18 +50,33 @@ class ModelCatalogProduct extends Model {
 		
 		// Cache
 		$cacheName 	= "product.store_{$store_id}.language_{$language_id}." . (floor($product_id / 100)) . "00.product_{$product_id}";
-		$cachedData 	= $this->cache->get($cacheName);
+		$product 		= $this->cache->get($cacheName);
 		
-		if ($cachedData) {
+		if ($product) {
+			// Filter specials and discounts
 			$now = date('Y-m-d H:i:s');
-			$cachedData['specials'] = array_filter($cachedData['specials'], function ($var) use ($now) {
-				return strtotime($var['date_end']) >= strtotime($now) && strtotime($var['date_start']) <= strtotime($now);
+			$product['specials'] = array_filter($product['specials'], function ($var) use ($now) {
+				return 
+					strtotime($var['date_start']) <= strtotime($now)
+					&& (
+						strtotime($var['date_end']) >= strtotime($now) 
+						|| $var['date_end'] === null
+						|| str_contains($var['date_end'], '0000-00-00')
+					)
+				;
 			});
-			$cachedData['discounts'] = array_filter($cachedData['discounts'], function ($var) use ($now) {
-				return strtotime($var['date_end']) >= strtotime($now) && strtotime($var['date_start']) <= strtotime($now);
+			$product['discounts'] = array_filter($product['discounts'], function ($var) use ($now) {
+				return 
+					strtotime($var['date_start']) <= strtotime($now)
+					&& (
+						strtotime($var['date_end']) >= strtotime($now) 
+						|| $var['date_end'] === null
+						|| str_contains($var['date_end'], '0000-00-00')
+					)
+				;
 			});
 
-			return $cachedData;
+			return $product;
 		}
 
 		$sql = "
@@ -359,15 +374,28 @@ class ModelCatalogProduct extends Model {
 
 		$this->cache->set($cacheName, $product);
 
-		// Filter special 
+		// Filter specials and discounts
 		$now = date('Y-m-d H:i:s');
 		$product['specials'] = array_filter($product['specials'], function ($var) use ($now) {
-			return $var['date_end'] >= $now && $var['date_start'] <= $now;
+			return 
+				strtotime($var['date_start']) <= strtotime($now)
+				&& (
+					strtotime($var['date_end']) >= strtotime($now) 
+					|| $var['date_end'] === null
+					|| str_contains($var['date_end'], '0000-00-00')
+				)
+			;
 		});
-		$cachedData['discounts'] = array_filter($product['discounts'], function ($var) use ($now) {
-			return $var['date_end'] >= $now && $var['date_start'] <= $now;
+		$product['discounts'] = array_filter($product['discounts'], function ($var) use ($now) {
+			return 
+				strtotime($var['date_start']) <= strtotime($now)
+				&& (
+					strtotime($var['date_end']) >= strtotime($now) 
+					|| $var['date_end'] === null
+					|| str_contains($var['date_end'], '0000-00-00')
+				)
+			;
 		});
-
 		return $product;
 	}
 
