@@ -48,13 +48,21 @@ class ModelCatalogProduct extends Model {
 		$store_id 					= (int) $this->config->get('config_store_id');
 		$customer_group_id 	= (int) $this->config->get('config_customer_group_id');
 		
-		// TODO Cache
-		// $cacheName 	= "product.store_{$store_id}.language_{$language_id}." . (floor($product_id / 100)) . "00.product_{$product_id}";
-		// $cachedData 	= $this->cache->get($cacheName);
+		// Cache
+		$cacheName 	= "product.store_{$store_id}.language_{$language_id}." . (floor($product_id / 100)) . "00.product_{$product_id}";
+		$cachedData 	= $this->cache->get($cacheName);
 		
-		// if ($cachedData) {
-		// 	return $cachedData;
-		// }
+		if ($cachedData) {
+			$now = date('Y-m-d H:i:s');
+			$cachedData['specials'] = array_filter($cachedData['specials'], function ($var) use ($now) {
+				return strtotime($var['date_end']) >= strtotime($now) && strtotime($var['date_start']) <= strtotime($now);
+			});
+			$cachedData['discounts'] = array_filter($cachedData['discounts'], function ($var) use ($now) {
+				return strtotime($var['date_end']) >= strtotime($now) && strtotime($var['date_start']) <= strtotime($now);
+			});
+
+			return $cachedData;
+		}
 
 		$sql = "
 			SELECT
@@ -349,6 +357,18 @@ class ModelCatalogProduct extends Model {
 			array_column($product['discounts'], 'priority'),  SORT_ASC,
 			array_column($product['discounts'], 'price'),  SORT_ASC,
 		);
+
+		$this->cache->set($cacheName, $product);
+
+		// Filter special 
+		$now = date('Y-m-d H:i:s');
+		$product['specials'] = array_filter($product['specials'], function ($var) use ($now) {
+			return $var['date_end'] >= $now && $var['date_start'] <= $now;
+		});
+		$cachedData['discounts'] = array_filter($product['discounts'], function ($var) use ($now) {
+			return $var['date_end'] >= $now && $var['date_start'] <= $now;
+		});
+
 		return $product;
 	}
 
