@@ -2265,7 +2265,7 @@ CREATE TABLE `oc_product_option` (
   `value`             TEXT NOT NULL,
   `required`          TINYINT NOT NULL,
   PRIMARY KEY (`product_option_id`),
-  KEY (`product_id`, `store_id`, `product_option_id`)
+  KEY `getProduct` (`product_id`, `store_id`, `product_option_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
