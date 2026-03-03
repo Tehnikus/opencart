@@ -242,7 +242,7 @@ class ModelExtensionModuleFacetFilter extends Model {
 		return $result;
 	}
 
-	public function getCategoryFilters($category_id) {
+	public function getCategoryFilters($category_id) : array {
 
 		$sql = "
 			SELECT 
@@ -292,16 +292,16 @@ class ModelExtensionModuleFacetFilter extends Model {
 			$group_id = $row['filter_group_id'];
 
 			if (!isset($filter_group_data[$group_id])) {
-				$filter_group_data[$group_id] = array(
+				$filter_group_data[$group_id] = [
 					'filter_group_id' => $group_id,
 					'group_name'      => $row['group_name'],
-				);
+				];
 			}
 
-			$filter_group_data[$group_id]['filters'][] = array(
+			$filter_group_data[$group_id]['filters'][] = [
 				'filter_id' => $row['filter_id'],
 				'name'      => $row['filter_name']
-			);
+			];
 		}
 
 		// Reset keys to start from zero
