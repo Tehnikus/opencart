@@ -388,7 +388,8 @@ class ControllerSettingSetting extends Controller {
 
 		$data['currency_engines'] = array();
 
-		$extension_codes = $this->model_setting_extension->getInstalled(type: 'currency', store:  0);
+		$this->load->model('setting/extension');
+		$extension_codes = $this->model_setting_extension->getInstalled(type: 'currency', store_id:  0);
 
 		foreach ($extension_codes as $extension_code) {
 			if ($this->config->get('currency_' . $extension_code . '_status')) {
@@ -695,7 +696,7 @@ class ControllerSettingSetting extends Controller {
 		$data['captchas'] = array();
 
 		// Get a list of installed captchas
-		$extensions = $this->model_setting_extension->getInstalled(type: 'captcha', store: 0);
+		$extensions = $this->model_setting_extension->getInstalled(type: 'captcha', store_id: 0);
 
 		foreach ($extensions as $code) {
 			$this->load->language('extension/captcha/' . $code, 'extension');
