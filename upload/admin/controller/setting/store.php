@@ -329,6 +329,7 @@ class ControllerSettingStore extends Controller {
 			);
 		}
 
+
 		if (isset($this->request->post['config_layout_id'])) {
 			$data['config_layout_id'] = $this->request->post['config_layout_id'];
 		} elseif (isset($store_info['config_layout_id'])) {
@@ -339,7 +340,8 @@ class ControllerSettingStore extends Controller {
 
 		$this->load->model('design/layout');
 
-		$data['layouts'] = $this->model_design_layout->getLayouts();
+		$store_id = $this->request->get['store_id'] ?? 0;
+		$data['layouts'] = $this->model_design_layout->getLayouts(['store_id' => $store_id]);
 
 		if (isset($this->request->post['config_name'])) {
 			$data['config_name'] = $this->request->post['config_name'];
