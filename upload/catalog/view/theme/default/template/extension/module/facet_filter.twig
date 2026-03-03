@@ -12,11 +12,11 @@
     </div>
     <div> 
       {% for filter_set_name, filter_set in filter_sets %}
-        {% for filter_group in filter_set %}
+        {% for key, filter_group in filter_set %}
           <h4>{{filter_group.group_name}}</h4>
           {% for filter_val in filter_group.filters %}
             <a href="{{ filter_val.href }}">
-              <input type="checkbox" value="{{ filter.filter_id }}" {% if filter_val.filter_id in requests[filter_set_name] %} checked="checked" {% endif %} />
+              <input type="checkbox" data-filter-type="{{ filter_set_name }}" value="{{ filter_val.filter_id }}" {% if filter_val.filter_id in requests[filter_set_name] %} checked="checked" {% endif %} />
               {{ filter_val.name }}
             </a>
           {% endfor %}
@@ -42,6 +42,9 @@ function setParams(param, value = null) {
   }
 
   window.location.href = url.toString();
+
+  // For future reference when filter will get products by JS fetch
+  // history.replaceState(null, '', url);
 }
 
 </script>
