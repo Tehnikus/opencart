@@ -62,12 +62,41 @@ class ModelSettingStore extends Model {
 		return (int) $store_id;
 	}
 
-	public function deleteStore($store_id) {
-		$this->db->query("DELETE FROM " . DB_PREFIX . "store WHERE store_id = '" . (int)$store_id . "'");
-		$this->db->query("DELETE FROM " . DB_PREFIX . "layout_route WHERE store_id = '" . (int)$store_id . "'");
+	public function deleteStore($store_id = 0) {
 
-		$this->cache->delete('store');
+	if ($store_id === 0) {
+		throw new Exception("You cannot delete default store");
 	}
+
+	$this->db->query("START TRANSACTION");
+
+	try {
+
+		// Get all tables with store_id
+		$tablesToDelete = $this->db->query("
+			SELECT DISTINCT TABLE_NAME AS `table`
+			FROM INFORMATION_SCHEMA.COLUMNS
+			WHERE COLUMN_NAME = 'store_id'
+				AND TABLE_SCHEMA = '" . DB_DATABASE . "'
+				AND TABLE_NAME LIKE '" . DB_PREFIX . "%'
+		")->rows;
+
+		foreach ($tablesToDelete as $table) {
+
+			$this->db->query("
+				DELETE FROM `" . $table['table'] . "`
+				WHERE store_id = '" . (int) $store_id . "'
+			");
+		}
+
+		$this->db->query("COMMIT");
+
+	} catch (\Throwable $e) {
+
+		$this->db->query("ROLLBACK");
+		throw $e;
+	}
+}
 
 	public function getStore($store_id) {
 		$query = $this->db->query("SELECT DISTINCT * FROM " . DB_PREFIX . "store WHERE store_id = '" . (int)$store_id . "'");
