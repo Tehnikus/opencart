@@ -269,9 +269,9 @@ class ModelCatalogProduct extends Model {
 									)
 								)
 								FROM " . DB_PREFIX . "product_option_value pov
-								WHERE pov.product_id 				= p2s.product_id
+								WHERE pov.product_id 				= po.product_id
 									AND pov.product_option_id = po.product_option_id
-									AND pov.store_id 					= p2s.store_id
+									AND pov.store_id 					= po.store_id
 							)
 						)
 					)
