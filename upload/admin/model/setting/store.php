@@ -32,6 +32,10 @@ class ModelSettingStore extends Model {
 		// Install selected theme if not installed
 		$this->load->model('setting/extension');
 		$this->model_setting_extension->install('theme', $data['config_theme']);
+
+		// Clone layouts from default store to new store
+		$this->cloneLayouts($store_id);
+		
 		return $store_id;
 	}
 
@@ -217,6 +221,55 @@ class ModelSettingStore extends Model {
 
 		return $result;
 	}
+
+	public function cloneLayouts($targetStoreId) : void {
+		
+	$layoutMap = [];
+		// Get default store layouts
+		$layouts = $this->db->query("
+			SELECT 
+				* 
+			FROM " . DB_PREFIX . "layout
+			WHERE store_id = 0
+		")->rows;
+
+		// Copy new layouts with new store_id and map them to create associated routes
+		foreach ($layouts as $layout) {
+			$this->db->query("
+				INSERT INTO " . DB_PREFIX . "layout
+				SET 
+					name 			= '" . $this->db->escape($layout['name']) . "',
+					store_id 	= '" . (int) $targetStoreId . "'
+			");
+			$new_layout_id = $this->db->getLastId();
+			$layoutMap[$layout['layout_id']] = $new_layout_id;
+		}
+
+		// Copy routes
+		foreach ($layoutMap as $oldId => $newId) {
+			// Get routes from default store
+			$routes = $this->db->query("
+				SELECT 
+					*
+				FROM " . DB_PREFIX . "layout_route
+				WHERE layout_id = '" . (int) $oldId . "'
+					AND store_id = 0
+			")->rows;
+
+			// Copy each route and assign new layout_id as its parent
+			foreach ($routes as $route) {
+				$this->db->query("
+					INSERT INTO " . DB_PREFIX . "layout_route
+					SET 
+						layout_id   = '" . (int) $newId . "',
+						store_id    = '" . (int) $targetStoreId . "',
+						route       = '" . $this->db->escape($route['route']) . "',
+						is_wildcard = '" . (int) $route['is_wildcard'] . "'
+				");
+			}
+		}
+	}
+
 	// Get all themes, installed and not installed
 	public function getAllThemes() : array {
 		$themes = [];
