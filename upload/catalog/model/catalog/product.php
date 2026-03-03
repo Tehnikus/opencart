@@ -403,6 +403,8 @@ class ModelCatalogProduct extends Model {
 		$products = [];
 		$where 		= [];
 		$join 		= [];
+		$select		= [];
+		$order 		= [];
 
 		// Set mandatory WHEREs
 		// Connect to external query
@@ -411,6 +413,78 @@ class ModelCatalogProduct extends Model {
 		$where[] = "p2s.`status` = 1";
 		// Only products from current store
 		$where[] = "p2s.`store_id` = '" . (int) $this->config->get('config_store_id') . "'";
+
+		$sort_data = array(
+			'sort_order'		=> 'p2s2.`sort_order` ASC',
+			'name'					=> 'pd.`name` ASC',
+			'sales'					=> 'pst.`sales` DESC',
+			'rating'				=> 'pst.`rating` DESC',
+			'views'					=> 'pst.`views` DESC',
+			'date_added'		=> 'p2s2.`date_added` DESC',
+			'available'			=> 'p2s2.`available` DESC',
+			'quantity'			=> 'p.`quantity` > p.`minimum` DESC, p2s2.`sort_order` ASC',
+			'price_asc'			=> '(CASE WHEN special IS NOT NULL THEN special WHEN discount IS NOT NULL THEN discount ELSE p2s2.`price` END) ASC',
+			'price_desc'		=> '(CASE WHEN special IS NOT NULL THEN special WHEN discount IS NOT NULL THEN discount ELSE p2s2.`price` END) DESC',
+			'discounts'			=> '',
+			'trends'				=> 'trends DESC',
+		);
+
+		// Sort
+		if (isset($data['sort']) && in_array($data['sort'], array_keys($sort_data))) {
+		
+			// Sort by trends
+			if ($data['sort'] === 'trends') {
+				// Sort subquery to get column needed for sorting
+				$select[] = "
+					(
+						SELECT
+							(
+								LOG(pst.sales + 1) * 4
+								+ COALESCE(pst.rating_avg, 0) * LOG(pst.review_count + 1) * 2
+								+ LOG(pst.viewed + 1)
+							)
+						FROM " . DB_PREFIX . "product_stats pst
+						WHERE pst.product_id = p2s2.product_id
+							AND pst.store_id = p2s2.store_id
+					) AS trends
+				";
+			}
+
+			// Sort by price
+			if ($data['sort'] === 'price_asc' || $data['sort'] === 'price_desc' || $data['sort'] === 'discounts') {
+				$select[] = "
+					(
+						SELECT 
+							price 
+						FROM " . DB_PREFIX . "product_discount pd2 
+						WHERE pd2.product_id = p.product_id 
+							AND pd2.customer_group_id = '" . (int)$this->config->get('config_customer_group_id') . "' 
+							AND pd2.quantity = '1' 
+							AND (
+								(pd2.date_start = '0000-00-00' OR pd2.date_start < NOW()) 
+								AND (pd2.date_end = '0000-00-00' OR pd2.date_end > NOW())
+							) 
+						ORDER BY pd2.priority ASC, pd2.price ASC 
+						LIMIT 1
+					) AS discount
+				";
+				$select[] = "
+					(
+						SELECT 
+							price 
+						FROM " . DB_PREFIX . "product_special ps 
+						WHERE ps.product_id = p.product_id 
+							AND ps.customer_group_id = '" . (int)$this->config->get('config_customer_group_id') . "' 
+							AND (
+								(ps.date_start = '0000-00-00' OR ps.date_start < NOW()) 
+								AND (ps.date_end = '0000-00-00' OR ps.date_end > NOW())
+							) 
+						ORDER BY ps.priority ASC, ps.price ASC 
+						LIMIT 1
+					) AS special
+				";
+			}
+		}
 
 		// Start filters
 		// Conditions
@@ -661,7 +735,9 @@ class ModelCatalogProduct extends Model {
 				AND pd.`store_id` 		= '" . (int) $this->config->get('config_store_id') . "'
 
 			-- Sort joins
-
+			LEFT JOIN " . DB_PREFIX . "product_stats pst
+				ON pst.`product_id` = p2s2.`product_id`
+				AND pst.`store_id`  = p2s2.`product_id`
 			-- Conditions
 			WHERE EXISTS (
 				SELECT 
