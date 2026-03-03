@@ -2,7 +2,12 @@
 class ModelSettingExtension extends Model {	
 	// Get installed extensions by code and store
 	// Should always rely on store_id to display separate extensions list for different stores
-	public function getInstalled($type) {
+	public function getInstalled($type, $store_id = null) {
+
+		if ($store_id === null) {
+			$store_id = (int) $this->session->data['store_id'];
+		}
+
 		$extension_data = array();
 
 		$query = $this->db->query("
@@ -10,7 +15,7 @@ class ModelSettingExtension extends Model {
 				* 
 			FROM `" . DB_PREFIX . "extension` 
 			WHERE `type` 			= '" . $this->db->escape($type) . "' 
-				AND `store_id` 	= '" . (int) $this->session->data['store_id'] . "'
+				AND `store_id` 	= '" . (int) $store_id . "'
 			ORDER BY `code`
 		");
 
