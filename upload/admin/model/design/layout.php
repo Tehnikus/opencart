@@ -180,7 +180,7 @@ class ModelDesignLayout extends Model {
 				) AS modules,
 				(SELECT route FROM " . DB_PREFIX . "layout_route lr WHERE lr.layout_id = l.layout_id AND lr.store_id = l.store_id) AS route
 			FROM " . DB_PREFIX . "layout l
-			WHERE l.`store_id` = '" . (int) $this->session->data['store_id'] . "'
+			WHERE l.`store_id` = '" . (isset($data['store_id']) ? ((int) $data['store_id']) : ((int) $this->session->data['store_id'])) . "'
 		";
 
 		$sort_data = array('name');
