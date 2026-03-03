@@ -1,6 +1,9 @@
 <?php
 class ModelSettingSetting extends Model {
-	public function getSetting($code, $store_id = 0) {
+	public function getSetting($code, $store_id = null) {
+		if ($store_id === null) {
+			$store_id = (int) $this->session->data['store_id'];
+		}
 		$setting_data = array();
 
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "setting WHERE store_id = '" . (int)$store_id . "' AND `code` = '" . $this->db->escape($code) . "'");
@@ -16,7 +19,10 @@ class ModelSettingSetting extends Model {
 		return $setting_data;
 	}
 
-	public function editSetting($code, $data, $store_id = 0) {
+	public function editSetting($code, $data, $store_id = null) {
+		if ($store_id === null) {
+			$store_id = (int) $this->session->data['store_id'];
+		}
 		$this->db->query("DELETE FROM `" . DB_PREFIX . "setting` WHERE store_id = '" . (int)$store_id . "' AND `code` = '" . $this->db->escape($code) . "'");
 
 		foreach ($data as $key => $value) {
@@ -30,7 +36,10 @@ class ModelSettingSetting extends Model {
 		}
 	}
 
-	public function deleteSetting($code, $store_id = 0) {
+	public function deleteSetting($code, $store_id = null) {
+		if ($store_id === null) {
+			$store_id = (int) $this->session->data['store_id'];
+		}
 		$this->db->query("DELETE FROM " . DB_PREFIX . "setting WHERE store_id = '" . (int)$store_id . "' AND `code` = '" . $this->db->escape($code) . "'");
 	}
 	
@@ -44,7 +53,10 @@ class ModelSettingSetting extends Model {
 		}
 	}
 	
-	public function editSettingValue($code = '', $key = '', $value = '', $store_id = 0) {
+	public function editSettingValue($code = '', $key = '', $value = '', $store_id = null) {
+		if ($store_id === null) {
+			$store_id = (int) $this->session->data['store_id'];
+		}
 		if (!is_array($value)) {
 			$this->db->query("UPDATE " . DB_PREFIX . "setting SET `value` = '" . $this->db->escape($value) . "', serialized = '0'  WHERE `code` = '" . $this->db->escape($code) . "' AND `key` = '" . $this->db->escape($key) . "' AND store_id = '" . (int)$store_id . "'");
 		} else {
