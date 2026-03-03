@@ -29,8 +29,9 @@ class ModelSettingStore extends Model {
 			}
 		}
 
-		$this->cache->delete('store');
-
+		// Install selected theme if not installed
+		$this->load->model('setting/extension');
+		$this->model_setting_extension->install('theme', $data['config_theme']);
 		return $store_id;
 	}
 
@@ -54,7 +55,11 @@ class ModelSettingStore extends Model {
 			}
 		}
 
-		$this->cache->delete('store');
+		// Install selected theme if not installed
+		$this->load->model('setting/extension');
+		$this->model_setting_extension->install('theme', $data['config_theme']);
+
+		return (int) $store_id;
 	}
 
 	public function deleteStore($store_id) {
@@ -182,5 +187,17 @@ class ModelSettingStore extends Model {
 		}
 
 		return $result;
+	}
+	// Get all themes, installed and not installed
+	public function getAllThemes() : array {
+		$themes = [];
+
+		$directories = glob(DIR_CATALOG . 'view/theme/*', GLOB_ONLYDIR);
+
+		foreach ($directories as $directory) {
+			$themes[] = basename($directory);
+		}
+
+		return $themes;
 	}
 }

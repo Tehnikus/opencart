@@ -23,6 +23,10 @@ class ControllerSettingSetting extends Controller {
 
 			$this->model_setting_setting->editLanguageToDefaultStore($this->request->post);
 
+			// Install selected theme if not installed
+			$this->load->model('setting/extension');
+			$this->model_setting_extension->install('theme', $this->request->post['config_theme']);
+
 			$this->session->data['success'] = $this->language->get('text_success');
 
 			$this->response->redirect($this->url->link('setting/store', 'user_token=' . $this->session->data['user_token'], true));
@@ -205,9 +209,10 @@ class ControllerSettingSetting extends Controller {
 
 		$data['themes'] = array();
 
-		$this->load->model('setting/extension');
-
-		$extensions = $this->model_setting_extension->getInstalled(type: 'theme', store: 0);
+		// Load all existing themes instead of only installed ones, 
+		// then install selected theme in not installed 
+		$this->load->model('setting/store');
+		$extensions = $this->model_setting_store->getAllThemes();
 
 		foreach ($extensions as $code) {
 			$this->load->language('extension/theme/' . $code, 'extension');
