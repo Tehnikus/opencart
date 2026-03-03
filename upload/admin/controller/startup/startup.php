@@ -23,6 +23,18 @@ class ControllerStartupStartup extends Controller {
 			}
 		}
 
+		// Get settings from current store excuding store config and merge with default store
+		// This includes modules, themes, etc.
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "setting WHERE store_id = '" . (int) $this->session->data['store_id'] . "' AND `code` <> 'config'");
+		
+		foreach ($query->rows as $setting) {
+			if (!$setting['serialized']) {
+				$this->config->set($setting['key'], $setting['value']);
+			} else {
+				$this->config->set($setting['key'], json_decode($setting['value'], true));
+			}
+		}
+
 		// Set time zone
 		if ($this->config->get('config_timezone')) {
 			date_default_timezone_set($this->config->get('config_timezone'));
