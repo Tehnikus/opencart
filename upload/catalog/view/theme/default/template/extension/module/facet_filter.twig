@@ -3,6 +3,13 @@
     <div class="panel-heading">
       {{ heading_title }}
     </div>
+    <div>
+      <select id="sortOrder">
+        {% for sortOrder in sortOrders %}
+          <option value="{{ sortOrder.value }}">{{ sortOrder.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
     <div> 
       {% for filter_set_name, filter_set in filter_sets %}
         {% for filter_group in filter_set %}
@@ -18,3 +25,23 @@
     </div>
   </div>
 {% endif %}
+<script>
+
+document.getElementById('sortOrder').addEventListener('change', (e) => {
+  setParams('sort', e.target.value);
+});
+
+function setParams(param, value = null) {
+
+  const url = new URL(window.location.href);
+
+  if (value) {
+    url.searchParams.set(param, value);
+  } else {
+    url.searchParams.delete(param);
+  }
+
+  window.location.href = url.toString();
+}
+
+</script>
