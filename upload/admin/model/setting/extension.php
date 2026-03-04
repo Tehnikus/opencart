@@ -28,8 +28,11 @@ class ModelSettingExtension extends Model {
 
 	// Install extension
 	// Should always rely on store_id to separate extensions of different stores
-	public function install($type, $code) {
-		$extensions = $this->getInstalled($type);
+	public function install($type, $code, $store_id = null) {
+		if ($store_id === null) {
+			$store_id = (int) $this->session->data['store_id'];
+		}
+		$extensions = $this->getInstalled($type, $store_id);
 
 		if (!in_array($code, $extensions)) {
 			$this->db->query("
@@ -37,7 +40,7 @@ class ModelSettingExtension extends Model {
 				SET 
 					`type` 			= '" . $this->db->escape($type) . "', 
 					`code` 			= '" . $this->db->escape($code) . "',
-					`store_id` 	= '" . (int) $this->session->data['store_id'] . "'
+					`store_id` 	= '" . (int) $store_id . "'
 			");
 		}
 	}
