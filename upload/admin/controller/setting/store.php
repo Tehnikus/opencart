@@ -22,6 +22,11 @@ class ControllerSettingStore extends Controller {
 		$this->load->model('setting/store');
 
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validateForm()) {
+			$this->load->model('setting/store');
+			$this->load->model('setting/extension');
+			$this->load->model('setting/setting');
+
+			// Add store to DB
 			$store_id = $this->model_setting_store->addStore($this->request->post);
 
 			// Clone layouts and get map
@@ -35,15 +40,26 @@ class ControllerSettingStore extends Controller {
 			}
 	
 			// Install selected theme if not installed
-			$this->load->model('setting/extension');
 			$this->model_setting_extension->install('theme', $this->request->post['config_theme'], $store_id);
-
-			$this->load->model('setting/setting');
+			
+			// Install required extensions
+			// total and sub_total are required to calculete order totals. If not installer order totals will be empty. Thanks, Daniel Kerr
+			$required_totals = ['sub_total', 'total'];
+			foreach ($required_totals as $sort_order => $code) {
+				$this->model_setting_extension->install('total', $code, $store_id);
+				
+				$this->model_setting_setting->editSetting(
+					'total_' . $code, 
+					[
+						'total_' . $code . '_status' 		 => 1,
+						'total_' . $code . '_sort_order' => $sort_order
+					],
+					$store_id
+				);
+			}
 
 			$this->model_setting_setting->editSetting('config', $this->request->post, $store_id);
-
 			$this->session->data['success'] = $this->language->get('text_success');
-
 			$this->response->redirect($this->url->link('setting/store', 'user_token=' . $this->session->data['user_token'], true));
 		}
 
