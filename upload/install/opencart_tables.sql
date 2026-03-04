@@ -2762,7 +2762,7 @@ INSERT INTO `oc_setting` (`store_id`, `code`, `key`, `value`, `serialized`) VALU
 (0, 'total_sub_total', 'total_sub_total_status', '1', 0),
 (0, 'total_sub_total', 'total_sub_total_sort_order', '0', 0),
 (0, 'total_total', 'total_total_status', '1', 0),
-(0, 'total_total', 'total_total_sort_order', '1', 0)
+(0, 'total_total', 'total_total_sort_order', '1', 0),
 (0, 'module_facet_filter', 'module_facet_filter_status', '1', 0);
 
 
