@@ -467,30 +467,7 @@ class ModelCatalogCategory extends Model {
 			$this->db->query("COMMIT");
 
 			// Delete cache
-			$store_id = $this->session->data['store_id'];
-			$this->load->model('localisation/language');
-			$languages = $this->model_localisation_language->getLanguages();
-			
-			foreach ($languages as $language) {
-				$language_id = $language['language_id'];
-
-				// Main cache
-				$categoryCacheName 	= "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . "00.category_{$category_id}";
-				$this->cache->delete($categoryCacheName);
-
-				// Filter cache
-				$filterCacheName = "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . "00.filters_{$category_id}";
-				$this->cache->delete($filterCacheName);
-
-				// Children categories cache of parent category 
-				$parent_id = $data['parent_id'];
-				$childrenCacheName 	= "category.store_{$store_id}.language_{$language_id}." . (floor($parent_id / 100)) . "00.child_categories_{$parent_id}";
-				$this->cache->delete($childrenCacheName);
-
-				// URL cache
-				$urlCacheName = "url.store_{$store_id}.language_{$language_id}.url";
-				$this->cache->delete($urlCacheName);
-			}
+			$this->deleteCategoryCache($category_id);
 
 			return $category_id;
 
@@ -515,6 +492,8 @@ class ModelCatalogCategory extends Model {
 		}
 
 		try {
+			// Delete cache
+			$this->deleteCategoryCache($category_id);
 
 			$query = $this->db->query("
 				SELECT * FROM " . DB_PREFIX . "category_path 
@@ -552,6 +531,8 @@ class ModelCatalogCategory extends Model {
 
 			// Delete children categories
 			foreach ($query->rows as $result) {
+				// Delete cache
+				$this->deleteCategoryCache($result['category_id']);
 				// Second param is false so SQL transaction is not closed prematurely
 				$this->deleteCategory($result['category_id'], false);
 			}
@@ -599,8 +580,6 @@ class ModelCatalogCategory extends Model {
 				");
 			}
 	
-			$this->cache->delete('category');
-
 			if ($useTransaction) {
 				$this->db->query("COMMIT");
 			}
@@ -940,5 +919,39 @@ class ModelCatalogCategory extends Model {
 
 		$newStatus = $query['status'];
 		return (int) $newStatus;
+	}
+
+	public function deleteCategoryCache($category_id) : void {
+		// Delete cache
+		$store_id = $this->session->data['store_id'];
+		$this->load->model('localisation/language');
+		$languages = $this->model_localisation_language->getLanguages();
+		$parent_id = $this->db->query("
+			SELECT
+				parent_id
+			FROM " . DB_PREFIX . "category_to_store
+			WHERE category_id = {$category_id}
+			AND store_id = {$store_id}
+		")->row['parent_id'] ?? 0;
+
+		foreach ($languages as $language) {
+			$language_id = $language['language_id'];
+
+			// Main cache
+			$categoryCacheName 	= "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . "00.category_{$category_id}";
+			$this->cache->delete($categoryCacheName);
+
+			// Filter cache
+			$filterCacheName = "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . "00.filters_{$category_id}";
+			$this->cache->delete($filterCacheName);
+
+			// Children categories cache of parent category 
+			$childrenCacheName 	= "category.store_{$store_id}.language_{$language_id}." . (floor($parent_id / 100)) . "00.child_categories_{$parent_id}";
+			$this->cache->delete($childrenCacheName);
+
+			// URL cache
+			$urlCacheName = "url.store_{$store_id}.language_{$language_id}.url";
+			$this->cache->delete($urlCacheName);
+		}
 	}
 }
