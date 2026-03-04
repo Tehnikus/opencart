@@ -1063,7 +1063,7 @@ class ModelCatalogProduct extends Model {
 	// Get product list
 	// Used in admin product list and product autocomplete
 	// Should get all products if no $data['store_id'] is set OR only store specific products otherwise 
-	public function getProducts($data = array()) {
+	public function getProducts($data = []) {
 		$result = [];
 		
 		$where = [];
@@ -1244,7 +1244,7 @@ class ModelCatalogProduct extends Model {
 				
 		";
 
-		$sort_data = array(
+		$sort_data = [
 			'name',
 			'p.model',
 			'p.price',
@@ -1252,7 +1252,7 @@ class ModelCatalogProduct extends Model {
 			'p2s.status',
 			'p2s.sort_order',
 			'p2s.date_modified'
-		);
+		];
 
 		if (isset($data['sort']) && in_array($data['sort'], $sort_data)) {
 			$sql .= " ORDER BY FIELD(p2s.`store_id`, '" . (int) $this->session->data['store_id'] ."') DESC, " . $data['sort'];
@@ -1314,7 +1314,7 @@ class ModelCatalogProduct extends Model {
 	// Get product description for product edit form
 	// Should always rely on store_id
 	public function getProductDescriptions($product_id) : array {
-		$product_description_data = array();
+		$product_description_data = [];
 
 		$query = $this->db->query("
 			SELECT 
@@ -1325,14 +1325,14 @@ class ModelCatalogProduct extends Model {
 		");
 
 		foreach ($query->rows as $result) {
-			$product_description_data[$result['language_id']] = array(
+			$product_description_data[$result['language_id']] = [
 				'name'             => $result['name'],
 				'description'      => $result['description'],
 				'meta_title'       => $result['meta_title'],
 				'meta_description' => $result['meta_description'],
 				'meta_keyword'     => $result['meta_keyword'],
 				'tag'              => $result['tag']
-			);
+			];
 		}
 
 		return $product_description_data;
@@ -1344,7 +1344,7 @@ class ModelCatalogProduct extends Model {
 	// Should always rely on store_id context
 	// Returns only ids, so no lang context needed here
 	public function getProductCategories($product_id) : array {
-		$product_category_data = array();
+		$product_category_data = [];
 
 		$query = $this->db->query("
 			SELECT 
@@ -1367,7 +1367,7 @@ class ModelCatalogProduct extends Model {
 	// Should always rely on store_id context
 	// Returns only ids, so no lang context needed here
 	public function getProductFilters($product_id) : array {
-		$product_filter_data = array();
+		$product_filter_data = [];
 
 		$query = $this->db->query("
 			SELECT 
@@ -1390,7 +1390,7 @@ class ModelCatalogProduct extends Model {
 	// Should always rely on store_id context
 	// Returns all languages data, so no lang context needed here
 	public function getProductAttributes($product_id) : array {
-		$product_attribute_data = array();
+		$product_attribute_data = [];
 
 		$product_attribute_query = $this->db->query("
 			SELECT 
@@ -1402,7 +1402,7 @@ class ModelCatalogProduct extends Model {
 		");
 
 		foreach ($product_attribute_query->rows as $product_attribute) {
-			$product_attribute_description_data = array();
+			$product_attribute_description_data = [];
 
 			$product_attribute_description_query = $this->db->query("
 				SELECT 
@@ -1414,13 +1414,13 @@ class ModelCatalogProduct extends Model {
 			");
 
 			foreach ($product_attribute_description_query->rows as $product_attribute_description) {
-				$product_attribute_description_data[$product_attribute_description['language_id']] = array('text' => $product_attribute_description['text']);
+				$product_attribute_description_data[$product_attribute_description['language_id']] = ['text' => $product_attribute_description['text']];
 			}
 
-			$product_attribute_data[] = array(
+			$product_attribute_data[] = [
 				'attribute_id'                  => $product_attribute['attribute_id'],
 				'product_attribute_description' => $product_attribute_description_data
-			);
+			];
 		}
 
 		return $product_attribute_data;
@@ -1432,7 +1432,7 @@ class ModelCatalogProduct extends Model {
 	// Should always rely on store_id context
 	// Returns only non-language data
 	public function getProductOptions($product_id) : array {
-		$product_option_data = array();
+		$product_option_data = [];
 
 		$product_option_query = $this->db->query("
 			SELECT 
@@ -1450,7 +1450,7 @@ class ModelCatalogProduct extends Model {
 		");
 
 		foreach ($product_option_query->rows as $product_option) {
-			$product_option_value_data = array();
+			$product_option_value_data = [];
 
 			$product_option_value_query = $this->db->query("
 				SELECT 
@@ -1463,7 +1463,7 @@ class ModelCatalogProduct extends Model {
 				ORDER BY ov.sort_order ASC");
 
 			foreach ($product_option_value_query->rows as $product_option_value) {
-				$product_option_value_data[] = array(
+				$product_option_value_data[] = [
 					'product_option_value_id' => $product_option_value['product_option_value_id'],
 					'option_value_id'         => $product_option_value['option_value_id'],
 					'quantity'                => $product_option_value['quantity'],
@@ -1474,10 +1474,10 @@ class ModelCatalogProduct extends Model {
 					'points_prefix'           => $product_option_value['points_prefix'],
 					'weight'                  => $product_option_value['weight'],
 					'weight_prefix'           => $product_option_value['weight_prefix']
-				);
+				];
 			}
 
-			$product_option_data[] = array(
+			$product_option_data[] = [
 				'product_option_id'    => $product_option['product_option_id'],
 				'product_option_value' => $product_option_value_data,
 				'option_id'            => $product_option['option_id'],
@@ -1485,7 +1485,7 @@ class ModelCatalogProduct extends Model {
 				'type'                 => $product_option['type'],
 				'value'                => $product_option['value'],
 				'required'             => $product_option['required']
-			);
+			];
 		}
 
 		return $product_option_data;
@@ -1557,7 +1557,7 @@ class ModelCatalogProduct extends Model {
 	}
 
 	public function getProductRewards($product_id) {
-		$product_reward_data = array();
+		$product_reward_data = [];
 
 		$query = $this->db->query("
 			SELECT 
@@ -1568,14 +1568,14 @@ class ModelCatalogProduct extends Model {
 		");
 
 		foreach ($query->rows as $result) {
-			$product_reward_data[$result['customer_group_id']] = array('points' => $result['points']);
+			$product_reward_data[$result['customer_group_id']] = ['points' => $result['points']];
 		}
 
 		return $product_reward_data;
 	}
 
 	public function getProductDownloads($product_id) {
-		$product_download_data = array();
+		$product_download_data = [];
 
 		$query = $this->db->query("
 			SELECT 
@@ -1593,7 +1593,7 @@ class ModelCatalogProduct extends Model {
 	}
 
 	public function getProductStores($product_id) {
-		$product_store_data = array();
+		$product_store_data = [];
 
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_to_store WHERE `product_id` = '" . (int)$product_id . "'");
 
@@ -1605,7 +1605,7 @@ class ModelCatalogProduct extends Model {
 	}
 	
 	public function getProductSeoUrls($product_id) {
-		$product_seo_url_data = array();
+		$product_seo_url_data = [];
 		
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "seo_url WHERE `query` = 'product_id=" . (int)$product_id . "'");
 
@@ -1617,7 +1617,7 @@ class ModelCatalogProduct extends Model {
 	}
 	
 	public function getProductLayouts($product_id) {
-		$product_layout_data = array();
+		$product_layout_data = [];
 
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_to_layout WHERE `product_id` = '" . (int)$product_id . "'");
 
@@ -1629,7 +1629,7 @@ class ModelCatalogProduct extends Model {
 	}
 
 	public function getProductRelated($product_id) {
-		$product_related_data = array();
+		$product_related_data = [];
 
 		$query = $this->db->query("
 			SELECT 
@@ -1658,7 +1658,7 @@ class ModelCatalogProduct extends Model {
 		return $query->rows;
 	}
 
-	public function getTotalProducts($data = array()) {
+	public function getTotalProducts($data = []) {
 		$sql = "SELECT COUNT(DISTINCT p.product_id) AS total FROM " . DB_PREFIX . "product p LEFT JOIN " . DB_PREFIX . "product_description pd ON (p.product_id = pd.product_id)";
 
 		$sql .= " WHERE pd.`language_id` = '" . (int)$this->config->get('config_language_id') . "'";
