@@ -5,13 +5,6 @@ class ModelSettingStore extends Model {
 
 		$store_id = $this->db->getLastId();
 
-		// Layout Route
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "layout_route WHERE store_id = '0'");
-
-		foreach ($query->rows as $layout_route) {
-			$this->db->query("INSERT INTO " . DB_PREFIX . "layout_route SET layout_id = '" . (int)$layout_route['layout_id'] . "', route = '" . $this->db->escape($layout_route['route']) . "', store_id = '" . (int)$store_id . "'");
-		}
-
 		// Language to store association
 		$this->db->query("
 			DELETE FROM " . DB_PREFIX . "language_to_store
@@ -28,13 +21,6 @@ class ModelSettingStore extends Model {
 				");
 			}
 		}
-
-		// Install selected theme if not installed
-		$this->load->model('setting/extension');
-		$this->model_setting_extension->install('theme', $data['config_theme']);
-
-		// Clone layouts from default store to new store
-		$this->cloneLayouts($store_id);
 		
 		return $store_id;
 	}
@@ -214,7 +200,7 @@ class ModelSettingStore extends Model {
 		return $result;
 	}
 
-	public function cloneLayouts($targetStoreId) : void {
+	public function cloneLayouts($targetStoreId) : array {
 		
 	$layoutMap = [];
 		// Get default store layouts
@@ -260,6 +246,8 @@ class ModelSettingStore extends Model {
 				");
 			}
 		}
+
+		return $layoutMap;
 	}
 
 	// Get all themes, installed and not installed

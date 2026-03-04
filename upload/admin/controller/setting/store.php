@@ -24,6 +24,20 @@ class ControllerSettingStore extends Controller {
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validateForm()) {
 			$store_id = $this->model_setting_store->addStore($this->request->post);
 
+			// Clone layouts and get map
+			$layoutMap = $this->model_setting_store->cloneLayouts($store_id);
+	
+			// Remap selected layout
+			// We need to update config_layout_id because layout list has layouts from default store (store_id = 0) 
+			// but cloned layout has different layout_id then one from default store
+			if (isset($layoutMap[$this->request->post['config_layout_id']])) {
+				$this->request->post['config_layout_id'] = $layoutMap[$this->request->post['config_layout_id']];
+			}
+	
+			// Install selected theme if not installed
+			$this->load->model('setting/extension');
+			$this->model_setting_extension->install('theme', $this->request->post['config_theme'], $store_id);
+
 			$this->load->model('setting/setting');
 
 			$this->model_setting_setting->editSetting('config', $this->request->post, $store_id);
