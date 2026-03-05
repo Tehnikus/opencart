@@ -735,9 +735,9 @@ class ModelCatalogProduct extends Model {
 				AND pd.`store_id` 		= '" . (int) $this->config->get('config_store_id') . "'
 
 			-- Sort joins
-			LEFT JOIN " . DB_PREFIX . "product_stats pst
+			JOIN " . DB_PREFIX . "product_stats pst
 				ON pst.`product_id` = p2s2.`product_id`
-				AND pst.`store_id`  = p2s2.`product_id`
+				AND pst.`store_id`  = p2s2.`store_id`
 			-- Conditions
 			WHERE EXISTS (
 				SELECT 
