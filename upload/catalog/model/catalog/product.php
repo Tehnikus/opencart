@@ -569,9 +569,9 @@ class ModelCatalogProduct extends Model {
 						SELECT 1
 						FROM " . DB_PREFIX . "product_filter pf
 						WHERE pf.product_id = p2s.product_id
-							AND pf.store_id = '" . (int) $this->config->get('config_store_id') . "'
 							AND pf.filter_group_id = {$groupId}
 							AND pf.filter_id IN ({$ids})
+							AND pf.store_id = '" . (int) $this->config->get('config_store_id') . "'
 					)
 				";
 			}
@@ -624,9 +624,9 @@ class ModelCatalogProduct extends Model {
 						SELECT 1
 						FROM " . DB_PREFIX . "product_option_value po
 						WHERE po.`product_id` = p2s.`product_id`
-							AND po.`store_id` = '" . (int) $this->config->get('config_store_id') . "'
 							AND po.`option_id` = {$groupId}
 							AND po.`option_value_id` IN ({$ids})
+							AND po.`store_id` = '" . (int) $this->config->get('config_store_id') . "'
 					)
 				";
 			}
@@ -679,9 +679,9 @@ class ModelCatalogProduct extends Model {
 						SELECT 1
 						FROM " . DB_PREFIX . "product_attribute pa
 						WHERE pa.`product_id` = p2s.`product_id`
-							AND pa.`store_id` = '" . (int) $this->config->get('config_store_id') . "'
 							AND pa.`attribute_group_id` = {$groupId}
 							AND pa.`attribute_id` IN ({$ids})
+							AND pa.`store_id` = '" . (int) $this->config->get('config_store_id') . "'
 					)
 				";
 			}

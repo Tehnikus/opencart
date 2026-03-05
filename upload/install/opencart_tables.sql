@@ -2162,7 +2162,8 @@ CREATE TABLE `oc_product_attribute` (
   `store_id`            INT NOT NULL DEFAULT '0',
   `language_id`         INT NOT NULL,
   `text`                TEXT NOT NULL,
-  PRIMARY KEY (`product_id`,`attribute_id`,`language_id`,`store_id`)
+  PRIMARY KEY (`product_id`,`attribute_id`,`language_id`,`store_id`),
+  UNIQUE KEY `getProducts` (`product_id`,`attribute_group_id`, `attribute_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -2210,7 +2211,8 @@ CREATE TABLE `oc_product_discount` (
   `date_start`          DATETIME DEFAULT NULL,
   `date_end`            DATETIME DEFAULT NULL,
   PRIMARY KEY (`product_discount_id`),
-  KEY (`product_id`, `customer_group_id`, `quantity`, `date_start`, `date_end`, `store_id`)
+  KEY `getProducts_sort` (`product_id`, `customer_group_id`, `quantity`, `date_start`, `date_end`, `store_id`),
+  UNIQUE KEY `getProduct` (`product_discount_id`, `product_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -2290,7 +2292,7 @@ CREATE TABLE `oc_product_option_value` (
   `weight_prefix`           VARCHAR(1) NOT NULL,
   PRIMARY KEY (`product_option_value_id`),
   KEY `getProduct` (`product_id`, `product_option_id`, `store_id`),
-  KEY `getProducts` (`product_id`, `store_id`, `option_id`, `option_value_id`) -- TODO Maybe needs UNINQUE, needs testing
+  UNIQUE KEY `getProducts` (`product_id`, `option_id`, `option_value_id`, `store_id`) -- TODO Maybe needs UNINQUE, needs testing
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
