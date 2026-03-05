@@ -38,6 +38,7 @@ class ModelCatalogOption extends Model {
 					");
 	
 					$option_value_id = $this->db->getLastId();
+					$this->deleteCache($option_value_id);
 	
 					foreach ($option_value['option_value_description'] as $language_id => $option_value_description) {
 						$this->db->query("
@@ -134,6 +135,10 @@ class ModelCatalogOption extends Model {
 								`image` 					= '" . $this->db->escape(html_entity_decode($option_value['image'], ENT_QUOTES, 'UTF-8')) . "', 
 								`sort_order` 			= '" . (int) $option_value['sort_order'] . "'
 						");
+
+						// Delete cache
+						$this->deleteCache($option_value['option_value_id']);
+						
 					} else {
 						$this->db->query("
 							INSERT INTO " . DB_PREFIX . "option_value SET 
@@ -218,6 +223,19 @@ class ModelCatalogOption extends Model {
 		$this->db->query("START TRANSACTION");
 
 		try {
+
+			$option_values = $this->db->query("
+				SELECT
+					option_value_id
+				FROM " . DB_PREFIX . "option_value
+				WHERE option_id = '" . (int) $option_id . "'
+					AND store_id  = '" . (int) $this->session->data['store_id'] . "'
+			")->rows;
+
+			foreach ($option_values as $option_value) {
+				$this->deleteCache($option_value['option_value_id']);
+			}
+
 			$this->db->query("
 				DELETE FROM " . DB_PREFIX . "option_description 
 				WHERE option_id = '" . (int) $option_id . "'
@@ -561,5 +579,46 @@ class ModelCatalogOption extends Model {
 		}
 
 		return $result;
+	}
+
+	public function deleteCache($option_value_id) : void {
+		$store_id = $this->session->data['store_id'];
+		$this->load->model('localisation/language');
+		$languages = $this->model_localisation_language->getLanguages();
+
+
+		$products = $this->db->query("
+			SELECT
+				DISTINCT product_id
+			FROM " . DB_PREFIX . "product_option_value
+			WHERE option_value_id = '" . $option_value_id . "'
+				AND store_id = '" . (int) $store_id . "'
+		")->rows;
+
+		$categories = $this->db->query("
+			SELECT
+				DISTINCT category_id
+			FROM " . DB_PREFIX . "product_to_category
+			WHERE product_id IN(" . implode(',',array_column($products, 'product_id')). ")
+				AND store_id = '" . (int) $store_id . "'
+		");
+		foreach ($languages as $language) {
+			$language_id = $language['language_id'];
+			// Pproduct cache
+			foreach ($products as $product) {
+				$productCacheName 	= "product.store_{$store_id}.language_{$language_id}." . (floor($product['product_id'] / 100)) . "00.product_" . $product['product_id'];
+				$this->cache->delete($productCacheName);
+			}
+			foreach ($categories as $category) {
+				$category_id = (int) $category['category_id'];
+				// Main category cache
+				$categoryCacheName 	= "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . "00.category_{$category_id}";
+				$this->cache->delete($categoryCacheName);
+	
+				// Filter cache
+				$filterCacheName = "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . "00.filters_{$category_id}";
+				$this->cache->delete($filterCacheName);
+			}
+		}
 	}
 }
