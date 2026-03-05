@@ -231,6 +231,12 @@ class ModelExtensionModuleFacetFilter extends Model {
 			];
 		}
 
+		// Return empty array before explicitly set filter group
+		// This is needed because manufacturer don't have their groups like filters or options
+		if (empty($result)) {
+			return [];
+		}
+
 		$this->language->load('extension/module/facet_filter');
 		$result['0']['group_name'] = $this->language->get('text_manufacturers');
 		$result['0']['filter_group_id'] = 1;
