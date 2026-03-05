@@ -155,24 +155,11 @@ class ModelCatalogCategory extends Model {
 			$this->db->query("COMMIT");
 			
 			// Delete cache
-			$store_id = $this->session->data['store_id'];
-			$this->load->model('localisation/language');
-			$languages = $this->model_localisation_language->getLanguages();
-			
-			foreach ($languages as $language) {
-				$language_id = $language['language_id'];
-
-				// Delete children categories cache of parent category 
-				$parent_id = $data['parent_id'];
-				$childrenCacheName 	= "category.store_{$store_id}.language_{$language_id}." . (floor($parent_id / 100)) . "00.child_categories_{$parent_id}";
-				$this->cache->delete($childrenCacheName);
-
-				// Delete URL cache
-				$urlCacheName = "url.store_{$store_id}.language_{$language_id}.url";
-				$this->cache->delete($urlCacheName);
-			}
+			// While new category itself does not has cache yet, this method also clears it's parent category cache to update child categories 
+			$this->deleteCache($category_id);
 
 			return $category_id;
+			
 		} catch (\Throwable $e) {
 			$this->db->query("ROLLBACK");
 			throw $e;
@@ -467,7 +454,7 @@ class ModelCatalogCategory extends Model {
 			$this->db->query("COMMIT");
 
 			// Delete cache
-			$this->deleteCategoryCache($category_id);
+			$this->deleteCache($category_id);
 
 			return $category_id;
 
@@ -493,7 +480,7 @@ class ModelCatalogCategory extends Model {
 
 		try {
 			// Delete cache
-			$this->deleteCategoryCache($category_id);
+			$this->deleteCache($category_id);
 
 			$query = $this->db->query("
 				SELECT * FROM " . DB_PREFIX . "category_path 
@@ -532,7 +519,7 @@ class ModelCatalogCategory extends Model {
 			// Delete children categories
 			foreach ($query->rows as $result) {
 				// Delete cache
-				$this->deleteCategoryCache($result['category_id']);
+				$this->deleteCache($result['category_id']);
 				// Second param is false so SQL transaction is not closed prematurely
 				$this->deleteCategory($result['category_id'], false);
 			}
@@ -918,11 +905,15 @@ class ModelCatalogCategory extends Model {
 		")->row;
 
 		$newStatus = $query['status'];
+		
+		$this->deleteCache($category_id);
+		
 		return (int) $newStatus;
 	}
 
-	public function deleteCategoryCache($category_id) : void {
-		// Delete cache
+	// Delete cache
+	public function deleteCache($category_id) : void {
+		
 		$store_id = $this->session->data['store_id'];
 		$this->load->model('localisation/language');
 		$languages = $this->model_localisation_language->getLanguages();
@@ -945,9 +936,13 @@ class ModelCatalogCategory extends Model {
 			$filterCacheName = "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . "00.filters_{$category_id}";
 			$this->cache->delete($filterCacheName);
 
-			// Children categories cache of parent category 
-			$childrenCacheName 	= "category.store_{$store_id}.language_{$language_id}." . (floor($parent_id / 100)) . "00.child_categories_{$parent_id}";
+			// Children categories cache of this category 
+			$childrenCacheName 	= "category.store_{$store_id}.language_{$language_id}." . (floor($parent_id / 100)) . "00.child_categories_{$category_id}";
 			$this->cache->delete($childrenCacheName);
+
+			// Children categories cache of parent category 
+			$parentCacheName 	= "category.store_{$store_id}.language_{$language_id}." . (floor($parent_id / 100)) . "00.child_categories_{$parent_id}";
+			$this->cache->delete($parentCacheName);
 
 			// URL cache
 			$urlCacheName = "url.store_{$store_id}.language_{$language_id}.url";
