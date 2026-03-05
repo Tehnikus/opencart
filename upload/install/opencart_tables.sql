@@ -2058,8 +2058,10 @@ CREATE TABLE `oc_product_to_store` (
   `image`             VARCHAR(255) DEFAULT NULL,
   `price`             DECIMAL(15,4) NOT NULL DEFAULT '0.0000',
   `date_modified`     DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP),
-  PRIMARY KEY (`product_id`,`store_id`, `status`),
-  KEY (`store_id`, `parent_id`, `sort_order`)
+  -- Dont change PRIMARY KEY, or entry duplicates may appear on product add/edit
+  PRIMARY KEY (`product_id`,`store_id`), 
+  KEY (`store_id`, `parent_id`, `sort_order`),
+  UNIQUE KEY `getProducts` (`product_id`,`store_id`, `status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
