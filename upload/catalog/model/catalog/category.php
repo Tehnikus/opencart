@@ -5,9 +5,12 @@ class ModelCatalogCategory extends Model {
 		$language_id 	= (int) $this->config->get('config_language_id');
 		$store_id 		= (int) $this->config->get('config_store_id');
 
-		// TODO Cache
-		// $categoryCacheName 	= "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . "00.category_{$category_id}";
-		// $cachedData 	= $this->cache->get($categoryCacheName);
+		// Cache
+		$categoryCacheName 	= "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . "00.category_{$category_id}";
+		$cachedData 				= $this->cache->get($categoryCacheName);
+		if ($cachedData) {
+			return $cachedData;
+		}
 
 		$query = $this->db->query("
 			SELECT 
@@ -29,7 +32,8 @@ class ModelCatalogCategory extends Model {
 				cd.`faq`,
 				cd.`how_to`,
 				cd.`footer`,
-				cd.`date_modified`
+				cd.`date_modified`,
+				cd.`language_id`
 			FROM " . DB_PREFIX . "category_to_store c2s
 			INNER JOIN " . DB_PREFIX . "category c
 				ON c.`category_id` = c2s.`category_id`
@@ -43,6 +47,8 @@ class ModelCatalogCategory extends Model {
 			LIMIT 1
 		");
 
+		$this->cache->set($categoryCacheName, $query->row);
+
 		return $query->row ?? [];
 	}
 
@@ -53,9 +59,13 @@ class ModelCatalogCategory extends Model {
 		$language_id 	= (int) $this->config->get('config_language_id');
 		$store_id 		= (int) $this->config->get('config_store_id');
 
-		// TODO Cache
-		// $childrenCacheName 	= "category.store_{$store_id}.language_{$language_id}." . (floor($parent_id / 100)) . "00.child_categories_{$parent_id}";
-		// $cachedData 	= $this->cache->get($childrenCacheName);
+		// Cache
+		$childrenCacheName 	= "category.store_{$store_id}.language_{$language_id}." . (floor($parent_id / 100)) . "00.child_categories_{$parent_id}";
+		$cachedData 				= $this->cache->get($childrenCacheName);
+
+		if ($cachedData) {
+			return $cachedData;
+		}
 
 		$sql = "
 			SELECT 
@@ -69,7 +79,8 @@ class ModelCatalogCategory extends Model {
 				c2s.`column`,
 				cd.`name`,
 				cd.`seo_keywords`,
-				cd.`date_modified`
+				cd.`date_modified`,
+				cd.`language_id`
 			FROM " . DB_PREFIX . "category_to_store c2s
 			INNER JOIN " . DB_PREFIX . "category c
 				ON  c.`category_id` = c2s.`category_id`
@@ -85,6 +96,8 @@ class ModelCatalogCategory extends Model {
 
 		$query = $this->db->query($sql);
 
+		$this->cache->set($childrenCacheName, $query->rows);
+		
 		return $query->rows ?? [];
 	}
 
