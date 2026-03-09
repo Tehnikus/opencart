@@ -2121,7 +2121,7 @@ CREATE TABLE `oc_googleshopping_product` (
   `size`                             INT DEFAULT NULL,
   `is_modified`                      TINYINT NOT NULL DEFAULT '0',
   PRIMARY KEY (`product_advertise_google_id`),
-  UNIQUE KEY `product_id_store_id`                                               (`product_id`,`store_id`)
+  UNIQUE KEY `product_id_store_id` (`product_id`,`store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
