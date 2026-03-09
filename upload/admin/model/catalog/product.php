@@ -1375,12 +1375,17 @@ class ModelCatalogProduct extends Model {
 
 		foreach ($query->rows as $result) {
 			$product_description_data[$result['language_id']] = [
-				'name'             => $result['name'],
-				'description'      => $result['description'],
-				'meta_title'       => $result['meta_title'],
-				'meta_description' => $result['meta_description'],
-				'meta_keyword'     => $result['meta_keyword'],
-				'tag'              => $result['tag']
+				'name'             	=> $result['name'],
+				'description'      	=> $result['description'],
+				'meta_title'       	=> $result['meta_title'],
+				'meta_description' 	=> $result['meta_description'],
+				'meta_keyword'     	=> $result['meta_keyword'],
+				'tag'              	=> $result['tag'],
+				'seo_keywords'     	=> $result['seo_keywords'],
+				'seo_description'  	=> $result['seo_description'],
+				'faq'              	=> $result['faq'],
+				'how_to'           	=> $result['how_to'],
+				'footer'           	=> $result['footer'],
 			];
 		}
 
