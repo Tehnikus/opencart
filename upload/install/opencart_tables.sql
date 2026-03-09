@@ -2076,16 +2076,22 @@ CREATE TABLE `oc_product_price` (
 
 DROP TABLE IF EXISTS `oc_product_stats`;
 CREATE TABLE `oc_product_stats` (
-  `product_id`    INT NOT NULL,
-  `store_id`      INT NOT NULL DEFAULT '0',
-  `viewed`        INT NOT NULL DEFAULT '0',
-  `sales`         INT NOT NULL DEFAULT '0',
-  `returns`       INT NOT NULL DEFAULT '0',
-  `review_count`  INT NOT NULL DEFAULT '0',
-  `rating_avg`    DECIMAL(2,1) DEFAULT NULL,
+  `product_id`        INT NOT NULL,
+  `store_id`          INT NOT NULL DEFAULT '0',
+  `viewed`            INT NOT NULL DEFAULT '0',
+  `sales`             INT NOT NULL DEFAULT '0',
+  `returns`           INT NOT NULL DEFAULT '0',
+  `review_count`      INT NOT NULL DEFAULT '0',
+  `rating_avg`        DECIMAL(2,1) DEFAULT NULL,
+  `date_added`        DATETIME DEFAULT NULL,
+  `date_last_order`   DATETIME DEFAULT NULL,
+  `date_last_review`  DATETIME DEFAULT NULL,
+  `date_last_view`    DATETIME DEFAULT NULL,
+  `is_featured`       TINYINT DEFAULT NULL,
+  `current_price`     DECIMAL(15,4) DEFAULT NULL,
   
   PRIMARY KEY (`product_id`,`store_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB;
 --
 -- Table structure for table `oc_googleshopping_product`
 --
