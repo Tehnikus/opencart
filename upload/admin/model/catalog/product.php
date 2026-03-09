@@ -494,17 +494,27 @@ class ModelCatalogProduct extends Model {
 				foreach ($data['product_store'] as $store_id) {
 					if (((int) $store_id) === ((int) $this->session->data['store_id'])) {
 						// Set data for current store
-						$this->db->query("
-							INSERT INTO " . DB_PREFIX . "product_to_store 
-							SET 
-								`product_id` 		= '" . (int) $product_id . "', 
-								`store_id` 			= '" . (int) $store_id . "',
+						$sql = "
+							INSERT INTO " . DB_PREFIX . "product_to_store (`product_id`, `store_id`, `sort_order`, `parent_id`, `status`, `is_available`, `price`, `image`)
+							VALUES (
+								'" . (int) $product_id . "',
+								'" . (int) $store_id . "',
+								'" . (int) $data['sort_order'] . "',
+								'" . (isset($data['parent_id']) ? ((int) $data['parent_id']) : '0') . "',
+								'" . (int) $data['status'] . "',
+								'" . (int) $data['is_available'] . "',
+								'" . (float) $data['price'] . "',
+								'" . (isset($data['image']) ? ($this->db->escape($data['image'])) : '') . "'
+							)
+							ON DUPLICATE KEY UPDATE
 								`sort_order` 		= '" . (int) $data['sort_order'] . "',
 								`parent_id`  		= '" . (isset($data['parent_id']) ? ((int) $data['parent_id']) : '0') . "',
 								`status`     		= '" . (int) $data['status'] . "',
 								`is_available`  = '" . (int) $data['is_available'] . "', 
+								`price` 				= '" . (float) $data['price'] . "',
 								`image` 				= '" . (isset($data['image']) ? ($this->db->escape($data['image'])) : '') . "'
-						");
+						";
+						$this->db->query($sql);
 					} else {
 						// Skip if data for other stores already exists
 						$this->db->query("
