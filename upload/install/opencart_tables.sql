@@ -2224,7 +2224,16 @@ CREATE TABLE `oc_product_discount` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-
+DROP TABLE IF EXISTS `oc_product_facet_index`;
+CREATE TABLE `oc_product_facet_index` (
+  `product_id`      INT NOT NULL,
+  `store_id`        INT NOT NULL,
+  `facet_type`      ENUM('category', 'filter', 'option', 'attribute', 'manufacturer', 'has_discount', 'tag', 'supplier'),
+  `facet_value_id`  INT NOT NULL,             -- Id of category/filter/option/attribute/manufacturer
+  `facet_group_id`  INT NOT NULL,             -- Parent group of facet_value_id: filter group id for filters, parent category id for categories, etc. Zero if not applicable (manufacturer, has_discount)
+  PRIMARY KEY (`facet_value_id`, `facet_type`, `store_id`, `product_id`, `facet_group_id`),
+  KEY `getProducts` (`facet_value_id`, `facet_type`, `store_id`, `product_id`, `facet_group_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Table structure for table `oc_product_filter`
