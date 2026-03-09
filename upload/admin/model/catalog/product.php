@@ -365,30 +365,8 @@ class ModelCatalogProduct extends Model {
 			$this->db->query("COMMIT");
 
 			// Delete cache
-			$store_id = $this->session->data['store_id'];
-			$this->load->model('localisation/language');
-			$languages = $this->model_localisation_language->getLanguages();
-			foreach ($languages as $language) {
+			$this->deleteCache($product_id, $this->session->data['store_id']);
 
-				// Delete related products cache
-				foreach ($data['product_related'] ?? [] as $related_id) {
-					$relatedCacheName 	= "product.store_{$store_id}.language_{$language_id}." . (floor($related_id / 100)) . "00.product_{$related_id}";
-					$this->cache->delete($relatedCacheName);
-				}
-				// Delete latest cache
-				$language_id = $language['language_id'];
-				$latestCacheName = "product.store_{$store_id}.language_{$language_id}.latest";
-				$this->cache->delete($latestCacheName);
-
-				// Special prices product list cache
-				$specialCacheName = "product.store_{$store_id}.language_{$language_id}.special";
-				$this->cache->delete($specialCacheName);
-
-				// Delete URL cache
-				$urlCacheName = "url.store_{$store_id}.language_{$language_id}.url";
-				$this->cache->delete($urlCacheName);
-			}
-						
 			return $product_id;
 
 		} catch (\Throwable $e) {
@@ -847,40 +825,9 @@ class ModelCatalogProduct extends Model {
 
 			$this->db->query("COMMIT");
 
-			// Cache delete
-			$store_id = $this->session->data['store_id'];
-			$this->load->model('localisation/language');
-			$languages = $this->model_localisation_language->getLanguages();
+			// Delete cache
+			$this->deleteCache($product_id, $this->session->data['store_id']);
 
-			foreach ($languages as $language) {
-				$language_id = $language['language_id'];
-
-				// Delete product cache
-				$productCacheName 	= "product.store_{$store_id}.language_{$language_id}." . (floor($product_id / 100)) . "00.product_{$product_id}";
-				$this->cache->delete($productCacheName);
-				
-				// Delete URL cache
-				$urlCacheName = "url.store_{$store_id}.language_{$language_id}.url";
-				$this->cache->delete($urlCacheName);
-
-				// Delete filter cache to update each related category filter set. Parent category_id is included here by design
-				foreach ($data['product_category'] ?? [] as $category_id) {
-					$filterCacheName = "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . "00.filters_{$category_id}";
-					$this->cache->delete($filterCacheName);
-				}
-
-				// Delete related products cache
-				foreach ($data['product_related'] ?? [] as $related_id) {
-					$relatedCacheName 	= "product.store_{$store_id}.language_{$language_id}." . (floor($related_id / 100)) . "00.product_{$related_id}";
-					$this->cache->delete($relatedCacheName);
-				}
-
-				// Special prices product list cache
-				$specialCacheName = "product.store_{$store_id}.language_{$language_id}.special";
-				$this->cache->delete($specialCacheName);
-
-			}
-			
 		} catch (\Throwable $e) {
 
 			$this->db->query("ROLLBACK");
@@ -1864,5 +1811,76 @@ class ModelCatalogProduct extends Model {
 
 		$newIsAvailable = $query['is_available'];
 		return (int) $newIsAvailable;
+	}
+	// Delete cache
+	public function deleteCache($product_id, $stores = []) : void {
+		if (empty($stores)) {
+			$this->load->model('setting/store');
+			$storesData = $this->model_setting_store->getMultistores();
+			foreach ($storesData as $store) {
+				$stores[] = $store['store_id'];
+			}
+		}
+		$this->load->model('localisation/language');
+		$languages = $this->model_localisation_language->getLanguages();
+
+		foreach ($stores as $store_id) {
+			foreach ($languages as $language) {
+				$language_id = (int) $language['language_id'];
+				$store_id = (int) $store_id;
+
+				// Delete related products cache
+				$relatedProducts = $this->db->query("
+					SELECT
+						`related_id`
+					FROM " . DB_PREFIX . "product_related
+					WHERE `product_id` = '" . (int) $product_id . "'
+						AND `store_id` = '" . (int) $store_id . "'
+				")->rows;
+
+				foreach ($relatedProducts as $relatedProduct) {
+					$related_id = $relatedProduct['related_id'];
+					$relatedCacheName 	= "product.store_{$store_id}.language_{$language_id}." . (floor($related_id / 100)) . "00.product_{$related_id}";
+					$this->cache->delete($relatedCacheName);
+				}
+
+				$productCategories = $this->db->query("
+					SELECT
+						`category_id`
+					FROM " . DB_PREFIX . "product_to_category
+					WHERE `product_id` = '" . $product_id . "'
+						AND `store_id` = '" . $store_id . "'
+				")->rows;
+				
+				// Delete filter cache and product flags cache
+				foreach ($productCategories as $productCategory) {
+					$category_id = (int) $productCategory['category_id'];
+					// DELETE filter cache to update each related category filter set. Parent category_id is included here by design
+					$filterCacheName = "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . "00.filters_{$category_id}";
+					$this->cache->delete($filterCacheName);
+
+					// Delete product flags cache
+					$flagsCacheName = "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . "00.product_flags_{$category_id}";
+					$this->cache->delete($flagsCacheName);
+				}
+
+				// Delete product cache
+				$productCacheName 	= "product.store_{$store_id}.language_{$language_id}." . (floor($product_id / 100)) . "00.product_{$product_id}";
+				$this->cache->delete($productCacheName);
+	
+				// Delete latest cache
+				$language_id = $language['language_id'];
+				$latestCacheName = "product.store_{$store_id}.language_{$language_id}.latest";
+				$this->cache->delete($latestCacheName);
+	
+				// Special prices product list cache
+				$specialCacheName = "product.store_{$store_id}.language_{$language_id}.special";
+				$this->cache->delete($specialCacheName);
+	
+				// Delete URL cache
+				$urlCacheName = "url.store_{$store_id}.language_{$language_id}.url";
+				$this->cache->delete($urlCacheName);
+			}
+		}
 	}
 }
