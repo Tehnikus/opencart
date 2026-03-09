@@ -39,7 +39,9 @@ class ModelCatalogReview extends Model {
 
 		$review_id = $this->db->getLastId();
 
-		$this->cache->delete('product');
+		// Delete cache
+		$this->load->model('catalog/product');
+		$this->model_catalog_product->deleteCache($data['product_id'], [$data['store_id']]);
 
 		return $review_id;
 	}
@@ -84,7 +86,9 @@ class ModelCatalogReview extends Model {
 				date_last_review = NOW()
 		");
 
-		$this->cache->delete('product');
+		// Delete cache
+		$this->load->model('catalog/product');
+		$this->model_catalog_product->deleteCache($data['product_id'], [$data['store_id']]);
 	}
 
 	public function deleteReview($review_id) {
@@ -126,7 +130,10 @@ class ModelCatalogReview extends Model {
 			WHERE review_id = '" . (int) $review_id . "'
 		");
 
-		$this->cache->delete('product');
+
+		// Delete cache
+		$this->load->model('catalog/product');
+		$this->model_catalog_product->deleteCache($reviewData['product_id'], [$reviewData['store_id']]);
 	}
 
 	public function getReview($review_id) {
