@@ -362,6 +362,9 @@ class ModelCatalogProduct extends Model {
 				}
 			}
 
+			// Build facet cache
+			$this->buildFacetIndex($product_id, $this->session->data['store_id']);
+			
 			$this->db->query("COMMIT");
 
 			// Delete cache
@@ -822,6 +825,9 @@ class ModelCatalogProduct extends Model {
 					$this->db->query("INSERT INTO " . DB_PREFIX . "product_to_layout SET `product_id` = '" . (int)$product_id . "', `store_id` = '" . (int)$store_id . "', `layout_id` = '" . (int)$layout_id . "'");
 				}
 			}
+			
+			// Build facet cache
+			$this->buildFacetIndex($product_id, $this->session->data['store_id']);
 
 			$this->db->query("COMMIT");
 
@@ -1823,6 +1829,124 @@ class ModelCatalogProduct extends Model {
 		$newIsAvailable = $query['is_available'];
 		return (int) $newIsAvailable;
 	}
+
+	// Build facet index
+	// Should be called before previous SQL transaction committed
+	public function buildFacetIndex($product_id, $store_id) : void {
+
+		$product_id = (int) $product_id;
+		$store_id   = (int) $store_id;
+
+		// Cleanup previous entries
+		$this->db->query("
+			DELETE FROM " . DB_PREFIX . "product_facet_index
+			WHERE `product_id` = {$product_id}
+				AND `store_id` 	 = {$store_id}
+		");
+
+		// Product categories
+		$this->db->query("
+			INSERT INTO " . DB_PREFIX . "product_facet_index (`product_id`, `store_id`, `facet_value_id`, `facet_group_id`, `facet_type`)
+			SELECT 
+				p2c.`product_id`, 
+				p2c.`store_id`, 
+				p2c.`category_id`, 
+				(SELECT COALESCE(c2s.parent_id, 0) FROM " . DB_PREFIX . "category_to_store c2s WHERE c2s.category_id = p2c.category_id AND c2s.store_id = {$store_id}),
+				'1'
+			FROM " . DB_PREFIX . "product_to_category p2c
+			WHERE p2c.`product_id` = {$product_id}
+				AND p2c.`store_id` 	 = {$store_id}
+		");
+
+		// Filters
+		$this->db->query("
+			INSERT INTO " . DB_PREFIX . "product_facet_index (`product_id`, `store_id`, `facet_value_id`, `facet_group_id`, `facet_type`)
+			SELECT 
+				pf.`product_id`, 
+				pf.`store_id`, 
+				pf.`filter_id`, 
+				pf.`filter_group_id`,
+				'2'
+			FROM " . DB_PREFIX . "product_filter pf
+			WHERE pf.`product_id`  = {$product_id}
+				AND pf.`store_id` 	 = {$store_id}
+		");
+
+		// Options
+		$this->db->query("
+			INSERT INTO " . DB_PREFIX . "product_facet_index (`product_id`, `store_id`, `facet_value_id`, `facet_group_id`, `facet_type`)
+			SELECT 
+				pov.`product_id`, 
+				pov.`store_id`, 
+				pov.`option_value_id`, 
+				pov.`option_id`,
+				'3'
+			FROM " . DB_PREFIX . "product_option_value pov
+			WHERE pov.`product_id`  = {$product_id}
+				AND pov.`store_id` 	 = {$store_id}
+		");
+
+		// Attributes
+		$this->db->query("
+			INSERT INTO " . DB_PREFIX . "product_facet_index (`product_id`, `store_id`, `facet_value_id`, `facet_group_id`, `facet_type`)
+			SELECT 
+				pa.`product_id`, 
+				pa.`store_id`, 
+				pa.`attribute_id`, 
+				pa.`attribute_group_id`,
+				'4'
+			FROM " . DB_PREFIX . "product_attribute pa
+			WHERE pa.`product_id`  = {$product_id}
+				AND pa.`store_id` 	 = {$store_id}
+		");
+
+		// Manufacturer
+		$this->db->query("
+			INSERT INTO " . DB_PREFIX . "product_facet_index (`product_id`, `store_id`, `facet_value_id`, `facet_group_id`, `facet_type`)
+			SELECT 
+				p.`product_id`,
+				'{$store_id}',
+				p.`manufacturer_id`,
+				'0',
+				'5'
+			FROM " . DB_PREFIX . "product p
+			WHERE p.`product_id`  = {$product_id}
+		");
+
+		// Has discount
+		$this->db->query("
+			INSERT INTO " . DB_PREFIX . "product_facet_index (`product_id`, `store_id`, `facet_value_id`, `facet_group_id`, `facet_type`)
+			SELECT 
+				'{$product_id}',
+				'{$store_id}',
+				'1',
+				'0',
+				'6'
+			WHERE EXISTS (
+				SELECT
+					1
+				FROM " . DB_PREFIX . "product_special ps
+				WHERE ps.product_id = {$product_id}
+					AND ps.store_id   = {$store_id}
+					AND (
+						(ps.date_start = '0000-00-00' OR ps.date_start < NOW()) 
+						AND (ps.date_end = '0000-00-00' OR ps.date_end > NOW())
+					)
+				UNION
+				SELECT
+					1
+				FROM " . DB_PREFIX . "product_discount pd
+				WHERE pd.product_id = {$product_id}
+					AND pd.store_id   = {$store_id}
+					AND (
+						(pd.date_start = '0000-00-00' OR pd.date_start < NOW()) 
+						AND (pd.date_end = '0000-00-00' OR pd.date_end > NOW())
+					)
+			)
+		");
+
+	}
+
 	// Delete cache
 	public function deleteCache($product_id, $stores = []) : void {
 		if (empty($stores)) {
