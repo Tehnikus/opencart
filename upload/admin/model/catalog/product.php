@@ -396,7 +396,7 @@ class ModelCatalogProduct extends Model {
 			$this->db->query("COMMIT");
 
 			// Delete cache
-			$this->deleteCache($product_id, $this->session->data['store_id']);
+			$this->deleteCache($product_id, [$this->session->data['store_id']]);
 
 			return $product_id;
 
@@ -906,7 +906,7 @@ class ModelCatalogProduct extends Model {
 			$this->db->query("COMMIT");
 
 			// Delete cache
-			$this->deleteCache($product_id, $this->session->data['store_id']);
+			$this->deleteCache($product_id, [$this->session->data['store_id']]);
 
 		} catch (\Throwable $e) {
 
@@ -950,7 +950,7 @@ class ModelCatalogProduct extends Model {
 	public function deleteProduct($product_id) {
 
 		// Delete cache
-		$this->deleteCache($product_id, $this->session->data['store_id']);
+		$this->deleteCache($product_id, [$this->session->data['store_id']]);
 
 		// List of tables with product data
 		$tables = [
@@ -2025,6 +2025,7 @@ class ModelCatalogProduct extends Model {
 	// Delete cache
 	public function deleteCache($product_id, $stores = []) : void {
 		if (empty($stores)) {
+			$stores = [];
 			$this->load->model('setting/store');
 			$storesData = $this->model_setting_store->getMultistores();
 			foreach ($storesData as $store) {
