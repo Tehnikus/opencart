@@ -18,14 +18,16 @@ class ModelCheckoutOrder extends Model {
 
 				// Update product stats
 				$this->db->query("
-					INSERT INTO " . DB_PREFIX . "product_stats (product_id, store_id, sales)
+					INSERT INTO " . DB_PREFIX . "product_stats (product_id, store_id, sales, date_last_order)
 					VALUES (
 						'" . (int) $product['product_id'] . "', 
 						'" . (int) $data['store_id'] . "', 
-						'" . (int) $product['quantity'] . "'
+						'" . (int) $product['quantity'] . "',
+						NOW()
 					)
 					ON DUPLICATE KEY UPDATE 
-						sales = (sales + '" . (int) $product['quantity'] . "')
+						sales = (sales + '" . (int) $product['quantity'] . "'),
+						date_last_order = NOW()
 				");
 
 			}
@@ -82,11 +84,12 @@ class ModelCheckoutOrder extends Model {
 
 			// Update product stats
 			$this->db->query("
-				INSERT INTO " . DB_PREFIX . "product_stats (product_id, store_id, sales)
+				INSERT INTO " . DB_PREFIX . "product_stats (product_id, store_id, sales, date_last_order)
 				VALUES (
 					'" . (int) $product['product_id'] . "',
 					'" . (int) $data['store_id'] . "',
-					'" . (int) $delta . "'
+					'" . (int) $delta . "',
+					NOW()
 				)
 				ON DUPLICATE KEY UPDATE
 					sales = sales + VALUES(sales)
