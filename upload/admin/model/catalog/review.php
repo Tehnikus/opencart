@@ -15,8 +15,8 @@ class ModelCatalogReview extends Model {
 		");
 
 		$this->db->query("
-			INSERT INTO " . DB_PREFIX . "product_stats (product_id, store_id, review_count, rating_avg)
-			VALUES ('" . (int) $data['product_id'] . "', '" . (int) $data['store_id'] . "', 1, '" . (int) $data['rating'] . "')
+			INSERT INTO " . DB_PREFIX . "product_stats (product_id, store_id, review_count, rating_avg, date_last_review)
+			VALUES ('" . (int) $data['product_id'] . "', '" . (int) $data['store_id'] . "', 1, '" . (int) $data['rating'] . "', NOW())
 			ON DUPLICATE KEY UPDATE 
 				review_count = (
 					SELECT 
@@ -33,7 +33,8 @@ class ModelCatalogReview extends Model {
 					WHERE r1.product_id = '" . (int) $data['product_id'] . "'
 						AND r1.store_id 	= '" . (int) $data['store_id'] . "'
 						AND r1.status 		= '1' 
-				)
+				),
+				date_last_review = NOW()
 		");
 
 		$review_id = $this->db->getLastId();
@@ -61,8 +62,8 @@ class ModelCatalogReview extends Model {
 		");
 
 		$this->db->query("
-			INSERT INTO " . DB_PREFIX . "product_stats (product_id, store_id, review_count, rating_avg)
-			VALUES ('" . (int) $data['product_id'] . "', '" . (int) $data['store_id'] . "', 1, '" . (int) $data['rating'] . "')
+			INSERT INTO " . DB_PREFIX . "product_stats (product_id, store_id, review_count, rating_avg, date_last_review)
+			VALUES ('" . (int) $data['product_id'] . "', '" . (int) $data['store_id'] . "', 1, '" . (int) $data['rating'] . "', NOW())
 			ON DUPLICATE KEY UPDATE 
 				review_count = (
 					SELECT 
@@ -79,7 +80,8 @@ class ModelCatalogReview extends Model {
 					WHERE r1.product_id = '" . (int) $data['product_id'] . "'
 						AND r1.store_id 	= '" . (int) $data['store_id'] . "'
 						AND r1.status 		= '1' 
-				)
+				),
+				date_last_review = NOW()
 		");
 
 		$this->cache->delete('product');
