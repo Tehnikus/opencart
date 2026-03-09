@@ -4,10 +4,11 @@ class ModelCatalogProduct extends Model {
 		$this->db->query("UPDATE " . DB_PREFIX . "product SET viewed = (viewed + 1) WHERE product_id = '" . (int)$product_id . "'");
 
 		$this->db->query("
-			INSERT INTO " . DB_PREFIX . "product_stats (product_id, store_id, viewed)
-			VALUES ('" . (int) $product_id . "', '" . $this->config->get('config_store_id') . "', 1)
+			INSERT INTO " . DB_PREFIX . "product_stats (product_id, store_id, viewed, date_last_view)
+			VALUES ('" . (int) $product_id . "', '" . $this->config->get('config_store_id') . "', 1, NOW())
 			ON DUPLICATE KEY UPDATE 
-				viewed = (viewed + 1) 
+				viewed = (viewed + 1),
+				date_last_view = NOW()
 		");
 	}
 

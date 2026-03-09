@@ -987,7 +987,7 @@ class ModelCatalogProduct extends Model {
 				p.`stock_status_id`,
 				p.`manufacturer_id`,
 				p.`shipping`,
-				p.`price`,
+				COALESCE(p2s.`price`, p.`price`) AS price,
 				p.`wholesale_price`,
 				p.`points`,
 				p.`tax_class_id`,
@@ -1082,7 +1082,7 @@ class ModelCatalogProduct extends Model {
 			SELECT 
 				p.`product_id`,
 				p.`model`,
-				p.`price`,
+				COALESCE(p2s.`price`, p.`price`) AS price,
 				p.`wholesale_price`,
 				p.`quantity`,
 				p2s.`image`,
