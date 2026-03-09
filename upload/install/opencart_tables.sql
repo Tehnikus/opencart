@@ -2082,6 +2082,7 @@ CREATE TABLE `oc_product_stats` (
   `sales`             INT NOT NULL DEFAULT '0',
   `returns`           INT NOT NULL DEFAULT '0',
   `review_count`      INT NOT NULL DEFAULT '0',
+  `sort_order`        INT NOT NULL DEFAULT '0',
   `rating_avg`        DECIMAL(2,1) DEFAULT NULL,
   `date_added`        DATETIME DEFAULT NULL,
   `date_last_order`   DATETIME DEFAULT NULL,
