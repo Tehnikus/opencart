@@ -868,67 +868,78 @@ class ModelCatalogProduct extends Model {
 	}
 
 	public function deleteProduct($product_id) {
-		
+
+		// Delete cache
+		$this->deleteCache($product_id, $this->session->data['store_id']);
+
+		// List of tables with product data
+		$tables = [
+			'product_attribute',
+			'product_description',
+			'product_discount',
+			'product_facet_index',
+			'product_filter',
+			'product_image',
+			'product_option',
+			'product_option_value',
+			'product_related',
+			'product_reward',
+			'product_special',
+			'product_to_category',
+			'product_to_download',
+			'product_to_layout',
+			'product_to_store',
+			'product_recurring',
+			'review',
+			'coupon_product'
+		];
+
 		// SQL transaction
 		$this->db->query("START TRANSACTION");
 
 		try {
-			// $this->db->query("DELETE FROM " . DB_PREFIX . "product 							WHERE product_id = '" . (int) $product_id . "'");
-			$this->db->query("DELETE FROM " . DB_PREFIX . "product_attribute 		WHERE product_id = '" . (int) $product_id . "' AND store_id = '" . (int) $this->session->data['store_id'] . "'");
-			$this->db->query("DELETE FROM " . DB_PREFIX . "product_description 	WHERE product_id = '" . (int) $product_id . "' AND store_id = '" . (int) $this->session->data['store_id'] . "'");
-			$this->db->query("DELETE FROM " . DB_PREFIX . "product_discount 		WHERE product_id = '" . (int) $product_id . "' AND store_id = '" . (int) $this->session->data['store_id'] . "'");
-			$this->db->query("DELETE FROM " . DB_PREFIX . "product_filter 			WHERE product_id = '" . (int) $product_id . "' AND store_id = '" . (int) $this->session->data['store_id'] . "'");
-			$this->db->query("DELETE FROM " . DB_PREFIX . "product_image 				WHERE product_id = '" . (int) $product_id . "' AND store_id = '" . (int) $this->session->data['store_id'] . "'");
-			$this->db->query("DELETE FROM " . DB_PREFIX . "product_option 			WHERE product_id = '" . (int) $product_id . "' AND store_id = '" . (int) $this->session->data['store_id'] . "'");
-			$this->db->query("DELETE FROM " . DB_PREFIX . "product_option_value WHERE product_id = '" . (int) $product_id . "' AND store_id = '" . (int) $this->session->data['store_id'] . "'");
-			$this->db->query("DELETE FROM " . DB_PREFIX . "product_related 			WHERE related_id = '" . (int) $product_id . "' AND store_id = '" . (int) $this->session->data['store_id'] . "'");
-			$this->db->query("DELETE FROM " . DB_PREFIX . "product_reward 			WHERE product_id = '" . (int) $product_id . "' AND store_id = '" . (int) $this->session->data['store_id'] . "'");
-			$this->db->query("DELETE FROM " . DB_PREFIX . "product_special 			WHERE product_id = '" . (int) $product_id . "' AND store_id = '" . (int) $this->session->data['store_id'] . "'");
-			$this->db->query("DELETE FROM " . DB_PREFIX . "product_to_category 	WHERE product_id = '" . (int) $product_id . "' AND store_id = '" . (int) $this->session->data['store_id'] . "'");
-			$this->db->query("DELETE FROM " . DB_PREFIX . "product_to_download 	WHERE product_id = '" . (int) $product_id . "' AND store_id = '" . (int) $this->session->data['store_id'] . "'");
-			$this->db->query("DELETE FROM " . DB_PREFIX . "product_to_layout 		WHERE product_id = '" . (int) $product_id . "' AND store_id = '" . (int) $this->session->data['store_id'] . "'");
-			$this->db->query("DELETE FROM " . DB_PREFIX . "product_to_store 		WHERE product_id = '" . (int) $product_id . "' AND store_id = '" . (int) $this->session->data['store_id'] . "'");
-			$this->db->query("DELETE FROM " . DB_PREFIX . "product_recurring 		WHERE product_id = '" . (int) $product_id . "' AND store_id = '" . (int) $this->session->data['store_id'] . "'");
-			$this->db->query("DELETE FROM " . DB_PREFIX . "review 							WHERE product_id = '" . (int) $product_id . "' AND store_id = '" . (int) $this->session->data['store_id'] . "'");
-			$this->db->query("DELETE FROM " . DB_PREFIX . "coupon_product 			WHERE product_id = '" . (int) $product_id . "' AND store_id = '" . (int) $this->session->data['store_id'] . "'");
-			$this->db->query("DELETE FROM " . DB_PREFIX . "seo_url 							WHERE query = 'product_id=" . (int) $product_id . "' AND store_id = '" . (int) $this->session->data['store_id'] . "'");
+			// First delete prodcut data from current store
+			foreach ($tables as $table) {
+				$this->db->query("
+					DELETE FROM " . DB_PREFIX . $table . "
+					WHERE `product_id` = '" . (int) $product_id . "'
+						AND store_id = '" . (int) $this->session->data['store_id'] . "'		
+				");
+			}
+
+			// And delete product URL from current store
+			$this->db->query("
+				DELETE FROM " . DB_PREFIX . "seo_url 
+				WHERE `query` 		= 'product_id=" . (int) $product_id . "' 
+					AND `store_id` 	= '" . (int) $this->session->data['store_id'] . "'
+			");
 			
 			// Check if product present in other stores
 			$productInOtherStores = $this->db->query("
 				SELECT
 					product_id
 				FROM " . DB_PREFIX . "product_to_store
-				WHERE product_id = '" . (int) $product_id . "'
-					AND store_id <> '" . (int) $this->session->data['store_id'] . "' 
+				WHERE `product_id` = '" . (int) $product_id . "'
+					AND `store_id` <> '" . (int) $this->session->data['store_id'] . "' 
 			")->rows;
-			// Delete main product table row if product is not present in any other store
-			if (empty($productInOtherStores)) {
-				$tables = [
-					'product',
-					'product_attribute',
-					'product_description',
-					'product_discount',
-					'product_filter',
-					'product_image',
-					'product_option',
-					'product_option_value',
-					'product_related',
-					'product_reward',
-					'product_special',
-					'product_to_category',
-					'product_to_download',
-					'product_to_layout',
-					'product_to_store',
-					'product_recurring',
-					'review',
-					'coupon_product'
-				];
 
-				// Remove all redundant data if present 
+			// If product is not present in any other store delete all product data from all tables without store_id context
+			// Also delete main `product` table row
+			if (empty($productInOtherStores)) {
+				
+				// Delete cache
+				$this->deleteCache($product_id);
+
+				$this->db->query("
+					DELETE FROM " . DB_PREFIX . "product
+					WHERE product_id = '" . (int) $product_id . "'
+				");
+
+				// Remove all remaining data if present 
 				foreach ($tables as $table) {
 					$this->db->query("
 						DELETE FROM " . DB_PREFIX . $table . "
-						WHERE product_id = " . (int) $product_id
+						WHERE `product_id` = " . (int) $product_id
 					);
 				}
 
