@@ -1176,6 +1176,8 @@ class ModelCatalogProduct extends Model {
 				p2s.`sort_order`,
 				p2s.`date_modified`,
 				p2s.`parent_id`,
+				pst.`views`,
+				pst.`orders`,
 				(
 					SELECT 
 						pd.`name` 
@@ -1279,6 +1281,9 @@ class ModelCatalogProduct extends Model {
 			LEFT JOIN " . DB_PREFIX . "product_to_store p2s 
 				ON 	p2s.`product_id` 	= p.`product_id`
 				AND p2s.`store_id` 		= '" . (int) $this->session->data['store_id'] . "'
+			LEFT JOIN " . DB_PREFIX . "product_stats pst
+				ON 	pst.`product_id` = p.`product_id`
+				AND pst.`store_id` 		= '" . (int) $this->session->data['store_id'] . "'
 
 			WHERE EXISTS (
 				SELECT
@@ -1922,7 +1927,7 @@ class ModelCatalogProduct extends Model {
 
 	// Build facet index
 	// Should be called before previous SQL transaction committed
-	public function buildFacetIndex($product_id, $store_id) : void {
+	public function buildFacetIndex($product_id, $store_id) : int {
 
 		$product_id = (int) $product_id;
 		$store_id   = (int) $store_id;
@@ -2003,6 +2008,22 @@ class ModelCatalogProduct extends Model {
 			WHERE p.`product_id`  = {$product_id}
 		");
 
+		// Is available
+		$this->db->query("
+			INSERT INTO " . DB_PREFIX . "product_facet_index (`product_id`, `store_id`, `facet_value_id`, `facet_group_id`, `facet_type`)
+			SELECT 
+				{$product_id},
+				{$store_id},
+				IF((p.quantity >= p.minimum AND p2s.is_available = 1), 1, 0)
+				'0',
+				'8'
+			FROM " . DB_PREFIX . "product p
+			WHERE p.product = {$product_id}
+			JOIN " . DB_PREFIX . "product_to_store p2s
+			ON p2s.`product_id` = p.`product_id`
+				AND p2s.`store_id` = {$store_id}
+		");
+
 		// Has discount
 		$this->db->query("
 			INSERT INTO " . DB_PREFIX . "product_facet_index (`product_id`, `store_id`, `facet_value_id`, `facet_group_id`, `facet_type`)
@@ -2011,7 +2032,7 @@ class ModelCatalogProduct extends Model {
 				'{$store_id}',
 				'1',
 				'0',
-				'6'
+				'9'
 			WHERE EXISTS (
 				SELECT
 					1
@@ -2034,6 +2055,24 @@ class ModelCatalogProduct extends Model {
 					)
 			)
 		");
+
+		// Is featured
+		$this->db->query("
+			INSERT INTO " . DB_PREFIX . "product_facet_index (`product_id`, `store_id`, `facet_value_id`, `facet_group_id`, `facet_type`)
+			SELECT 
+				{$product_id},
+				{$store_id},
+				p2s.`is_featured`
+				'0',
+				'10'
+			FROM " . DB_PREFIX . "product p
+			WHERE p.`product` = {$product_id}
+			JOIN " . DB_PREFIX . "product_to_store p2s
+			ON p2s.`product_id` = p.`product_id`
+				AND p2s.`store_id` = {$store_id}
+		");
+
+		return $product_id;
 
 	}
 
