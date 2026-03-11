@@ -93,6 +93,7 @@
                           <a href="{{ sort_model }}" class="{{ order|lower }}">{{ column_model }}</a> {% else %} <a href="{{ sort_model }}">{{ column_model }}</a> 
                         {% endif %}
                       </td>
+                      <td>{{ column_seo }}</td>
                       <td style="width: 200px" class="text-center" data-collapse-selector="filterColumn" >{{ column_filters }}<button type="button" class="collapseColumn pull-right">&harr;</button></td>
                       <td style="width: 200px" class="text-center" data-collapse-selector="optionColumn" >{{ column_options }}<button type="button" class="collapseColumn pull-right">&harr;</button></td>
                       <td style="width: 50px" class="text-center">{{ column_attributes }}</td>
@@ -140,6 +141,9 @@
                         {% endfor %}
                       </p>
                     </td>
+                    <td>
+
+                    </td>
                     <td class="text-left">
                       <div style="max-height: 100px; overflow-y: auto">
                         {% set count = 0 %}
@@ -166,7 +170,6 @@
                         {% endfor %}
                       </div>
                     </td>
-                    {# <td class="text-center"><b>{{ product.product_options }}</b></td> #}
                     <td class="text-center"><b>{{ product.product_attributes }}</b></td>
                     <td class="text-right">{% if product.special %} <span style="text-decoration: line-through;">{{ product.price }}</span><br/>
                       <div class="text-danger"><b>{{ product.special }}</b></div>

@@ -187,6 +187,7 @@ $_['column_top_category']           = 'Top menu';
 $_['column_bottom']                 = 'Show in footer';
 $_['column_route']                  = 'Route';
 $_['column_modules']                = 'Modules';
+$_['column_seo']                    = 'SEO Data';
 
 // Tabs
 $_['tab_languages']                 = 'Languages';
