@@ -18,7 +18,7 @@ class ModelCheckoutOrder extends Model {
 
 				// Update product stats
 				$this->db->query("
-					INSERT INTO " . DB_PREFIX . "product_stats (product_id, store_id, sales, date_last_order)
+					INSERT INTO " . DB_PREFIX . "product_stats (`product_id`, `store_id`, `orders`, `date_last_order`)
 					VALUES (
 						'" . (int) $product['product_id'] . "', 
 						'" . (int) $data['store_id'] . "', 
@@ -26,8 +26,8 @@ class ModelCheckoutOrder extends Model {
 						NOW()
 					)
 					ON DUPLICATE KEY UPDATE 
-						sales = (sales + '" . (int) $product['quantity'] . "'),
-						date_last_order = NOW()
+						`orders` = (`orders` + '" . (int) $product['quantity'] . "'),
+						`date_last_order` = NOW()
 				");
 
 			}
@@ -84,7 +84,7 @@ class ModelCheckoutOrder extends Model {
 
 			// Update product stats
 			$this->db->query("
-				INSERT INTO " . DB_PREFIX . "product_stats (product_id, store_id, sales, date_last_order)
+				INSERT INTO " . DB_PREFIX . "product_stats (`product_id`, `store_id`, `orders`, `date_last_order`)
 				VALUES (
 					'" . (int) $product['product_id'] . "',
 					'" . (int) $data['store_id'] . "',
@@ -92,7 +92,7 @@ class ModelCheckoutOrder extends Model {
 					NOW()
 				)
 				ON DUPLICATE KEY UPDATE
-					sales = sales + VALUES(sales)
+					`orders` = `orders` + VALUES(`orders`)
 			");
 		}
 
@@ -167,14 +167,14 @@ class ModelCheckoutOrder extends Model {
     // Decrease product sales stats
     foreach ($products as $product) {
 			$this->db->query("
-				INSERT INTO " . DB_PREFIX . "product_stats (product_id, store_id, sales)
+				INSERT INTO " . DB_PREFIX . "product_stats (`product_id`, `store_id`, `orders`)
 				VALUES (
 					'" . (int) $product['product_id'] . "',
 					'" . $store_id . "',
 					'" . (int) (-$product['quantity']) . "'
 				)
 				ON DUPLICATE KEY UPDATE
-					sales = sales + VALUES(sales)
+					`orders` = `orders` + VALUES(`orders`)
 			");
     }
 
