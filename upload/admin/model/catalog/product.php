@@ -347,56 +347,13 @@ class ModelCatalogProduct extends Model {
 
 			// Build facet cache
 			$this->buildFacetIndex($product_id, $this->session->data['store_id']);
-
-			// Insert into product stats to sort products in frontend by various product features
-			$this->db->query("
-				INSERT INTO " . DB_PREFIX . "product_stats
-				SET 
-					`product_id` 		= '" . (int) $product_id . "',
-					`store_id`			= '" . (int) $this->session->data['store_id'] . "',
-					`current_price` = (
-						SELECT
-							COALESCE(
-								(
-									SELECT 
-										ps.`price` 
-									FROM " . DB_PREFIX . "product_special ps
-									WHERE ps.`product_id` = p2s.`product_id`
-										AND ps.`store_id` = p2s.`store_id`
-										AND (
-											(ps.`date_start` = '0000-00-00' OR ps.`date_start` < NOW()) 
-											AND (ps.`date_end` = '0000-00-00' OR ps.`date_end` > NOW())
-										)
-								),
-								(
-									SELECT 
-										pd.price
-									FROM " . DB_PREFIX . "product_discount pd
-									WHERE pd.`product_id` = p2s.`product_id`
-										AND pd.`store_id` = p2s.`store_id`
-										AND (
-											(pd.`date_start` = '0000-00-00' OR pd.`date_start` < NOW()) 
-											AND (pd.`date_end` = '0000-00-00' OR pd.`date_end` > NOW())
-										)
-								),
-								p2s.`price`,
-								p.`price`
-							)
-							FROM " . DB_PREFIX . "product_to_store p2s
-							JOIN " . DB_PREFIX . "product p
-								ON p.`product_id` = p2s.`product_id`
-							WHERE p2s.`product_id` = '" . (int) $product_id . "'
-								AND p2s.`store_id` = '" . (int) $this->session->data['store_id'] . "'
-					),
-					`sort_order` = '" . $data['sort_order'] . "',
-					`date_added` = NOW()
-			");
+			$this->buildProductStats($product_id, $this->session->data['store_id']);
 
 			// Commit DB queries
 			$this->db->query("COMMIT");
 
 			// Delete cache
-			$this->deleteCache($product_id, [$this->session->data['store_id']]);
+			$this->deleteCache($product_id, $this->session->data['store_id']);
 
 			return $product_id;
 
@@ -855,68 +812,15 @@ class ModelCatalogProduct extends Model {
 					$this->db->query("INSERT INTO " . DB_PREFIX . "product_to_layout SET `product_id` = '" . (int)$product_id . "', `store_id` = '" . (int)$store_id . "', `layout_id` = '" . (int)$layout_id . "'");
 				}
 			}
-
-			// Insert into product stats to sort products in frontend by various product features
-			$this->db->query("
-				INSERT INTO " . DB_PREFIX . "product_stats (product_id, store_id, current_price, sort_order, date_added)
-				VALUES (
-					'" . (int) $product_id . "',
-					'" . (int) $this->session->data['store_id'] . "',
-					(
-						SELECT
-							COALESCE(
-								(
-									SELECT 
-										ps.`price` 
-									FROM " . DB_PREFIX . "product_special ps
-									WHERE ps.`product_id` = p2s.`product_id`
-										AND ps.`store_id` = p2s.`store_id`
-										AND (
-											(ps.`date_start` = '0000-00-00' OR ps.`date_start` < NOW()) 
-											AND (ps.`date_end` = '0000-00-00' OR ps.`date_end` > NOW())
-										)
-									ORDER BY FIELD(ps.`customer_group_id`, '" . (int) $this->config->get('config_customer_group_id') . "'), ps.`priority`
-									LIMIT 1
-								),
-								(
-									SELECT 
-										pd.price
-									FROM " . DB_PREFIX . "product_discount pd
-									WHERE pd.`product_id` = p2s.`product_id`
-										AND pd.`store_id` = p2s.`store_id`
-										AND (
-											(pd.`date_start` = '0000-00-00' OR pd.`date_start` < NOW()) 
-											AND (pd.`date_end` = '0000-00-00' OR pd.`date_end` > NOW())
-										)
-									ORDER BY FIELD(pd.`customer_group_id`, '" . (int) $this->config->get('config_customer_group_id') . "'), pd.`quantity` ASC, pd.`priority` ASC
-									LIMIT 1
-								),
-								p2s.`price`,
-								p.`price`
-							)
-							FROM " . DB_PREFIX . "product_to_store p2s
-							JOIN " . DB_PREFIX . "product p
-								ON p.`product_id` = p2s.`product_id`
-							WHERE p2s.`product_id` = '" . (int) $product_id . "'
-								AND p2s.`store_id` = '" . (int) $this->session->data['store_id'] . "'
-					),
-					'" . $data['sort_order'] . "',
-					NOW()
-				)
-				ON DUPLICATE KEY UPDATE
-					`product_id` 		= VALUES(`product_id`),
-					`store_id`			= VALUES(`store_id`),
-					`current_price` = VALUES(`current_price`),
-					`sort_order` 		= VALUES(`sort_order`)
-			");
 			
 			// Build facet cache
 			$this->buildFacetIndex($product_id, $this->session->data['store_id']);
+			$this->buildProductStats($product_id, $this->session->data['store_id']);
 
 			$this->db->query("COMMIT");
 
 			// Delete cache
-			$this->deleteCache($product_id, [$this->session->data['store_id']]);
+			$this->deleteCache($product_id, $this->session->data['store_id']);
 
 		} catch (\Throwable $e) {
 
@@ -960,7 +864,7 @@ class ModelCatalogProduct extends Model {
 	public function deleteProduct($product_id) {
 
 		// Delete cache
-		$this->deleteCache($product_id, [$this->session->data['store_id']]);
+		$this->deleteCache($product_id, $this->session->data['store_id']);
 
 		// List of tables with product data
 		$tables = [
@@ -984,6 +888,9 @@ class ModelCatalogProduct extends Model {
 			'review',
 			'coupon_product'
 		];
+
+		// Delete cache
+		$this->deleteCache($product_id, (int) $this->session->data['store_id']);
 
 		// SQL transaction
 		$this->db->query("START TRANSACTION");
@@ -1889,6 +1796,12 @@ class ModelCatalogProduct extends Model {
 		")->row;
 
 		$newStatus = $query['status'];
+
+		// Delete cache
+		$this->deleteCache($product_id, (int) $this->session->data['store_id']);
+		$this->buildFacetIndex($product_id, (int) $this->session->data['store_id']);
+		$this->buildProductStats($product_id, (int) $this->session->data['store_id']);
+
 		return (int) $newStatus;
 	}
 
@@ -1922,6 +1835,12 @@ class ModelCatalogProduct extends Model {
 		")->row;
 
 		$newIsAvailable = $query['is_available'];
+
+		// Delete cache
+		$this->deleteCache($product_id, (int) $this->session->data['store_id']);
+		$this->buildFacetIndex($product_id, (int) $this->session->data['store_id']);
+		$this->buildProductStats($product_id, (int) $this->session->data['store_id']);
+		
 		return (int) $newIsAvailable;
 	}
 
