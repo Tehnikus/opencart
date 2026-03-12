@@ -2098,7 +2098,7 @@ CREATE TABLE `oc_product_stats` (
   `review_count`      INT NOT NULL DEFAULT '0',       -- Sort by review count
   `rating_avg`        DECIMAL(2,1) DEFAULT NULL,      -- Sort by rating desc
   `current_price`     DECIMAL(15,4) DEFAULT NULL,     -- Sort by price asc, desc
-  `is_available`      TINYINT NOT NULL DEFAULT '0'    -- 
+  `is_available`      TINYINT NOT NULL DEFAULT '0',   -- Sort by available for order
   `is_featured`       TINYINT NOT NULL DEFAULT '0',   -- Sort by featured desc 
   `has_discount`      TINYINT NOT NULL DEFAULT '0',   -- Sort by has discount desc 
   -- These dates are used to calculate trending products along with corresponding columns
