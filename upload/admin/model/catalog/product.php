@@ -2077,23 +2077,135 @@ class ModelCatalogProduct extends Model {
 
     return $product_id;
 	}
+
+	public function buildProductStats($product_id = null, $store_id = null) : int {
+
+    $product_filter = ($product_id !== null) ? " AND p.product_id = {$product_id}" : "";
+    $store_filter   = ($store_id !== null)   ? " AND p2s.store_id = {$store_id}"   : "";
+
 		$this->db->query("
-			INSERT INTO " . DB_PREFIX . "product_facet_index (`product_id`, `store_id`, `facet_value_id`, `facet_group_id`, `facet_type`)
-			SELECT 
-				{$product_id},
-				{$store_id},
-				p2s.`is_featured`
-				'0',
-				'10'
+			INSERT INTO " . DB_PREFIX . "product_stats (
+				`product_id`,
+				`store_id`,
+				`views`,
+				`orders`,
+				`returns`,
+				`sort_order`,
+				`review_count`,
+				`rating_avg`,
+				`date_last_review`,
+				`current_price`,
+				`is_available`,
+				`is_featured`,
+				`has_discount`,
+				`date_added`,
+				`date_last_order`,
+				`date_last_view`
+			)
+		
+			SELECT
+				p.`product_id`,
+				p2s.`store_id`,
+				COALESCE(p.viewed, 0) AS `views`,
+				COALESCE(o.orders, 0) AS `orders`,
+				0 AS `returns`,
+				p2s.`sort_order`,
+				COALESCE(r.`review_count`, 0),
+				COALESCE(r.`rating_avg`, 0),
+				r.`date_last_review`,
+				COALESCE(ps.`price`, pd.`price`, p2s.`price`, p.`price`) AS `current_price`,
+				IF(p.`status` = 1 AND p.`quantity` > 0, 1, 0) AS `is_available`,
+				p2s.`is_featured` AS `is_featured`,
+				IF(ps.`price` IS NOT NULL OR pd.`price` IS NOT NULL, 1, 0) AS `has_discount`,
+				p2s.`date_added`,
+				o.`date_last_order`,
+				NULL
 			FROM " . DB_PREFIX . "product p
-			WHERE p.`product` = {$product_id}
+			WHERE 1 
+				{$product_filter}
+				{$store_filter}
 			JOIN " . DB_PREFIX . "product_to_store p2s
-			ON p2s.`product_id` = p.`product_id`
-				AND p2s.`store_id` = {$store_id}
+				ON p2s.`product_id` = p.`product_id`
+		
+			LEFT JOIN (
+				SELECT
+					op.`product_id`,
+					o.`store_id`,
+					SUM(op.`quantity`) `orders`,
+					MAX(o.`date_added`) `date_last_order`
+				FROM " . DB_PREFIX . "order_product op
+				JOIN " . DB_PREFIX . "order o
+					ON o.`order_id` = op.`order_id`
+				GROUP BY
+					op.`product_id`,
+					o.`store_id`
+			) o
+			ON o.`product_id` = p.`product_id`
+			AND o.`store_id` = p2s.`store_id`
+		
+			LEFT JOIN (
+				SELECT
+					r.`product_id`,
+					r.`store_id`,
+					COUNT(*) AS `review_count`,
+					AVG(r.`rating`) AS `rating_avg`,
+					MAX(r.`date_added`) AS date_last_review
+				FROM " . DB_PREFIX . "review r
+				WHERE r.`status` = 1
+				GROUP BY
+					r.`product_id`,
+					r.`store_id`
+			) r
+			ON r.`product_id` = p.`product_id`
+			AND r.`store_id` = p2s.`store_id`
+		
+			LEFT JOIN (
+				SELECT
+					`product_id`,
+					`store_id`,
+					MIN(`price`) AS `price`
+				FROM " . DB_PREFIX . "product_special
+				WHERE
+					(`date_start` = '0000-00-00' OR `date_start` < NOW())
+					AND (`date_end` = '0000-00-00' OR `date_end` > NOW())
+				GROUP BY
+					`product_id`,
+					`store_id`
+			) ps
+			ON ps.`product_id` = p.`product_id`
+			AND ps.`store_id` = p2s.`store_id`
+		
+			LEFT JOIN (
+				SELECT
+					`product_id`,
+					`store_id`,
+					MIN(`price`) `price`
+				FROM " . DB_PREFIX . "product_discount
+				WHERE
+					(`date_start` = '0000-00-00' OR `date_start` < NOW())
+					AND (`date_end` = '0000-00-00' OR `date_end` > NOW())
+				GROUP BY
+					`product_id`,
+					`store_id`
+			) pd
+			ON pd.`product_id` = p.`product_id`
+			AND pd.`store_id` = p2s.`store_id`
+		
+			ON DUPLICATE KEY UPDATE
+				`orders`           = VALUES(`orders`),
+				`returns`          = VALUES(`returns`),
+				`sort_order`       = VALUES(`sort_order`),
+				`review_count`     = VALUES(`review_count`),
+				`rating_avg`       = VALUES(`rating_avg`),
+				`date_last_review` = VALUES(`date_last_review`),
+				`current_price`    = VALUES(`current_price`),
+				`is_available`     = VALUES(`is_available`),
+				`is_featured`      = VALUES(`is_featured`),
+				`has_discount`     = VALUES(`has_discount`),
+				`date_last_order`  = VALUES(`date_last_order`)
 		");
 
 		return $product_id;
-
 	}
 
 	// Delete cache
