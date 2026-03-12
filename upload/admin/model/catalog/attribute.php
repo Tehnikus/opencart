@@ -14,6 +14,9 @@ class ModelCatalogAttribute extends Model {
 			");
 	
 			$attribute_id = $this->db->getLastId();
+
+			// Delete cache
+			$this->deleteCache($attribute_id);
 	
 			foreach ($data['attribute_description'] as $language_id => $value) {
 				$this->db->query("
@@ -62,22 +65,22 @@ class ModelCatalogAttribute extends Model {
 			$this->db->query("
 				UPDATE " . DB_PREFIX . "attribute 
 				SET 
-					`attribute_group_id` 	= '" . (int)$data['attribute_group_id'] . "', 
-					`sort_order` 					= '" . (int)$data['sort_order'] . "' 
-				WHERE `attribute_id` 	= '" . (int)$attribute_id . "' 
+					`attribute_group_id` 	= '" . (int) $data['attribute_group_id'] . "', 
+					`sort_order` 					= '" . (int) $data['sort_order'] . "' 
+				WHERE `attribute_id` 	= '" . (int) $attribute_id . "' 
 			");
 	
 			$this->db->query("
 				DELETE FROM " . DB_PREFIX . "attribute_description 
-				WHERE `attribute_id` 	= '" . (int)$attribute_id . "' 
+				WHERE `attribute_id` 	= '" . (int) $attribute_id . "' 
 					AND `store_id` 			= '" . (int) $this->session->data['store_id'] . "'
 			");
 	
 			foreach ($data['attribute_description'] as $language_id => $value) {
 				$this->db->query("
 					INSERT INTO " . DB_PREFIX . "attribute_description SET 
-						`attribute_id` 	= '" . (int)$attribute_id . "', 
-						`language_id` 	= '" . (int)$language_id . "', 
+						`attribute_id` 	= '" . (int) $attribute_id . "', 
+						`language_id` 	= '" . (int) $language_id . "', 
 						`store_id` 			= '" . (int) $this->session->data['store_id'] . "', 
 						`name` 					= '" . $this->db->escape($value['name']) . "'
 				");
@@ -126,7 +129,10 @@ class ModelCatalogAttribute extends Model {
 			}
 
 			$this->db->query("COMMIT");
-			
+
+			// Delete cache
+			$this->deleteCache($attribute_id);
+
 			return (int) $attribute_id;
 
 		} catch (\Throwable $e) {
@@ -186,6 +192,9 @@ class ModelCatalogAttribute extends Model {
 
 			$this->db->query("COMMIT");
 			
+			// Delete cache
+			$this->deleteCache($attribute_id);
+
 			return true;
 
 		} catch (\Throwable $e) {
@@ -367,7 +376,7 @@ class ModelCatalogAttribute extends Model {
 		return $query->row['total'];
 	}
 
-		public function getStoresAssociation($id = null) : array {
+	public function getStoresAssociation($id = null) : array {
 		$result = [];
 
 		if (!$id) {
@@ -386,5 +395,47 @@ class ModelCatalogAttribute extends Model {
 		}
 
 		return $result;
+	}
+
+	public function deleteCache($attribute_id, $store_id = null) : void {
+			
+		if ($store_id === null) {
+			$store_id = $this->session->data['store_id'];
+		}
+
+		$this->load->model('localisation/language');
+		$languages = $this->model_localisation_language->getLanguages();
+
+		$products = $this->db->query("
+			SELECT
+				DISTINCT product_id
+			FROM " . DB_PREFIX . "product_attribute
+			WHERE attribute_id = '" . $attribute_id . "'
+				AND store_id = '" . (int) $store_id . "'
+		")->rows;
+
+		$categories = $this->db->query("
+			SELECT
+				DISTINCT category_id
+			FROM " . DB_PREFIX . "product_to_category
+			WHERE product_id IN(" . implode(',',array_column($products, 'product_id')). ")
+				AND store_id = '" . (int) $store_id . "'
+		");
+
+		foreach ($languages as $language) {
+			$language_id = $language['language_id'];
+			// Pproduct cache
+			foreach ($products as $product) {
+				$productCacheName 	= "product.store_{$store_id}.language_{$language_id}." . (floor($product['product_id'] / 100)) . "00.product_" . $product['product_id'];
+				$this->cache->delete($productCacheName);
+			}
+			foreach ($categories as $category) {
+				$category_id = (int) $category['category_id'];
+
+				// Filter cache
+				$filterCacheName = "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . "00.filters_{$category_id}";
+				$this->cache->delete($filterCacheName);
+			}
+		}
 	}
 }
