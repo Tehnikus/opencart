@@ -1927,136 +1927,156 @@ class ModelCatalogProduct extends Model {
 
 	// Build facet index
 	// Should be called before previous SQL transaction committed
-	public function buildFacetIndex($product_id, $store_id) : int {
 
-		$product_id = (int) $product_id;
-		$store_id   = (int) $store_id;
+	public function buildFacetIndex($product_id = null, $store_id = null) : int {
 
-		// Cleanup previous entries
-		$this->db->query("
-			DELETE FROM " . DB_PREFIX . "product_facet_index
-			WHERE `product_id` = {$product_id}
-				AND `store_id` 	 = {$store_id}
-		");
+    $product_filter = ($product_id !== null) ? " AND p.product_id = {$product_id}" : "";
+    $store_filter   = ($store_id !== null)   ? " AND p2s.store_id = {$store_id}"   : "";
 
-		// Product categories
-		$this->db->query("
-			INSERT INTO " . DB_PREFIX . "product_facet_index (`product_id`, `store_id`, `facet_value_id`, `facet_group_id`, `facet_type`)
-			SELECT 
-				p2c.`product_id`, 
-				p2c.`store_id`, 
-				p2c.`category_id`, 
-				(SELECT COALESCE(c2s.parent_id, 0) FROM " . DB_PREFIX . "category_to_store c2s WHERE c2s.category_id = p2c.category_id AND c2s.store_id = {$store_id}),
-				'1'
-			FROM " . DB_PREFIX . "product_to_category p2c
-			WHERE p2c.`product_id` = {$product_id}
-				AND p2c.`store_id` 	 = {$store_id}
-		");
+    $sql = "
 
-		// Filters
-		$this->db->query("
-			INSERT INTO " . DB_PREFIX . "product_facet_index (`product_id`, `store_id`, `facet_value_id`, `facet_group_id`, `facet_type`)
-			SELECT 
-				pf.`product_id`, 
-				pf.`store_id`, 
-				pf.`filter_id`, 
-				pf.`filter_group_id`,
-				'2'
-			FROM " . DB_PREFIX . "product_filter pf
-			WHERE pf.`product_id`  = {$product_id}
-				AND pf.`store_id` 	 = {$store_id}
-		");
+			INSERT INTO " . DB_PREFIX . "product_facet_index
+			(product_id, store_id, facet_value_id, facet_group_id, facet_type)
 
-		// Options
-		$this->db->query("
-			INSERT INTO " . DB_PREFIX . "product_facet_index (`product_id`, `store_id`, `facet_value_id`, `facet_group_id`, `facet_type`)
-			SELECT 
-				pov.`product_id`, 
-				pov.`store_id`, 
-				pov.`option_value_id`, 
-				pov.`option_id`,
-				'3'
-			FROM " . DB_PREFIX . "product_option_value pov
-			WHERE pov.`product_id`  = {$product_id}
-				AND pov.`store_id` 	 = {$store_id}
-		");
+			SELECT
+				src.product_id,
+				src.store_id,
+				src.facet_value_id,
+				src.facet_group_id,
+				src.facet_type
 
-		// Attributes
-		$this->db->query("
-			INSERT INTO " . DB_PREFIX . "product_facet_index (`product_id`, `store_id`, `facet_value_id`, `facet_group_id`, `facet_type`)
-			SELECT 
-				pa.`product_id`, 
-				pa.`store_id`, 
-				pa.`attribute_id`, 
-				pa.`attribute_group_id`,
-				'4'
-			FROM " . DB_PREFIX . "product_attribute pa
-			WHERE pa.`product_id`  = {$product_id}
-				AND pa.`store_id` 	 = {$store_id}
-		");
+			FROM (
 
-		// Manufacturer
-		$this->db->query("
-			INSERT INTO " . DB_PREFIX . "product_facet_index (`product_id`, `store_id`, `facet_value_id`, `facet_group_id`, `facet_type`)
-			SELECT 
-				p.`product_id`,
-				'{$store_id}',
-				p.`manufacturer_id`,
-				'0',
-				'5'
-			FROM " . DB_PREFIX . "product p
-			WHERE p.`product_id`  = {$product_id}
-		");
-
-		// Is available
-		$this->db->query("
-			INSERT INTO " . DB_PREFIX . "product_facet_index (`product_id`, `store_id`, `facet_value_id`, `facet_group_id`, `facet_type`)
-			SELECT 
-				{$product_id},
-				{$store_id},
-				IF((p.quantity >= p.minimum AND p2s.is_available = 1), 1, 0)
-				'0',
-				'8'
-			FROM " . DB_PREFIX . "product p
-			WHERE p.product = {$product_id}
-			JOIN " . DB_PREFIX . "product_to_store p2s
-			ON p2s.`product_id` = p.`product_id`
-				AND p2s.`store_id` = {$store_id}
-		");
-
-		// Has discount
-		$this->db->query("
-			INSERT INTO " . DB_PREFIX . "product_facet_index (`product_id`, `store_id`, `facet_value_id`, `facet_group_id`, `facet_type`)
-			SELECT 
-				'{$product_id}',
-				'{$store_id}',
-				'1',
-				'0',
-				'9'
-			WHERE EXISTS (
+				/* CATEGORIES */
 				SELECT
-					1
-				FROM " . DB_PREFIX . "product_special ps
-				WHERE ps.product_id = {$product_id}
-					AND ps.store_id   = {$store_id}
-					AND (
-						(ps.date_start = '0000-00-00' OR ps.date_start < NOW()) 
-						AND (ps.date_end = '0000-00-00' OR ps.date_end > NOW())
-					)
-				UNION
-				SELECT
-					1
-				FROM " . DB_PREFIX . "product_discount pd
-				WHERE pd.product_id = {$product_id}
-					AND pd.store_id   = {$store_id}
-					AND (
-						(pd.date_start = '0000-00-00' OR pd.date_start < NOW()) 
-						AND (pd.date_end = '0000-00-00' OR pd.date_end > NOW())
-					)
-			)
-		");
+					p2c.product_id AS product_id,
+					p2c.store_id AS store_id,
+					p2c.category_id AS facet_value_id,
+					COALESCE(c2s.parent_id,0) AS facet_group_id,
+					1 AS facet_type
+				FROM " . DB_PREFIX . "product_to_category p2c
+				LEFT JOIN " . DB_PREFIX . "category_to_store c2s
+					ON c2s.category_id = p2c.category_id
+					AND c2s.store_id   = p2c.store_id
 
-		// Is featured
+				UNION ALL
+
+				/* FILTERS */
+				SELECT
+					pf.product_id AS product_id,
+					pf.store_id AS store_id,
+					pf.filter_id AS facet_value_id,
+					pf.filter_group_id AS facet_group_id,
+					2 AS facet_type
+				FROM " . DB_PREFIX . "product_filter pf
+
+				UNION ALL
+
+				/* OPTIONS */
+				SELECT
+					pov.product_id AS product_id,
+					pov.store_id AS store_id,
+					pov.option_value_id AS facet_value_id,
+					pov.option_id AS facet_group_id,
+					3 AS facet_type
+				FROM " . DB_PREFIX . "product_option_value pov
+
+				UNION ALL
+
+				/* ATTRIBUTES */
+				SELECT
+					pa.product_id AS product_id,
+					pa.store_id AS store_id,
+					pa.attribute_id AS facet_value_id,
+					pa.attribute_group_id AS facet_group_id,
+					4 AS facet_type
+				FROM " . DB_PREFIX . "product_attribute pa
+
+				UNION ALL
+
+				/* MANUFACTURER */
+				SELECT
+					p.product_id AS product_id,
+					p2s.store_id AS store_id,
+					p.manufacturer_id AS facet_value_id,
+					0 AS facet_group_id,
+					5 AS facet_type
+				FROM " . DB_PREFIX . "product p
+				JOIN " . DB_PREFIX . "product_to_store p2s
+					ON p2s.product_id = p.product_id
+
+				UNION ALL
+
+				/* AVAILABILITY */
+				SELECT
+					p.product_id AS product_id,
+					p2s.store_id AS store_id,
+					IF(p.quantity >= p.minimum AND p2s.is_available = 1, 1, 0) AS facet_value_id,
+					0 AS facet_group_id,
+					8 AS facet_type
+				FROM " . DB_PREFIX . "product p
+				JOIN " . DB_PREFIX . "product_to_store p2s
+						ON p2s.product_id = p.product_id
+
+				UNION ALL
+
+				/* DISCOUNT */
+				SELECT
+					p.product_id AS product_id,
+					p2s.store_id AS store_id,
+					IF(
+						EXISTS(
+							SELECT 1
+							FROM " . DB_PREFIX . "product_special ps
+							WHERE ps.product_id = p.product_id
+								AND ps.store_id   = p2s.store_id
+								AND (ps.date_start='0000-00-00' OR ps.date_start < NOW())
+								AND (ps.date_end='0000-00-00' OR ps.date_end > NOW())
+						)
+						OR
+						EXISTS(
+							SELECT 1
+							FROM " . DB_PREFIX . "product_discount pd
+							WHERE pd.product_id = p.product_id
+								AND pd.store_id   = p2s.store_id
+								AND (pd.date_start='0000-00-00' OR pd.date_start < NOW())
+								AND (pd.date_end='0000-00-00' OR pd.date_end > NOW())
+						),
+					1, 0) AS facet_value_id,
+					0 AS facet_group_id,
+					9 AS facet_type
+				FROM " . DB_PREFIX . "product p
+				JOIN " . DB_PREFIX . "product_to_store p2s
+					ON p2s.product_id = p.product_id
+
+				UNION ALL
+
+				/* FEATURED */
+				SELECT
+					p.product_id AS product_id,
+					p2s.store_id AS store_id,
+					p2s.is_featured AS facet_value_id,
+					0 AS facet_group_id,
+					10 AS facet_type
+				FROM " . DB_PREFIX . "product p
+				JOIN " . DB_PREFIX . "product_to_store p2s
+					ON p2s.product_id = p.product_id
+			) src
+
+			WHERE 1 
+				{$product_filter}
+				{$store_filter}
+
+			ON DUPLICATE KEY UPDATE
+				facet_group_id = src.facet_group_id,
+				facet_value_id = src.facet_value_id.
+			
+		";
+
+    $this->db->query($sql);
+
+    return $product_id;
+	}
 		$this->db->query("
 			INSERT INTO " . DB_PREFIX . "product_facet_index (`product_id`, `store_id`, `facet_value_id`, `facet_group_id`, `facet_type`)
 			SELECT 
