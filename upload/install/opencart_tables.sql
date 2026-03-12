@@ -2078,14 +2078,8 @@ DROP TABLE IF EXISTS `oc_product_stats`;
 CREATE TABLE `oc_product_stats` (
   `product_id`        INT NOT NULL,
   `store_id`          INT NOT NULL DEFAULT '0',
-  `viewed`            INT NOT NULL DEFAULT '0',
-  `sales`             INT NOT NULL DEFAULT '0',
-  `returns`           INT NOT NULL DEFAULT '0',
-  `review_count`      INT NOT NULL DEFAULT '0',
-  `sort_order`        INT NOT NULL DEFAULT '0',
-  `rating_avg`        DECIMAL(2,1) DEFAULT NULL,
-  `date_added`        DATETIME DEFAULT NULL,
-  `date_last_order`   DATETIME DEFAULT NULL,
+  `views`             INT NOT NULL DEFAULT '0',       -- Sort by views desc
+  `orders`            INT NOT NULL DEFAULT '0',       -- Sort by sales desc
   `date_last_review`  DATETIME DEFAULT NULL,
   `date_last_view`    DATETIME DEFAULT NULL,
   `is_featured`       TINYINT DEFAULT NULL,
