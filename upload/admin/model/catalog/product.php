@@ -2077,75 +2077,61 @@ class ModelCatalogProduct extends Model {
 	}
 
 	// Delete cache
-	public function deleteCache($product_id, $stores = []) : void {
-		if (empty($stores)) {
-			$stores = [];
-			$this->load->model('setting/store');
-			$storesData = $this->model_setting_store->getMultistores();
-			foreach ($storesData as $store) {
-				$stores[] = $store['store_id'];
-			}
+	public function deleteCache($product_id, $store_id = null) : void {
+
+		if ($store_id === null) {
+			$store_id = (int) $this->session->data['store_id'];
 		}
+
 		$this->load->model('localisation/language');
 		$languages = $this->model_localisation_language->getLanguages();
 
-		foreach ($stores as $store_id) {
-			foreach ($languages as $language) {
-				$language_id = (int) $language['language_id'];
-				$store_id = (int) $store_id;
+		foreach ($languages as $language) {
+			$language_id 	= (int) $language['language_id'];
+			$store_id 		= (int) $store_id;
 
-				// Delete related products cache
-				$relatedProducts = $this->db->query("
-					SELECT
-						`related_id`
-					FROM " . DB_PREFIX . "product_related
-					WHERE `product_id` = '" . (int) $product_id . "'
-						AND `store_id` = '" . (int) $store_id . "'
-				")->rows;
+			// Delete product cache
+			$productCacheName = "product.store_{$store_id}.language_{$language_id}." . (floor($product_id / 100)) . "00.product_{$product_id}";
+			$this->cache->delete($productCacheName);
 
-				foreach ($relatedProducts as $relatedProduct) {
-					$related_id = $relatedProduct['related_id'];
-					$relatedCacheName 	= "product.store_{$store_id}.language_{$language_id}." . (floor($related_id / 100)) . "00.product_{$related_id}";
-					$this->cache->delete($relatedCacheName);
-				}
+			// Delete related products cache
+			$relatedProducts = $this->db->query("
+				SELECT
+					`related_id`
+				FROM " . DB_PREFIX . "product_related
+				WHERE `product_id` = '" . (int) $product_id . "'
+					AND `store_id` = '" . (int) $store_id . "'
+			")->rows;
 
-				$productCategories = $this->db->query("
-					SELECT
-						`category_id`
-					FROM " . DB_PREFIX . "product_to_category
-					WHERE `product_id` = '" . $product_id . "'
-						AND `store_id` = '" . $store_id . "'
-				")->rows;
-				
-				// Delete filter cache and product flags cache
-				foreach ($productCategories as $productCategory) {
-					$category_id = (int) $productCategory['category_id'];
-					// DELETE filter cache to update each related category filter set. Parent category_id is included here by design
-					$filterCacheName = "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . "00.filters_{$category_id}";
-					$this->cache->delete($filterCacheName);
-
-					// Delete product flags cache
-					$flagsCacheName = "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . "00.product_flags_{$category_id}";
-					$this->cache->delete($flagsCacheName);
-				}
-
-				// Delete product cache
-				$productCacheName 	= "product.store_{$store_id}.language_{$language_id}." . (floor($product_id / 100)) . "00.product_{$product_id}";
-				$this->cache->delete($productCacheName);
-	
-				// Delete latest cache
-				$language_id = $language['language_id'];
-				$latestCacheName = "product.store_{$store_id}.language_{$language_id}.latest";
-				$this->cache->delete($latestCacheName);
-	
-				// Special prices product list cache
-				$specialCacheName = "product.store_{$store_id}.language_{$language_id}.special";
-				$this->cache->delete($specialCacheName);
-	
-				// Delete URL cache
-				$urlCacheName = "url.store_{$store_id}.language_{$language_id}.url";
-				$this->cache->delete($urlCacheName);
+			foreach ($relatedProducts as $relatedProduct) {
+				$related_id = $relatedProduct['related_id'];
+				$relatedCacheName 	= "product.store_{$store_id}.language_{$language_id}." . (floor($related_id / 100)) . "00.product_{$related_id}";
+				$this->cache->delete($relatedCacheName);
 			}
+
+			$productCategories = $this->db->query("
+				SELECT
+					`category_id`
+				FROM " . DB_PREFIX . "product_to_category
+				WHERE `product_id` = '" . $product_id . "'
+					AND `store_id` = '" . $store_id . "'
+			")->rows;
+			
+			// Delete filter cache and product flags cache
+			foreach ($productCategories as $productCategory) {
+				$category_id = (int) $productCategory['category_id'];
+				// DELETE filter cache to update each related category filter set. Parent category_id is included here by design
+				$filterCacheName = "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . "00.filters_{$category_id}";
+				$this->cache->delete($filterCacheName);
+
+				// Delete product flags cache
+				$flagsCacheName = "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . "00.product_flags_{$category_id}";
+				$this->cache->delete($flagsCacheName);
+			}
+
+			// Delete URL cache
+			$urlCacheName = "url.store_{$store_id}.language_{$language_id}.url";
+			$this->cache->delete($urlCacheName);
 		}
 	}
 }

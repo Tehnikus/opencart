@@ -581,11 +581,14 @@ class ModelCatalogOption extends Model {
 		return $result;
 	}
 
-	public function deleteCache($option_value_id) : void {
-		$store_id = $this->session->data['store_id'];
+	public function deleteCache($option_value_id, $store_id = null) : void {
+		
+		if ($store_id === null) {
+			$store_id = $this->session->data['store_id'];
+		}
+
 		$this->load->model('localisation/language');
 		$languages = $this->model_localisation_language->getLanguages();
-
 
 		$products = $this->db->query("
 			SELECT
@@ -602,6 +605,7 @@ class ModelCatalogOption extends Model {
 			WHERE product_id IN(" . implode(',',array_column($products, 'product_id')). ")
 				AND store_id = '" . (int) $store_id . "'
 		");
+
 		foreach ($languages as $language) {
 			$language_id = $language['language_id'];
 			// Pproduct cache
@@ -611,9 +615,6 @@ class ModelCatalogOption extends Model {
 			}
 			foreach ($categories as $category) {
 				$category_id = (int) $category['category_id'];
-				// Main category cache
-				$categoryCacheName 	= "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . "00.category_{$category_id}";
-				$this->cache->delete($categoryCacheName);
 	
 				// Filter cache
 				$filterCacheName = "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . "00.filters_{$category_id}";

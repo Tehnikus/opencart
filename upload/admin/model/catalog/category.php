@@ -912,9 +912,11 @@ class ModelCatalogCategory extends Model {
 	}
 
 	// Delete cache
-	public function deleteCache($category_id) : void {
+	public function deleteCache($category_id, $store_id = null) : void {
 		
-		$store_id = $this->session->data['store_id'];
+		if ($store_id === null) {
+			$store_id = (int) $this->session->data['store_id'];
+		}
 		$this->load->model('localisation/language');
 		$languages = $this->model_localisation_language->getLanguages();
 		$parent_id = $this->db->query("

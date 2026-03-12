@@ -621,8 +621,12 @@ class ModelCatalogFilter extends Model {
 		return $result;
 	}
 
-	public function deleteCache($filter_id) : void {
-		$store_id = $this->session->data['store_id'];
+	public function deleteCache($filter_id, $store_id = null) : void {
+
+		if ($store_id === null) {
+			$store_id = (int) $this->session->data['store_id'];
+		}
+
 		$this->load->model('localisation/language');
 		$languages = $this->model_localisation_language->getLanguages();
 		$categories = $this->db->query("
@@ -642,7 +646,7 @@ class ModelCatalogFilter extends Model {
 
 		foreach ($languages as $language) {
 			$language_id = $language['language_id'];
-
+			// Delete filters cache
 			foreach ($categories as $category) {
 				$filterCacheName = "category.store_{$store_id}.language_{$language_id}." . (floor($category['category_id'] / 100)) . "00.filters_{$category['category_id']}";
 				$this->cache->delete($filterCacheName);
