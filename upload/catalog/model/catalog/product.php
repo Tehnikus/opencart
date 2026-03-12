@@ -432,354 +432,131 @@ class ModelCatalogProduct extends Model {
 	}
 
 	public function getProducts($data = []) : array {
-		$products = [];
+		$store_id = (int) $this->config->get('config_store_id');
+		$filters 	= [];
+		$facets 	= [];
 		$where 		= [];
-		$join 		= [];
-		$select		= [];
-		$order 		= [];
+		$order 		= '';
+		$limit		= '';
+		$products = [];
+		$sortOrders = $this->getSortOrders(); // Allowed sort orders
 
-		// Set mandatory WHEREs
-		// Connect to external query
-		$where[] = "p2s.`product_id` = p2s2.`product_id`";
-		// Only available products
-		$where[] = "p2s.`status` = 1";
-		// Only products from current store
-		$where[] = "p2s.`store_id` = '" . (int) $this->config->get('config_store_id') . "'";
-
-		$sort_data = array(
-			'sort_order'		=> 'p2s2.`sort_order` ASC',
-			'name'					=> 'pd.`name` ASC',
-			'sales'					=> 'pst.`sales` DESC',
-			'rating'				=> 'pst.`rating` DESC',
-			'views'					=> 'pst.`views` DESC',
-			'date_added'		=> 'p2s2.`date_added` DESC',
-			'available'			=> 'p2s2.`available` DESC',
-			'quantity'			=> 'p.`quantity` > p.`minimum` DESC, p2s2.`sort_order` ASC',
-			'price_asc'			=> '(CASE WHEN special IS NOT NULL THEN special WHEN discount IS NOT NULL THEN discount ELSE p2s2.`price` END) ASC',
-			'price_desc'		=> '(CASE WHEN special IS NOT NULL THEN special WHEN discount IS NOT NULL THEN discount ELSE p2s2.`price` END) DESC',
-			'discounts'			=> '',
-			'trends'				=> 'trends DESC',
-		);
-
-		// Sort
-		if (isset($data['sort']) && in_array($data['sort'], array_keys($sort_data))) {
-		
-			// Sort by trends
-			if ($data['sort'] === 'trends') {
-				// Sort subquery to get column needed for sorting
-				$select[] = "
-					(
-						SELECT
-							(
-								LOG(pst.sales + 1) * 4
-								+ COALESCE(pst.rating_avg, 0) * LOG(pst.review_count + 1) * 2
-								+ LOG(pst.viewed + 1)
-							)
-						FROM " . DB_PREFIX . "product_stats pst
-						WHERE pst.product_id = p2s2.product_id
-							AND pst.store_id = p2s2.store_id
-					) AS trends
-				";
-			}
-
-			// Sort by price
-			if ($data['sort'] === 'price_asc' || $data['sort'] === 'price_desc' || $data['sort'] === 'discounts') {
-				$select[] = "
-					(
-						SELECT 
-							price 
-						FROM " . DB_PREFIX . "product_discount pd2 
-						WHERE pd2.product_id = p.product_id 
-							AND pd2.customer_group_id = '" . (int)$this->config->get('config_customer_group_id') . "' 
-							AND pd2.quantity = '1' 
-							AND (
-								(pd2.date_start = '0000-00-00' OR pd2.date_start < NOW()) 
-								AND (pd2.date_end = '0000-00-00' OR pd2.date_end > NOW())
-							) 
-						ORDER BY pd2.priority ASC, pd2.price ASC 
-						LIMIT 1
-					) AS discount
-				";
-				$select[] = "
-					(
-						SELECT 
-							price 
-						FROM " . DB_PREFIX . "product_special ps 
-						WHERE ps.product_id = p.product_id 
-							AND ps.customer_group_id = '" . (int)$this->config->get('config_customer_group_id') . "' 
-							AND (
-								(ps.date_start = '0000-00-00' OR ps.date_start < NOW()) 
-								AND (ps.date_end = '0000-00-00' OR ps.date_end > NOW())
-							) 
-						ORDER BY ps.priority ASC, ps.price ASC 
-						LIMIT 1
-					) AS special
-				";
+		// Facet filters
+		foreach ($data as $filterKey => $filterData) {
+			if (str_starts_with($filterKey, 'filter_') && !empty($filterData)) {
+				$filters[$filterKey] = $filterData;
 			}
 		}
 
-		// Start filters
-		// Conditions
-		// Category
-		if (!empty($data['filter_category_id'])) {
-			$where[] = "
-				p2c.`category_id` = " . (int) $data['filter_category_id'] . "
-			";
-
-			$join[] = "
-				JOIN " . DB_PREFIX . "product_to_category p2c
-					ON p2c.`product_id` = p2s.`product_id`
-					AND p2c.`store_id` = p2s.`store_id`
-			";
-		}
-
-		if (!empty($data['filter_sub_category'])) {
-			$where[] = "
-				cp.`path_id` = '" . (int) $data['filter_category_id'] . "'
-			";
-			$join[] = "
-				JOIN " . DB_PREFIX . "product_to_category p2c
-					ON p2c.`product_id` = p2s.`product_id`
-					AND p2c.`store_id` 	= p2s.`store_id`
-				JOIN " . DB_PREFIX . "category_path cp
-					ON cp.`category_id` = p2c.`category_id`
-					AND pc.`store_id` 	= p2s.`store_id`
-			";
-		}
-
-		// Facet filter
-		if (!empty($data['filter_filter'])) {
-			// Get filter ids by filter groups
-			// Logic: (
-			// 	(filter_group_1 => [ filter_1 OR filter_2 OR filter_3 ]) 
-			// 		AND 
-			// 	(filter_group_2 => [ filter_4 OR filter_5 OR ... ])
-			// 		AND 
-			// 	(filter_group_3 => [ ... ])
-			// )
-
-			$filters_by_group = [];
+		foreach ($filters as $filterKey => $filter) {
 			
-			// Sanitize and unique
-			$filter_ids = array_values(
+			// Sanitize and unique facet ids
+			$filterIds = array_values(
 				array_unique(
 					array_map(
 						'intval', 
-						explode(',', $data['filter_filter'])
+						explode(',', $filter)
 					)
 				)
 			);
 
-			// Get filter groups
-			$sql = "
-				SELECT 
-					`filter_id`, 
-					`filter_group_id`
-				FROM " . DB_PREFIX . "product_filter
-				WHERE `store_id` = '" . (int) $this->config->get('config_store_id') . "'
-					AND `filter_id` IN (" . implode(',', $filter_ids) .")
-			";
-
-			$filter_groups = $this->db->query($sql)->rows;
-
-			// Group filter ids by filter group
-			foreach ($filter_groups as $filter_group) {
-				$filter_group_id	= (int) $filter_group['filter_group_id'];
-				$filter_id 				= (int) $filter_group['filter_id'];
-
-				$filters_by_group[$filter_group_id][] = $filter_id;
+			if ($filterKey === 'filter_category_id') {
+				$facets[] = "(facet_value_id IN(" . implode(',', $filterIds) .") AND facet_type = 1)";
 			}
-
-			// Build EXISTS string
-			foreach ($filters_by_group as $groupId => $filterIds) {
-
-				$ids = implode(',', array_unique($filterIds));
-
-				// Put EXISTS string to WHERE clause
-				$where[] = "
-					EXISTS (
-						SELECT 1
-						FROM " . DB_PREFIX . "product_filter pf
-						WHERE pf.product_id = p2s.product_id
-							AND pf.filter_group_id = {$groupId}
-							AND pf.filter_id IN ({$ids})
-							AND pf.store_id = '" . (int) $this->config->get('config_store_id') . "'
-					)
-				";
+			if ($filterKey === 'filter_filter') {
+				$facets[] = "(facet_value_id IN(" . implode(',', $filterIds) .") AND facet_type = 2)";
+			}
+			if ($filterKey === 'filter_option') {
+				$facets[] = "(facet_value_id IN(" . implode(',', $filterIds) .") AND facet_type = 3)";
+			}
+			if ($filterKey === 'filter_attribute') {
+				$facets[] = "(facet_value_id IN(" . implode(',', $filterIds) .") AND facet_type = 4)";
+			}
+			if ($filterKey === 'filter_manufacturer_id') {
+				$facets[] = "(facet_value_id IN(" . implode(',', $filterIds) .") AND facet_type = 5)";
+			}
+			if ($filterKey === 'filter_tag') {
+				$facets[] = "(facet_value_id IN(" . implode(',', $filterIds) .") AND facet_type = 6)";
+			}
+			if ($filterKey === 'filter_supplier') {
+				$facets[] = "(facet_value_id IN(" . implode(',', $filterIds) .") AND facet_type = 7)";
+			}
+			if ($filterKey === 'filter_is_available') {
+				$facets[] = "(facet_value_id = 1 AND facet_type = 8)";
+			}
+			if ($filterKey === 'filter_has_discount') {
+				$facets[] = "(facet_value_id = 1 AND facet_type = 9)";
+			}
+			if ($filterKey === 'filter_is_featured') {
+				$facets[] = "(facet_value_id = 1 AND facet_type = 10)";
 			}
 		}
 
-		// Options filter
-		// Same as facet filter
-		if (!empty($data['filter_option'])) {
+		$where[] = "(" . implode(" OR ", $facets) . ")";
+		$where[] = "store_id = {$store_id}";
 
-			$options_by_group = [];
-			
-			// Sanitize and unique
-			$option_ids = array_values(
-				array_unique(
-					array_map(
-						'intval', 
-						explode(',', $data['filter_option'])
-					)
-				)
-			);
-
-			// Get option groups
-			$sql = "
-				SELECT 
-					`option_value_id`, 
-					`option_id`
-				FROM " . DB_PREFIX . "product_option_value
-				WHERE `store_id` = '" . (int) $this->config->get('config_store_id') . "'
-					AND `option_value_id` IN (" . implode(',', $option_ids) .")
-			";
-
-			$option_groups = $this->db->query($sql)->rows;
-
-			// Group option ids by option group
-			foreach ($option_groups as $option_group) {
-				$option_group_id	= (int) $option_group['option_id'];
-				$option_id 				= (int) $option_group['option_value_id'];
-
-				$options_by_group[$option_group_id][] = $option_id;
-			}
-
-			// Build EXISTS string
-			foreach ($options_by_group as $groupId => $optionIds) {
-
-				$ids = implode(',', array_unique($optionIds));
-
-				// Put EXISTS string to WHERE clause
-				$where[] = "
-					EXISTS (
-						SELECT 1
-						FROM " . DB_PREFIX . "product_option_value po
-						WHERE po.`product_id` = p2s.`product_id`
-							AND po.`option_id` = {$groupId}
-							AND po.`option_value_id` IN ({$ids})
-							AND po.`store_id` = '" . (int) $this->config->get('config_store_id') . "'
-					)
-				";
-			}
+		// Sort order
+		$sortOrder = $data['sort'] ?? $this->config->get('config_default_product_sort') ?? 'sort_order';
+		if (in_array($sortOrder, array_keys($sortOrders))) {
+			$order = $sortOrders[$sortOrder];
 		}
 
-		// Attribute filter
-		// Same as facet filter
-		if (!empty($data['filter_attribute'])) {
-
-			$attributes_by_group = [];
-			
-			// Sanitize and unique
-			$attribute_ids = array_values(
-				array_unique(
-					array_map(
-						'intval', 
-						explode(',', $data['filter_attribute'])
-					)
-				)
-			);
-
-			// Get attribute groups
-			$sql = "
-				SELECT 
-					`attribute_id`, 
-					`attribute_group_id`
-				FROM " . DB_PREFIX . "product_attribute
-				WHERE `store_id` = '" . (int) $this->config->get('config_store_id') . "'
-					AND `attribute_id` IN (" . implode(',', $attribute_ids) .")
-			";
-
-			$attribute_groups = $this->db->query($sql)->rows;
-
-			// Group attribute ids by attribute group
-			foreach ($attribute_groups as $attribute_group) {
-				$attribute_group_id	= (int) $attribute_group['attribute_group_id'];
-				$attribute_id 				= (int) $attribute_group['attribute_id'];
-
-				$attributes_by_group[$attribute_group_id][] = $attribute_id;
+		if (isset($data['start']) || isset($data['limit'])) {
+			if ($data['start'] < 0) {
+				$data['start'] = 0;
 			}
 
-			// Build EXISTS string
-			foreach ($attributes_by_group as $groupId => $attributeIds) {
-
-				$ids = implode(',', array_unique($attributeIds));
-
-				// Put EXISTS string to WHERE clause
-				$where[] = "
-					EXISTS (
-						SELECT 1
-						FROM " . DB_PREFIX . "product_attribute pa
-						WHERE pa.`product_id` = p2s.`product_id`
-							AND pa.`attribute_group_id` = {$groupId}
-							AND pa.`attribute_id` IN ({$ids})
-							AND pa.`store_id` = '" . (int) $this->config->get('config_store_id') . "'
-					)
-				";
+			if ($data['limit'] < 1) {
+				$data['limit'] = 20;
 			}
+
+			$limit = " LIMIT " . (int)$data['start'] . "," . (int)$data['limit'];
 		}
 
-		// Manufacturers
-		if (!empty($data['filter_manufacturer_id'])) {
-			$where[] = "
-				p.`manufacturer_id` IN(" . $data['filter_manufacturer_id'] . ")
-			";
-		}
+		// $sql = "
+		// 	SELECT 
+		// 		product_id
+		// 	FROM " . DB_PREFIX . "product_facet_index
+		// 	WHERE " . implode(" AND ", $where) . "
+		// 	GROUP BY product_id
+		// 	HAVING COUNT(DISTINCT facet_type, facet_group_id) = (
+		// 		SELECT 
+		// 			COUNT(DISTINCT facet_type, facet_group_id)
+		// 		FROM " . DB_PREFIX . "product_facet_index
+		// 		WHERE " . implode(" AND ", $where) . "
+		// 		ORDER BY NULL
+		// 	)
+		// 	ORDER BY NULL
+		// ";
 
-		// Search by name/description/model
-		if (isset($data['filter_name'])) {
-			$words 		= [];
-			$implode 	= [];
-			$orCondition = [];
-			$words = explode(' ', trim(preg_replace('/\s+/', ' ', $data['filter_name'])));
-			foreach ($words as $word) {
-				$implode['name'][]  = "pd.`name` LIKE '%" . $this->db->escape($word) . "%'";
-				$implode['model'][] = "p.`model` LIKE '%" . $this->db->escape($word) . "%'";
-				if (!empty($data['filter_description'])) {
-					$implode['description'][] = "pd.`description` LIKE '%" . $this->db->escape($word) . "%'";
-				}
-			}
-
-			foreach ($implode as $searchColumn) {
-				foreach ($searchColumn as $key => $searchTerm) {
-					$andCondition[$key] = $searchTerm;
-				}
-				$orCondition[] = "(" . implode(' AND ', $andCondition) . ")";
-			}
-
-			$where[] = "
-				(" . implode(' OR ', $orCondition) . ")
-			";
-		}
-		// End filters
-
-		// Main query
+		// Main query. Get product ids, sort, limit
 		$sql = "
-			SELECT
-				p.`product_id`
-			FROM " . DB_PREFIX . "product p
-			JOIN " . DB_PREFIX . "product_to_store p2s2
-				ON p.`product_id` = p2s2.`product_id`
-				AND p2s2.`store_id` = '" . (int) $this->config->get('config_store_id') . "'
-			JOIN " . DB_PREFIX . "product_description pd
-				ON pd.`product_id` = p.`product_id`
-				AND pd.`language_id` 	= '" . (int) $this->config->get('config_language_id') . "'
-				AND pd.`store_id` 		= '" . (int) $this->config->get('config_store_id') . "'
-
-			-- Sort joins
-			JOIN " . DB_PREFIX . "product_stats pst
-				ON pst.`product_id` = p2s2.`product_id`
-				AND pst.`store_id`  = p2s2.`store_id`
-			-- Conditions
-			WHERE EXISTS (
-				SELECT 
-					1
-				FROM " . DB_PREFIX . "product_to_store p2s
-				" . implode(" \n ", $join) . "
-				WHERE
-				" . implode(" \nAND ", $where) . "
+			WITH facet_temp (`product_id`, `facet_type`, `facet_group_id`) AS (
+				SELECT
+					`product_id`, `facet_type`, `facet_group_id`
+				FROM " . DB_PREFIX . "product_facet_index
+				WHERE " . implode(" AND ", $where) . "
 			)
+
+			SELECT 
+				f.product_id
+			FROM facet_temp f
+			LEFT JOIN " . DB_PREFIX . "product_stats pst
+				ON  pst.`product_id` = f.`product_id`
+				AND pst.`store_id` 	 = {$store_id}
+
+			GROUP BY f.`product_id`
+			HAVING COUNT(DISTINCT f.`facet_type`, f.`facet_group_id`) = (
+				SELECT 
+					COUNT(DISTINCT f.`facet_type`, f.`facet_group_id`)
+				FROM facet_temp f
+				ORDER BY NULL
+			)
+			ORDER BY {$order}
+			{$limit}
 		";
+
+		// $this->log->write($sql);
 
 		$productRows = $this->db->query($sql)->rows;
 		foreach ($productRows as $row) {
@@ -788,6 +565,364 @@ class ModelCatalogProduct extends Model {
 
 		return $products;
 	}
+
+	// public function getProducts($data = []) : array {
+	// 	$products = [];
+	// 	$where 		= [];
+	// 	$join 		= [];
+	// 	$select		= [];
+	// 	$order 		= [];
+
+	// 	// Set mandatory WHEREs
+	// 	// Connect to external query
+	// 	$where[] = "p2s.`product_id` = p2s2.`product_id`";
+	// 	// Only available products
+	// 	$where[] = "p2s.`status` = 1";
+	// 	// Only products from current store
+	// 	$where[] = "p2s.`store_id` = '" . (int) $this->config->get('config_store_id') . "'";
+
+	// 	$sort_data = array(
+	// 		'sort_order'		=> 'p2s2.`sort_order` ASC',
+	// 		'name'					=> 'pd.`name` ASC',
+	// 		'sales'					=> 'pst.`orders` DESC',
+	// 		'rating'				=> 'pst.`rating` DESC',
+	// 		'views'					=> 'pst.`views` DESC',
+	// 		'date_added'		=> 'p2s2.`date_added` DESC',
+	// 		'available'			=> 'p2s2.`available` DESC',
+	// 		'quantity'			=> 'p.`quantity` > p.`minimum` DESC, p2s2.`sort_order` ASC',
+	// 		'price_asc'			=> '(CASE WHEN special IS NOT NULL THEN special WHEN discount IS NOT NULL THEN discount ELSE p2s2.`price` END) ASC',
+	// 		'price_desc'		=> '(CASE WHEN special IS NOT NULL THEN special WHEN discount IS NOT NULL THEN discount ELSE p2s2.`price` END) DESC',
+	// 		'discounts'			=> '',
+	// 		'trends'				=> 'trends DESC',
+	// 	);
+
+	// 	// Sort
+	// 	if (isset($data['sort']) && in_array($data['sort'], array_keys($sort_data))) {
+		
+	// 		// Sort by trends
+	// 		if ($data['sort'] === 'trends') {
+	// 			// Sort subquery to get column needed for sorting
+	// 			$select[] = "
+	// 				(
+	// 					SELECT
+	// 						(
+	// 							LOG(pst.`orders` + 1) * 4
+	// 							+ COALESCE(pst.`rating_avg`, 0) * LOG(pst.`review_count` + 1) * 2
+	// 							+ LOG(pst.`views` + 1)
+	// 						)
+	// 					FROM " . DB_PREFIX . "product_stats pst
+	// 					WHERE pst.`product_id` = p2s2.product_id
+	// 						AND pst.`store_id` = p2s2.store_id
+	// 				) AS `trends`
+	// 			";
+	// 		}
+
+	// 		// Sort by price
+	// 		if ($data['sort'] === 'price_asc' || $data['sort'] === 'price_desc' || $data['sort'] === 'discounts') {
+	// 			$select[] = "
+	// 				(
+	// 					SELECT 
+	// 						price 
+	// 					FROM " . DB_PREFIX . "product_discount pd2 
+	// 					WHERE pd2.product_id = p.product_id 
+	// 						AND pd2.customer_group_id = '" . (int)$this->config->get('config_customer_group_id') . "' 
+	// 						AND pd2.quantity = '1' 
+	// 						AND (
+	// 							(pd2.date_start = '0000-00-00' OR pd2.date_start < NOW()) 
+	// 							AND (pd2.date_end = '0000-00-00' OR pd2.date_end > NOW())
+	// 						) 
+	// 					ORDER BY pd2.priority ASC, pd2.price ASC 
+	// 					LIMIT 1
+	// 				) AS discount
+	// 			";
+	// 			$select[] = "
+	// 				(
+	// 					SELECT 
+	// 						price 
+	// 					FROM " . DB_PREFIX . "product_special ps 
+	// 					WHERE ps.product_id = p.product_id 
+	// 						AND ps.customer_group_id = '" . (int)$this->config->get('config_customer_group_id') . "' 
+	// 						AND (
+	// 							(ps.date_start = '0000-00-00' OR ps.date_start < NOW()) 
+	// 							AND (ps.date_end = '0000-00-00' OR ps.date_end > NOW())
+	// 						) 
+	// 					ORDER BY ps.priority ASC, ps.price ASC 
+	// 					LIMIT 1
+	// 				) AS special
+	// 			";
+	// 		}
+	// 	}
+
+	// 	// Start filters
+	// 	// Conditions
+	// 	// Category
+	// 	if (!empty($data['filter_category_id'])) {
+	// 		$where[] = "
+	// 			p2c.`category_id` = " . (int) $data['filter_category_id'] . "
+	// 		";
+
+	// 		$join[] = "
+	// 			JOIN " . DB_PREFIX . "product_to_category p2c
+	// 				ON p2c.`product_id` = p2s.`product_id`
+	// 				AND p2c.`store_id` = p2s.`store_id`
+	// 		";
+	// 	}
+
+	// 	if (!empty($data['filter_sub_category'])) {
+	// 		$where[] = "
+	// 			cp.`path_id` = '" . (int) $data['filter_category_id'] . "'
+	// 		";
+	// 		$join[] = "
+	// 			JOIN " . DB_PREFIX . "product_to_category p2c
+	// 				ON p2c.`product_id` = p2s.`product_id`
+	// 				AND p2c.`store_id` 	= p2s.`store_id`
+	// 			JOIN " . DB_PREFIX . "category_path cp
+	// 				ON cp.`category_id` = p2c.`category_id`
+	// 				AND pc.`store_id` 	= p2s.`store_id`
+	// 		";
+	// 	}
+
+	// 	// Facet filter
+	// 	if (!empty($data['filter_filter'])) {
+	// 		// Get filter ids by filter groups
+	// 		// Logic: (
+	// 		// 	(filter_group_1 => [ filter_1 OR filter_2 OR filter_3 ]) 
+	// 		// 		AND 
+	// 		// 	(filter_group_2 => [ filter_4 OR filter_5 OR ... ])
+	// 		// 		AND 
+	// 		// 	(filter_group_3 => [ ... ])
+	// 		// )
+
+	// 		$filters_by_group = [];
+			
+	// 		// Sanitize and unique
+	// 		$filter_ids = array_values(
+	// 			array_unique(
+	// 				array_map(
+	// 					'intval', 
+	// 					explode(',', $data['filter_filter'])
+	// 				)
+	// 			)
+	// 		);
+
+	// 		// Get filter groups
+	// 		$sql = "
+	// 			SELECT 
+	// 				`filter_id`, 
+	// 				`filter_group_id`
+	// 			FROM " . DB_PREFIX . "product_filter
+	// 			WHERE `store_id` = '" . (int) $this->config->get('config_store_id') . "'
+	// 				AND `filter_id` IN (" . implode(',', $filter_ids) .")
+	// 		";
+
+	// 		$filter_groups = $this->db->query($sql)->rows;
+
+	// 		// Group filter ids by filter group
+	// 		foreach ($filter_groups as $filter_group) {
+	// 			$filter_group_id	= (int) $filter_group['filter_group_id'];
+	// 			$filter_id 				= (int) $filter_group['filter_id'];
+
+	// 			$filters_by_group[$filter_group_id][] = $filter_id;
+	// 		}
+
+	// 		// Build EXISTS string
+	// 		foreach ($filters_by_group as $groupId => $filterIds) {
+
+	// 			$ids = implode(',', array_unique($filterIds));
+
+	// 			// Put EXISTS string to WHERE clause
+	// 			$where[] = "
+	// 				EXISTS (
+	// 					SELECT 1
+	// 					FROM " . DB_PREFIX . "product_filter pf
+	// 					WHERE pf.product_id = p2s.product_id
+	// 						AND pf.filter_group_id = {$groupId}
+	// 						AND pf.filter_id IN ({$ids})
+	// 						AND pf.store_id = '" . (int) $this->config->get('config_store_id') . "'
+	// 				)
+	// 			";
+	// 		}
+	// 	}
+
+	// 	// Options filter
+	// 	// Same as facet filter
+	// 	if (!empty($data['filter_option'])) {
+
+	// 		$options_by_group = [];
+			
+	// 		// Sanitize and unique
+	// 		$option_ids = array_values(
+	// 			array_unique(
+	// 				array_map(
+	// 					'intval', 
+	// 					explode(',', $data['filter_option'])
+	// 				)
+	// 			)
+	// 		);
+
+	// 		// Get option groups
+	// 		$sql = "
+	// 			SELECT 
+	// 				`option_value_id`, 
+	// 				`option_id`
+	// 			FROM " . DB_PREFIX . "product_option_value
+	// 			WHERE `store_id` = '" . (int) $this->config->get('config_store_id') . "'
+	// 				AND `option_value_id` IN (" . implode(',', $option_ids) .")
+	// 		";
+
+	// 		$option_groups = $this->db->query($sql)->rows;
+
+	// 		// Group option ids by option group
+	// 		foreach ($option_groups as $option_group) {
+	// 			$option_group_id	= (int) $option_group['option_id'];
+	// 			$option_id 				= (int) $option_group['option_value_id'];
+
+	// 			$options_by_group[$option_group_id][] = $option_id;
+	// 		}
+
+	// 		// Build EXISTS string
+	// 		foreach ($options_by_group as $groupId => $optionIds) {
+
+	// 			$ids = implode(',', array_unique($optionIds));
+
+	// 			// Put EXISTS string to WHERE clause
+	// 			$where[] = "
+	// 				EXISTS (
+	// 					SELECT 1
+	// 					FROM " . DB_PREFIX . "product_option_value po
+	// 					WHERE po.`product_id` = p2s.`product_id`
+	// 						AND po.`option_id` = {$groupId}
+	// 						AND po.`option_value_id` IN ({$ids})
+	// 						AND po.`store_id` = '" . (int) $this->config->get('config_store_id') . "'
+	// 				)
+	// 			";
+	// 		}
+	// 	}
+
+	// 	// Attribute filter
+	// 	// Same as facet filter
+	// 	if (!empty($data['filter_attribute'])) {
+
+	// 		$attributes_by_group = [];
+			
+	// 		// Sanitize and unique
+	// 		$attribute_ids = array_values(
+	// 			array_unique(
+	// 				array_map(
+	// 					'intval', 
+	// 					explode(',', $data['filter_attribute'])
+	// 				)
+	// 			)
+	// 		);
+
+	// 		// Get attribute groups
+	// 		$sql = "
+	// 			SELECT 
+	// 				`attribute_id`, 
+	// 				`attribute_group_id`
+	// 			FROM " . DB_PREFIX . "product_attribute
+	// 			WHERE `store_id` = '" . (int) $this->config->get('config_store_id') . "'
+	// 				AND `attribute_id` IN (" . implode(',', $attribute_ids) .")
+	// 		";
+
+	// 		$attribute_groups = $this->db->query($sql)->rows;
+
+	// 		// Group attribute ids by attribute group
+	// 		foreach ($attribute_groups as $attribute_group) {
+	// 			$attribute_group_id	= (int) $attribute_group['attribute_group_id'];
+	// 			$attribute_id 				= (int) $attribute_group['attribute_id'];
+
+	// 			$attributes_by_group[$attribute_group_id][] = $attribute_id;
+	// 		}
+
+	// 		// Build EXISTS string
+	// 		foreach ($attributes_by_group as $groupId => $attributeIds) {
+
+	// 			$ids = implode(',', array_unique($attributeIds));
+
+	// 			// Put EXISTS string to WHERE clause
+	// 			$where[] = "
+	// 				EXISTS (
+	// 					SELECT 1
+	// 					FROM " . DB_PREFIX . "product_attribute pa
+	// 					WHERE pa.`product_id` = p2s.`product_id`
+	// 						AND pa.`attribute_group_id` = {$groupId}
+	// 						AND pa.`attribute_id` IN ({$ids})
+	// 						AND pa.`store_id` = '" . (int) $this->config->get('config_store_id') . "'
+	// 				)
+	// 			";
+	// 		}
+	// 	}
+
+	// 	// Manufacturers
+	// 	if (!empty($data['filter_manufacturer_id'])) {
+	// 		$where[] = "
+	// 			p.`manufacturer_id` IN(" . $data['filter_manufacturer_id'] . ")
+	// 		";
+	// 	}
+
+	// 	// Search by name/description/model
+	// 	if (isset($data['filter_name'])) {
+	// 		$words 		= [];
+	// 		$implode 	= [];
+	// 		$orCondition = [];
+	// 		$words = explode(' ', trim(preg_replace('/\s+/', ' ', $data['filter_name'])));
+	// 		foreach ($words as $word) {
+	// 			$implode['name'][]  = "pd.`name` LIKE '%" . $this->db->escape($word) . "%'";
+	// 			$implode['model'][] = "p.`model` LIKE '%" . $this->db->escape($word) . "%'";
+	// 			if (!empty($data['filter_description'])) {
+	// 				$implode['description'][] = "pd.`description` LIKE '%" . $this->db->escape($word) . "%'";
+	// 			}
+	// 		}
+
+	// 		foreach ($implode as $searchColumn) {
+	// 			foreach ($searchColumn as $key => $searchTerm) {
+	// 				$andCondition[$key] = $searchTerm;
+	// 			}
+	// 			$orCondition[] = "(" . implode(' AND ', $andCondition) . ")";
+	// 		}
+
+	// 		$where[] = "
+	// 			(" . implode(' OR ', $orCondition) . ")
+	// 		";
+	// 	}
+	// 	// End filters
+
+	// 	// Main query
+	// 	$sql = "
+	// 		SELECT
+	// 			p.`product_id`
+	// 		FROM " . DB_PREFIX . "product p
+	// 		JOIN " . DB_PREFIX . "product_to_store p2s2
+	// 			ON p.`product_id` = p2s2.`product_id`
+	// 			AND p2s2.`store_id` = '" . (int) $this->config->get('config_store_id') . "'
+	// 		JOIN " . DB_PREFIX . "product_description pd
+	// 			ON pd.`product_id` = p.`product_id`
+	// 			AND pd.`language_id` 	= '" . (int) $this->config->get('config_language_id') . "'
+	// 			AND pd.`store_id` 		= '" . (int) $this->config->get('config_store_id') . "'
+
+	// 		-- Sort joins
+	// 		JOIN " . DB_PREFIX . "product_stats pst
+	// 			ON pst.`product_id` = p2s2.`product_id`
+	// 			AND pst.`store_id`  = p2s2.`store_id`
+	// 		-- Conditions
+	// 		WHERE EXISTS (
+	// 			SELECT 
+	// 				1
+	// 			FROM " . DB_PREFIX . "product_to_store p2s
+	// 			" . implode(" \n ", $join) . "
+	// 			WHERE
+	// 			" . implode(" \nAND ", $where) . "
+	// 		)
+	// 	";
+
+	// 	$productRows = $this->db->query($sql)->rows;
+	// 	foreach ($productRows as $row) {
+	// 		$products[] = $this->getProduct((int) $row['product_id']);
+	// 	}
+
+	// 	return $products;
+	// }
 
 	public function getProductSpecials($data = array()) {
 
