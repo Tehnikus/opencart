@@ -2063,7 +2063,7 @@ CREATE TABLE `oc_product_to_store` (
   -- Dont change PRIMARY KEY, or entry duplicates may appear on product add/edit
   PRIMARY KEY (`product_id`,`store_id`), 
   KEY (`store_id`, `parent_id`, `sort_order`),
-  UNIQUE KEY `getProducts` (`product_id`,`store_id`, `status`)
+  KEY `getProducts` (`product_id`,`store_id`, `status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -2187,7 +2187,7 @@ CREATE TABLE `oc_product_attribute` (
   `language_id`         INT NOT NULL,
   `text`                TEXT NOT NULL,
   PRIMARY KEY (`product_id`,`attribute_id`,`language_id`,`store_id`),
-  UNIQUE KEY `getProducts` (`product_id`,`attribute_group_id`, `attribute_id`, `store_id`)
+  KEY `getProducts` (`product_id`,`attribute_group_id`, `attribute_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -2313,7 +2313,7 @@ CREATE TABLE `oc_product_option_value` (
   `weight_prefix`           VARCHAR(1) NOT NULL,
   PRIMARY KEY (`product_option_value_id`),
   KEY `getProduct` (`product_id`, `product_option_id`, `store_id`),
-  UNIQUE KEY `getProducts` (`product_id`, `option_id`, `option_value_id`, `store_id`) -- TODO Maybe needs UNINQUE, needs testing
+  KEY `getProducts` (`product_id`, `option_id`, `option_value_id`, `store_id`) -- TODO Maybe needs UNINQUE, needs testing
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -2960,8 +2960,8 @@ CREATE TABLE `oc_seo_url` (
   `query`       VARCHAR(191) NOT NULL,
   `keyword`     VARCHAR(191) NOT NULL,
   PRIMARY KEY (`seo_url_id`),
-  UNIQUE KEY `query` (`query`, `language_id`, `store_id`),
-  UNIQUE KEY `keyword` (`keyword`, `language_id`, `store_id`)
+  KEY `query` (`query`, `language_id`, `store_id`),
+  KEY `keyword` (`keyword`, `language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
