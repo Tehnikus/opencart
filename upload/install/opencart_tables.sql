@@ -2037,6 +2037,7 @@ CREATE TABLE `oc_product` (
   `sort_order`         INT NOT NULL DEFAULT '0',
   `status`             TINYINT NOT NULL DEFAULT '0',
   `is_available`       TINYINT NOT NULL DEFAULT '1',
+  `is_featured`        TINYINT NOT NULL DEFAULT '0',
   `viewed`             INT NOT NULL DEFAULT '0',
   `date_added`         DATETIME NOT NULL,
   `date_modified`      DATETIME NOT NULL,
@@ -2055,6 +2056,7 @@ CREATE TABLE `oc_product_to_store` (
   `parent_id`         INT NOT NULL DEFAULT '1',
   `status`            TINYINT NOT NULL DEFAULT '0',
   `is_available`      TINYINT NOT NULL DEFAULT '1',
+  `is_featured`       TINYINT NOT NULL DEFAULT '0',
   `image`             VARCHAR(255) DEFAULT NULL,
   `price`             DECIMAL(15,4) NOT NULL DEFAULT '0.0000',
   `date_modified`     DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP),
@@ -2073,6 +2075,16 @@ CREATE TABLE `oc_product_price` (
   PRIMARY KEY (`product_id`, `currency_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DROP TABLE IF EXISTS `oc_product_facet_index`;
+CREATE TABLE `oc_product_facet_index` (
+  `product_id`      INT NOT NULL,
+  `store_id`        INT NOT NULL,
+  `facet_type`      ENUM('category', 'filter', 'option', 'attribute', 'manufacturer', 'tag', 'supplier', 'is_available', 'has_discount', 'is_featured'),
+  `facet_value_id`  INT NOT NULL,  -- Id of category/filter/option/attribute/manufacturer
+  `facet_group_id`  INT NOT NULL,  -- Parent group of facet_value_id: filter group id for filters, parent category id for categories, etc. Zero if not applicable (manufacturer, has_discount)
+  PRIMARY KEY (`facet_value_id`, `facet_type`, `store_id`, `product_id`, `facet_group_id`),
+  KEY `getProducts` (`facet_value_id`, `facet_type`, `store_id`, `product_id`, `facet_group_id`)
+) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `oc_product_stats`;
 CREATE TABLE `oc_product_stats` (
@@ -2080,16 +2092,25 @@ CREATE TABLE `oc_product_stats` (
   `store_id`          INT NOT NULL DEFAULT '0',
   `views`             INT NOT NULL DEFAULT '0',       -- Sort by views desc
   `orders`            INT NOT NULL DEFAULT '0',       -- Sort by sales desc
+  `returns`           INT NOT NULL DEFAULT '0',       -- Sort by returns asc
+  `sort_order`        INT NOT NULL DEFAULT '0',       -- Sort by default sort order asc
+  `review_count`      INT NOT NULL DEFAULT '0',       -- Sort by review count
+  `rating_avg`        DECIMAL(2,1) DEFAULT NULL,      -- Sort by rating desc
+  `current_price`     DECIMAL(15,4) DEFAULT NULL,     -- Sort by price asc, desc
+  `is_available`      TINYINT NOT NULL DEFAULT '0'    -- 
+  `is_featured`       TINYINT NOT NULL DEFAULT '0',   -- Sort by featured desc 
+  `has_discount`      TINYINT NOT NULL DEFAULT '0',   -- Sort by has discount desc 
+  -- These dates are used to calculate trending products along with corresponding columns
+  -- Dates are taken into account to calculate the decay of trends by the date of the last event multiplied by separate coefficient of each event:
+  -- LOG(pst.sales + 1) * EXP(-0.01 * DATEDIFF(NOW(), pst.date_last_order)) + LOG(pst.viewed + 1) * EXP(-0.005 * DATEDIFF(NOW(), pst.date_last_view)) + (pst.rating_avg * LOG(pst.review_count + 1)) * EXP(-0.02 * DATEDIFF(NOW(), pst.date_last_review))
+  `date_added`        DATETIME DEFAULT NULL,          -- Sort latest desc
+  `date_last_order`   DATETIME DEFAULT NULL,        
   `date_last_review`  DATETIME DEFAULT NULL,
   `date_last_view`    DATETIME DEFAULT NULL,
-  `is_featured`       TINYINT DEFAULT NULL,
-  `current_price`     DECIMAL(15,4) DEFAULT NULL,
   
   PRIMARY KEY (`product_id`,`store_id`)
 ) ENGINE=InnoDB;
---
--- Table structure for table `oc_googleshopping_product`
---
+
 
 DROP TABLE IF EXISTS `oc_googleshopping_product`;
 CREATE TABLE `oc_googleshopping_product` (
@@ -2215,19 +2236,7 @@ CREATE TABLE `oc_product_discount` (
   `date_end`            DATETIME DEFAULT NULL,
   PRIMARY KEY (`product_discount_id`),
   KEY `getProducts_sort` (`product_id`, `customer_group_id`, `quantity`, `date_start`, `date_end`, `store_id`),
-  UNIQUE KEY `getProduct` (`product_discount_id`, `product_id`, `store_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-DROP TABLE IF EXISTS `oc_product_facet_index`;
-CREATE TABLE `oc_product_facet_index` (
-  `product_id`      INT NOT NULL,
-  `store_id`        INT NOT NULL,
-  `facet_type`      ENUM('category', 'filter', 'option', 'attribute', 'manufacturer', 'has_discount', 'tag', 'supplier'),
-  `facet_value_id`  INT NOT NULL,             -- Id of category/filter/option/attribute/manufacturer
-  `facet_group_id`  INT NOT NULL,             -- Parent group of facet_value_id: filter group id for filters, parent category id for categories, etc. Zero if not applicable (manufacturer, has_discount)
-  PRIMARY KEY (`facet_value_id`, `facet_type`, `store_id`, `product_id`, `facet_group_id`),
-  KEY `getProducts` (`facet_value_id`, `facet_type`, `store_id`, `product_id`, `facet_group_id`)
+  KEY `getProduct` (`product_discount_id`, `product_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
