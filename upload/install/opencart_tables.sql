@@ -2020,6 +2020,7 @@ CREATE TABLE `oc_product` (
   `stock_status_id`    INT NOT NULL,
   `image`              VARCHAR(255) DEFAULT NULL,
   `manufacturer_id`    INT NOT NULL,
+  `supplier_id`        INT NOT NULL,
   `shipping`           TINYINT NOT NULL DEFAULT '1',
   `price`              DECIMAL(15,4) NOT NULL DEFAULT '0.0000',
   `wholesale_price`    DECIMAL(15,4) NOT NULL DEFAULT '0.0000',
