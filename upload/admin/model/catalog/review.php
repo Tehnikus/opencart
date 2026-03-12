@@ -41,7 +41,7 @@ class ModelCatalogReview extends Model {
 
 		// Delete cache
 		$this->load->model('catalog/product');
-		$this->model_catalog_product->deleteCache($data['product_id'], [$data['store_id']]);
+		$this->model_catalog_product->deleteCache($data['product_id'], $data['store_id']);
 
 		return $review_id;
 	}
@@ -88,7 +88,7 @@ class ModelCatalogReview extends Model {
 
 		// Delete cache
 		$this->load->model('catalog/product');
-		$this->model_catalog_product->deleteCache($data['product_id'], [$data['store_id']]);
+		$this->model_catalog_product->deleteCache($data['product_id'], $data['store_id']);
 	}
 
 	public function deleteReview($review_id) {
@@ -133,7 +133,7 @@ class ModelCatalogReview extends Model {
 
 		// Delete cache
 		$this->load->model('catalog/product');
-		$this->model_catalog_product->deleteCache($reviewData['product_id'], [$reviewData['store_id']]);
+		$this->model_catalog_product->deleteCache($reviewData['product_id'], $reviewData['store_id']);
 	}
 
 	public function getReview($review_id) {
