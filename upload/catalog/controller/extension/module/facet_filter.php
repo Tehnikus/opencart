@@ -7,20 +7,8 @@ class ControllerExtensionModuleFacetFilter extends Controller {
 
 	public function index() {
 
-		$data['sortOrders'] = [
-			'sort_order',
-			'name',
-			'sales',
-			'rating',
-			'views',
-			'date_added',
-			'available',
-			'quantity',
-			'price_asc',
-			'price_desc',
-			'discounts',
-			'trends',
-		];
+		$this->load->model('catalog/product');
+		$data['sortOrders'] = array_keys($this->model_catalog_product->getSortOrders());
 
 		$this->load->model('extension/module/facet_filter');
 		$this->load->language('extension/module/facet_filter');
