@@ -1840,7 +1840,7 @@ class ModelCatalogProduct extends Model {
 		$this->deleteCache($product_id, (int) $this->session->data['store_id']);
 		$this->buildFacetIndex($product_id, (int) $this->session->data['store_id']);
 		$this->buildProductStats($product_id, (int) $this->session->data['store_id']);
-		
+
 		return (int) $newIsAvailable;
 	}
 
@@ -1851,6 +1851,17 @@ class ModelCatalogProduct extends Model {
 
     $product_filter = ($product_id !== null) ? " AND p.product_id = {$product_id}" : "";
     $store_filter   = ($store_id !== null)   ? " AND p2s.store_id = {$store_id}"   : "";
+
+		if ($product_id || $store_id) {
+			$this->db->query("
+				DELETE FROM " . DB_PREFIX . "product_facet_index
+				WHERE 1
+					{$product_filter}
+					{$store_filter}
+			");
+		} else {
+			$this->db->query("TRUNCATE TABLE " . DB_PREFIX . "product_facet_index");
+		}
 
     $sql = "
 
@@ -1985,11 +1996,12 @@ class ModelCatalogProduct extends Model {
 			WHERE 1 
 				{$product_filter}
 				{$store_filter}
+				AND p2s.status = 1
 
 			ON DUPLICATE KEY UPDATE
 				facet_group_id = src.facet_group_id,
-				facet_value_id = src.facet_value_id.
-			
+				facet_value_id = src.facet_value_id,
+				facet_type		 = src.facet_type
 		";
 
     $this->db->query($sql);
@@ -2001,6 +2013,17 @@ class ModelCatalogProduct extends Model {
 
     $product_filter = ($product_id !== null) ? " AND p.product_id = {$product_id}" : "";
     $store_filter   = ($store_id !== null)   ? " AND p2s.store_id = {$store_id}"   : "";
+
+		if ($product_id || $store_id) {
+			$this->db->query("
+				DELETE FROM " . DB_PREFIX . "product_stats
+				WHERE 1
+					{$product_filter}
+					{$store_filter}
+			");
+		} else {
+			$this->db->query("TRUNCATE TABLE " . DB_PREFIX . "product_stats");
+		}
 
 		$this->db->query("
 			INSERT INTO " . DB_PREFIX . "product_stats (
@@ -2043,6 +2066,7 @@ class ModelCatalogProduct extends Model {
 			WHERE 1 
 				{$product_filter}
 				{$store_filter}
+				AND p2s.status = 1
 			JOIN " . DB_PREFIX . "product_to_store p2s
 				ON p2s.`product_id` = p.`product_id`
 		
