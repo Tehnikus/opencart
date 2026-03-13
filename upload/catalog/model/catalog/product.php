@@ -361,8 +361,8 @@ class ModelCatalogProduct extends Model {
 
 			FROM " . DB_PREFIX . "product_to_store p2s
 			LEFT JOIN " . DB_PREFIX . "product_stats pst
-				ON pst.`product_id` = p2s.`product_id`
-				AND pst.`store_id` = p2s.`store_id`
+				ON 	pst.`product_id` = p2s.`product_id`
+				AND pst.`store_id` 	 = p2s.`store_id`
 			JOIN " . DB_PREFIX . "product p
 				ON p.`product_id` = p2s.`product_id`
 			JOIN " . DB_PREFIX . "product_description pd
@@ -433,13 +433,13 @@ class ModelCatalogProduct extends Model {
 	}
 
 	public function getProducts($data = []) : array {
-		$store_id = (int) $this->config->get('config_store_id');
-		$filters 	= [];
-		$facets 	= [];
-		$where 		= [];
-		$order 		= '';
-		$limit		= '';
-		$products = [];
+		$store_id 	= (int) $this->config->get('config_store_id');
+		$filters 		= [];
+		$facets 		= [];
+		$where 			= [];
+		$order 			= '';
+		$limit			= '';
+		$products 	= [];
 		$sortOrders = $this->getSortOrders(); // Allowed sort orders
 
 		// Facet filters
@@ -511,7 +511,7 @@ class ModelCatalogProduct extends Model {
 				$data['limit'] = 20;
 			}
 
-			$limit = " LIMIT " . (int)$data['start'] . "," . (int)$data['limit'];
+			$limit = " LIMIT " . (int) $data['start'] . "," . (int) $data['limit'];
 		}
 
 		// $sql = "
@@ -556,8 +556,6 @@ class ModelCatalogProduct extends Model {
 			ORDER BY {$order}
 			{$limit}
 		";
-
-		// $this->log->write($sql);
 
 		$productRows = $this->db->query($sql)->rows;
 		foreach ($productRows as $row) {
