@@ -6,7 +6,6 @@ class ModelCatalogProduct extends Model {
 		parent::__construct($registry);
 		$this->sortOrders = [
 			'sort_order'			=> 'pst.`sort_order` ASC',
-			'p.sort_order'		=> 'pst.`sort_order` ASC', // fallback for old sort order
 			'sales'						=> 'pst.`orders` DESC',
 			'rating'					=> '(CASE WHEN pst.`rating_avg` THEN pst.`rating_avg` ELSE pst.`sort_order` END) DESC',
 			'views'						=> 'pst.`views` DESC',
@@ -500,6 +499,8 @@ class ModelCatalogProduct extends Model {
 		$sortOrder = $data['sort'] ?? $this->config->get('config_default_product_sort') ?? 'sort_order';
 		if (in_array($sortOrder, array_keys($sortOrders))) {
 			$order = $sortOrders[$sortOrder];
+		} else {
+			$order = 'sort_order';
 		}
 
 		if (isset($data['start']) || isset($data['limit'])) {
