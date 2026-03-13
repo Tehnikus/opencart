@@ -1833,7 +1833,7 @@ class ModelCatalogProduct extends Model {
 		if (!isset($productIsAssociated['product_id'])) {
 			return 0;
 		}
-		
+
 		$this->db->query("
 			UPDATE " . DB_PREFIX . "product_to_store
 				SET 
@@ -1876,15 +1876,15 @@ class ModelCatalogProduct extends Model {
 
 	public function buildFacetIndex($product_id = null, $store_id = null) : int {
 
-    $product_filter = ($product_id !== null) ? " AND p.product_id = {$product_id}" : "";
+    $product_filter = ($product_id !== null) ? " AND p2s.product_id = {$product_id}" : "";
     $store_filter   = ($store_id !== null)   ? " AND p2s.store_id = {$store_id}"   : "";
 
 		if ($product_id || $store_id) {
 			$this->db->query("
 				DELETE FROM " . DB_PREFIX . "product_facet_index
 				WHERE 1
-					{$product_filter}
-					{$store_filter}
+					" . (($product_id !== null) ? " AND product_id = {$product_id}" : "") . "
+					" . (($store_id !== null) ? " AND store_id = {$store_id}" : "") . "
 			");
 		} else {
 			$this->db->query("TRUNCATE TABLE " . DB_PREFIX . "product_facet_index");
@@ -1964,6 +1964,19 @@ class ModelCatalogProduct extends Model {
 
 				UNION ALL
 
+				/* SUPPLIER */
+				SELECT
+					p.product_id AS product_id,
+					p2s.store_id AS store_id,
+					p.supplier_id AS facet_value_id,
+					0 AS facet_group_id,
+					7 AS facet_type
+				FROM " . DB_PREFIX . "product p
+				JOIN " . DB_PREFIX . "product_to_store p2s
+					ON p2s.product_id = p.product_id
+
+				UNION ALL
+
 				/* AVAILABILITY */
 				SELECT
 					p.product_id AS product_id,
@@ -2020,10 +2033,13 @@ class ModelCatalogProduct extends Model {
 					ON p2s.product_id = p.product_id
 			) src
 
-			WHERE 1 
+			JOIN oc_product_to_store p2s
+				ON p2s.product_id = src.product_id
+				AND p2s.store_id = src.store_id
+				AND p2s.status = 1
+			WHERE 1
 				{$product_filter}
 				{$store_filter}
-				AND p2s.status = 1
 
 			ON DUPLICATE KEY UPDATE
 				facet_group_id = src.facet_group_id,
@@ -2038,15 +2054,15 @@ class ModelCatalogProduct extends Model {
 
 	public function buildProductStats($product_id = null, $store_id = null) : int {
 
-    $product_filter = ($product_id !== null) ? " AND p.product_id = {$product_id}" : "";
+    $product_filter = ($product_id !== null) ? " AND p2s.product_id = {$product_id}" : "";
     $store_filter   = ($store_id !== null)   ? " AND p2s.store_id = {$store_id}"   : "";
 
 		if ($product_id || $store_id) {
 			$this->db->query("
 				DELETE FROM " . DB_PREFIX . "product_stats
 				WHERE 1
-					{$product_filter}
-					{$store_filter}
+					" . (($product_id !== null) ? " AND product_id = {$product_id}" : "") . "
+					" . (($store_id !== null) ? " AND store_id = {$store_id}" : "") . "
 			");
 		} else {
 			$this->db->query("TRUNCATE TABLE " . DB_PREFIX . "product_stats");
@@ -2086,14 +2102,10 @@ class ModelCatalogProduct extends Model {
 				IF(p.`status` = 1 AND p.`quantity` > 0, 1, 0) AS `is_available`,
 				p2s.`is_featured` AS `is_featured`,
 				IF(ps.`price` IS NOT NULL OR pd.`price` IS NOT NULL, 1, 0) AS `has_discount`,
-				p2s.`date_added`,
+				p.`date_added`,
 				o.`date_last_order`,
 				NULL
 			FROM " . DB_PREFIX . "product p
-			WHERE 1 
-				{$product_filter}
-				{$store_filter}
-				AND p2s.status = 1
 			JOIN " . DB_PREFIX . "product_to_store p2s
 				ON p2s.`product_id` = p.`product_id`
 		
@@ -2160,19 +2172,10 @@ class ModelCatalogProduct extends Model {
 			) pd
 			ON pd.`product_id` = p.`product_id`
 			AND pd.`store_id` = p2s.`store_id`
-		
-			ON DUPLICATE KEY UPDATE
-				`orders`           = VALUES(`orders`),
-				`returns`          = VALUES(`returns`),
-				`sort_order`       = VALUES(`sort_order`),
-				`review_count`     = VALUES(`review_count`),
-				`rating_avg`       = VALUES(`rating_avg`),
-				`date_last_review` = VALUES(`date_last_review`),
-				`current_price`    = VALUES(`current_price`),
-				`is_available`     = VALUES(`is_available`),
-				`is_featured`      = VALUES(`is_featured`),
-				`has_discount`     = VALUES(`has_discount`),
-				`date_last_order`  = VALUES(`date_last_order`)
+			WHERE 1 
+			{$product_filter}
+			{$store_filter}
+			AND p2s.status = 1
 		");
 
 		return $product_id;
