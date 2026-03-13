@@ -129,14 +129,16 @@
                         {% for store in stores %}
                           {% if store.store_id in product.stores %}
                             {% if product.status_to_store[store.store_id] == 1 %}
-                            <a href="{{ store.url }}index.php?route=product/product{% if product.parent_id %}&category_id={{ product.parent_id }}{% endif %}&product_id={{ product.product_id }}" target="_blank">
-                              <span class="badge alert-success"><i class="fa fa-play"></i>&nbsp;{{ store.name }}</span>
-                            </a>
+                              <span class="storeBadge badge alert-success" data-store-id="{{ store.store_id }}" data-product-link="{{ store.url }}index.php?route=product/product{% if product.parent_id %}&category_id={{ product.parent_id }}{% endif %}&product_id={{ product.product_id }}">
+                                <a style="color: inherit;" href="{{ store.url }}index.php?route=product/product{% if product.parent_id %}&category_id={{ product.parent_id }}{% endif %}&product_id={{ product.product_id }}" target="_blank">
+                                  <i class="fa fa-play"></i>&nbsp;{{ store.name }}
+                                </a>
+                              </span>
                             {% else %}
-                              <span class="badge"><i class="fa fa-pause"></i>&nbsp;{{ store.name }}</span>
+                              <span class="storeBadge badge" data-store-id="{{ store.store_id }}" data-product-link="{{ store.url }}index.php?route=product/product{% if product.parent_id %}&category_id={{ product.parent_id }}{% endif %}&product_id={{ product.product_id }}"><i class="fa fa-pause"></i>&nbsp;{{ store.name }}</span>
                             {% endif %}
                           {% else %}
-                            <span class="badge alert-danger"><i class="fa fa-times"></i>&nbsp;{{ store.name }}</span>
+                            <span class="storeBadge badge alert-danger"><i class="fa fa-times"></i>&nbsp;{{ store.name }}</span>
                           {% endif %}
                         {% endfor %}
                       </p>
@@ -181,14 +183,14 @@
                     <td class="text-center">
                       <div class="btn-group">
                         {% if product.status_to_store[currentStore] == '1' %}
-                          <button class="btn btn-success statusBtn" data-product-id="{{ product.product_id }}" data-product-status="{{ product.status_to_store[currentStore] }}" type="button"><i class="fa fa-play"></i></button>
+                          <button {% if currentStore not in product.stores %}disabled style="background: #999; border-color: #777"{% endif %} class="btn btn-success statusBtn" data-product-id="{{ product.product_id }}" data-product-status="{{ product.status_to_store[currentStore] }}" type="button"><i class="fa fa-play"></i></button>
                         {% else %}
-                          <button class="btn btn-danger statusBtn" data-product-id="{{ product.product_id }}" data-product-status="{{ product.status_to_store[currentStore] }}" type="button"><i class="fa fa-stop"></i></button>
+                          <button {% if currentStore not in product.stores %}disabled style="background: #999; border-color: #777"{% endif %} class="btn btn-danger statusBtn" data-product-id="{{ product.product_id }}" data-product-status="{{ product.status_to_store[currentStore] }}" type="button"><i class="fa fa-stop"></i></button>
                         {% endif %}
                         {% if product.is_available == '1' %}
-                          <button class="btn btn-success isAvailableBtn" data-product-id="{{ product.product_id }}" data-product-is-available="{{ product.is_available }}" type="button"><i class="fa fa-shopping-cart"></i></button>
+                          <button {% if currentStore not in product.stores %}disabled style="background: #999; border-color: #777"{% endif %} class="btn btn-success isAvailableBtn" data-product-id="{{ product.product_id }}" data-product-is-available="{{ product.is_available }}" type="button"><i class="fa fa-shopping-cart"></i></button>
                         {% else %}
-                          <button class="btn btn-danger isAvailableBtn" data-product-id="{{ product.product_id }}" data-product-is-available="{{ product.is_available }}" type="button"><i class="fa fa-shopping-cart"></i></button>
+                          <button {% if currentStore not in product.stores %}disabled style="background: #999; border-color: #777"{% endif %} class="btn btn-danger isAvailableBtn" data-product-id="{{ product.product_id }}" data-product-is-available="{{ product.is_available }}" type="button"><i class="fa fa-shopping-cart"></i></button>
                         {% endif %}
                       </div>
                     </td>
@@ -302,19 +304,25 @@ $('input[name=\'filter_model\']').autocomplete({
 <script>
 document.addEventListener('click', async e => {
   if (e.target.closest('.statusBtn')) {
-    const userToken = "{{ user_token }}";
-    const statusBtn = e.target.closest('.statusBtn');
-    const productId = statusBtn.dataset.productId
-    const productStatus = statusBtn.dataset.productStatus
+    const userToken     = "{{ user_token }}";
+    const currentStore  = "{{ currentStore }}";
+    const storeName     = "{{ stores[currentStore].name }}";
+    const storeBadge    = e.target.closest('tr').querySelector(`[data-store-id="${currentStore}"]`);
+    const productLink   = storeBadge.dataset.productLink;
+    const statusBtn     = e.target.closest('.statusBtn');
+    const productId     = statusBtn.dataset.productId;
+    const productStatus = statusBtn.dataset.productStatus;
     const body = new FormData();
     body.append('product_id', productId);
     body.append('status', productStatus);
 
     let response = await fetch(`index.php?route=catalog/product/fetchSetProductStatus&user_token=${userToken}`, {method: "POST", body}).then(r => r.json());
     if (response.newStatus === 1) {
-      statusBtn.outerHTML = `<button class="btn btn-success statusBtn" data-product-id="${productId}" data-product-status="${response.newStatus}" type="button"><i class="fa fa-play"></i></button>`;
+      storeBadge.outerHTML = `<span class="storeBadge badge alert-success" data-store-id="${currentStore}" data-product-link="${productLink}"><a style="color: inherit;" href="${productLink}" target="_blank"><i class="fa fa-play"></i>&nbsp;${storeName}</a></span>`;
+      statusBtn.outerHTML  = `<button class="btn btn-success statusBtn" data-product-id="${productId}" data-product-status="${response.newStatus}" type="button"><i class="fa fa-play"></i></button>`;
     } else {
-      statusBtn.outerHTML = `<button class="btn btn-danger statusBtn" data-product-id="${productId}" data-product-status="${response.newStatus}" type="button"><i class="fa fa-stop"></i></button>`;
+      storeBadge.outerHTML = `<span class="storeBadge badge" data-store-id="${currentStore}" data-product-link="${productLink}"><i class="fa fa-pause"></i>&nbsp;${storeName}</span>`;
+      statusBtn.outerHTML  = `<button class="btn btn-danger statusBtn" data-product-id="${productId}" data-product-status="${response.newStatus}" type="button"><i class="fa fa-stop"></i></button>`;
     }
   }
   if (e.target.closest('.isAvailableBtn')) {

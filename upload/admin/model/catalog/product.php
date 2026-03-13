@@ -1768,6 +1768,19 @@ class ModelCatalogProduct extends Model {
 
 	// Set product status
 	public function setProductStatus($product_id, $status) : int {
+		// Check if product is assocated with current store
+		$productIsAssociated = $this->db->query("
+			SELECT
+				`product_id`
+			FROM " . DB_PREFIX . "product_to_store
+			WHERE `product_id` = '" . (int) $product_id . "'
+				AND `store_id` = '" . (int) $this->session->data['store_id'] . "'
+		")->row;
+
+		if (!isset($productIsAssociated['product_id'])) {
+			return 0;
+		}
+
 		$this->db->query("
 			UPDATE " . DB_PREFIX . "product_to_store
 				SET 
@@ -1807,6 +1820,20 @@ class ModelCatalogProduct extends Model {
 
 	// Set product is available for order
 	public function setProductIsAvailable($product_id, $is_available) : int {
+
+		// Check if product is assocated with current store
+		$productIsAssociated = $this->db->query("
+			SELECT
+				`product_id`
+			FROM " . DB_PREFIX . "product_to_store
+			WHERE `product_id` = '" . (int) $product_id . "'
+				AND `store_id` = '" . (int) $this->session->data['store_id'] . "'
+		")->row;
+
+		if (!isset($productIsAssociated['product_id'])) {
+			return 0;
+		}
+		
 		$this->db->query("
 			UPDATE " . DB_PREFIX . "product_to_store
 				SET 
