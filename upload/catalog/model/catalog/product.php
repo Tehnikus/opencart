@@ -6,24 +6,25 @@ class ModelCatalogProduct extends Model {
 		parent::__construct($registry);
 		$this->sortOrders = [
 			'sort_order'			=> 'pst.`sort_order` ASC',
-			// 'name'						=> 'pd.`name` ASC',
+			'p.sort_order'		=> 'pst.`sort_order` ASC', // fallback for old sort order
 			'sales'						=> 'pst.`orders` DESC',
 			'rating'					=> '(CASE WHEN pst.`rating_avg` THEN pst.`rating_avg` ELSE pst.`sort_order` END) DESC',
 			'views'						=> 'pst.`views` DESC',
 			'date_added'			=> 'pst.`date_added` DESC',
 			'available'				=> 'pst.`is_available` DESC',
 			'featured'				=> 'pst.`is_featured` DESC',
-			// 'quantity'				=> 'p.`quantity` > p.`minimum` DESC, pst.`sort_order` ASC',
 			'price_asc'				=> '(CASE WHEN pst.`current_price` IS NOT NULL THEN pst.`current_price` ELSE pst.`sort_order` END) ASC',
 			'price_desc'			=> '(CASE WHEN pst.`current_price` IS NOT NULL THEN pst.`current_price` ELSE pst.`sort_order` END) DESC',
 			'discounts'				=> 'pst.`has_discount` DESC',
 			'trends_all_time' => 'LOG(pst.`orders` + 1) * 4 + COALESCE(pst.`rating_avg`, 0) * LOG(pst.`review_count` + 1) * 2 + LOG(pst.`views` + 1)',
 			'trends_by_date'  => '
-			  LOG(pst.`orders` + 1) * EXP(-0.01 * DATEDIFF(NOW(), COALESCE(pst.`date_last_order`, NOW())))
-				+ LOG(pst.`views` + 1) * EXP(-0.005 * DATEDIFF(NOW(), COALESCE(pst.`date_last_view`, NOW())))
-				+ (pst.`rating_avg` * LOG(pst.`review_count` + 1)) * EXP(-0.02 * DATEDIFF(NOW(), COALESCE(pst.`date_last_review`, NOW()))) DESC, 
-				pst.`sort_order` ASC
+			LOG(pst.`orders` + 1) * EXP(-0.01 * DATEDIFF(NOW(), COALESCE(pst.`date_last_order`, NOW())))
+			+ LOG(pst.`views` + 1) * EXP(-0.005 * DATEDIFF(NOW(), COALESCE(pst.`date_last_view`, NOW())))
+			+ (pst.`rating_avg` * LOG(pst.`review_count` + 1)) * EXP(-0.02 * DATEDIFF(NOW(), COALESCE(pst.`date_last_review`, NOW()))) DESC, 
+			pst.`sort_order` ASC
 			',
+			// 'name'						=> 'pd.`name` ASC',
+			// 'quantity'				=> 'p.`quantity` > p.`minimum` DESC, pst.`sort_order` ASC',
 		];
 	}
 
