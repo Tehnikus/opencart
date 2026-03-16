@@ -538,22 +538,24 @@ class ModelCatalogProduct extends Model {
 					`product_id`, `facet_type`, `facet_group_id`
 				FROM " . DB_PREFIX . "product_facet_index
 				WHERE " . implode(" AND ", $where) . "
+				ORDER BY NULL
+			),
+
+			group_count AS (
+				SELECT COUNT(DISTINCT `facet_type`, `facet_group_id`) AS cnt
+				FROM `facet_temp`
+				ORDER BY NULL
 			)
 
 			SELECT 
-				f.product_id
+				f.`product_id`
 			FROM facet_temp f
 			LEFT JOIN " . DB_PREFIX . "product_stats pst
 				ON  pst.`product_id` = f.`product_id`
 				AND pst.`store_id` 	 = {$store_id}
 
 			GROUP BY f.`product_id`
-			HAVING COUNT(DISTINCT f.`facet_type`, f.`facet_group_id`) = (
-				SELECT 
-					COUNT(DISTINCT f.`facet_type`, f.`facet_group_id`)
-				FROM facet_temp f
-				ORDER BY NULL
-			)
+			HAVING COUNT(DISTINCT f.`facet_type`, f.`facet_group_id`) = (SELECT `cnt` FROM group_count)
 			ORDER BY {$order}
 			{$limit}
 		";

@@ -1304,8 +1304,11 @@ class ModelCatalogProduct extends Model {
 		return $product_description_data;
 	}
 
-	public function getPlaceholders($product_id) : array {
+	public function getPlaceholders($product_id = null) : array {
 		$placeholders = [];
+		if ($product_id === null) {
+			return $placeholders;
+		}
 		$query = $this->db->query("
 			SELECT
 				pd.language_id,
