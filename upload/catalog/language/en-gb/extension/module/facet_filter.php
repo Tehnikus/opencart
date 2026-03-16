@@ -1,6 +1,5 @@
 <?php
 $_['heading_title']       = 'Filter';
-$_['text_manufacturers']  = 'Manufacturers';
 
 // Sort orders
 $_['sort_sort_order']       = 'Default';
@@ -17,3 +16,15 @@ $_['sort_available']        = 'Available for order';
 $_['sort_quantity']         = 'Quantity';
 $_['sort_trends_all_time']  = 'Popular all time';
 $_['sort_trends_by_date']   = 'Popular now';
+
+// Filter groups
+$_['group_category']      = 'Category';
+$_['group_manufacturer']  = 'Manufacturer';
+$_['group_is_available']  = 'Availability';
+$_['group_has_discount']  = 'Discounts';
+$_['group_is_featured']   = 'Featured';
+
+// Special filters
+$_['facet_is_available']  = 'Show only available for order';
+$_['facet_has_discount']  = 'Show only discounted';
+$_['facet_is_featured']   = 'Show only featured';
