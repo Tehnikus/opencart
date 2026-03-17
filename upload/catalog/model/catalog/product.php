@@ -441,6 +441,8 @@ class ModelCatalogProduct extends Model {
 		$products 	= [];
 		$sortOrders = $this->getSortOrders(); // Allowed sort orders
 
+		echo '<pre>' . htmlspecialchars(print_r($data, true)) . '</pre>';
+
 		// Facet filters
 		foreach ($data as $filterKey => $filterData) {
 			if (str_starts_with($filterKey, 'filter_') && !empty($filterData)) {
@@ -934,36 +936,9 @@ class ModelCatalogProduct extends Model {
 	}
 
 	public function getLatestProducts($limit) {
-
-		$store_id 					= (int) $this->config->get('config_store_id');
-		$language_id 				= (int) $this->config->get('config_language_id');
-		$limit 							= (int) $limit;
-		$cacheName 					= "product.store_{$store_id}.language_{$language_id}.latest.{$limit}";
-
-		$product_data = $this->cache->get($cacheName);
-
-		if (!$product_data) {
-			$product_data = [];
-			$query = $this->db->query("
-				SELECT 
-					p2s.product_id 
-				FROM " . DB_PREFIX . "product_to_store p2s 
-				JOIN " . DB_PREFIX . "product p
-					ON p.product_id = p2s.product_id
-				WHERE p2s.status = 1
-					AND p2s.store_id = {$store_id}
-				ORDER BY p.date_added DESC 
-				LIMIT {$limit}"
-			);
-
-			foreach ($query->rows as $result) {
-				$product_data[$result['product_id']] = $this->getProduct($result['product_id']);
-			}
-
-			$this->cache->set($cacheName, $product_data);
-		}
-
-		return $product_data;
+		$data['sort'] = 'date_added';
+		$productData = $this->getProducts($data);
+		return $productData;
 	}
 
 	public function getPopularProducts($limit) {
@@ -980,13 +955,13 @@ class ModelCatalogProduct extends Model {
 
 			$query = $this->db->query("
 				SELECT 
-					pst.product_id
+					pst.`product_id`
 				FROM " . DB_PREFIX . "product_stats pst
 				JOIN " . DB_PREFIX . "product_to_store p2s
-					ON p2s.store_id = pst.store_id
-					AND p2s.status = 1
-				WHERE pst.store_id = {$store_id}
-				ORDER BY pst.viewed DESC
+					ON  p2s.`store_id` = pst.store_id
+					AND p2s.`status` 	 = 1
+				WHERE pst.`store_id` = {$store_id}
+				ORDER BY pst.`views` DESC
 				LIMIT {$limit}"
 			);
 	
@@ -1014,13 +989,13 @@ class ModelCatalogProduct extends Model {
 
 			$query = $this->db->query("
 				SELECT 
-					pst.product_id
+					pst.`product_id`
 				FROM " . DB_PREFIX . "product_stats pst
 				JOIN " . DB_PREFIX . "product_to_store p2s
-					ON p2s.store_id = pst.store_id
-					AND p2s.status = 1
-				WHERE pst.store_id = {$store_id}
-				ORDER BY pst.sales DESC
+					ON 	p2s.`store_id` = pst.store_id
+					AND p2s.`status` 	 = 1
+				WHERE pst.`store_id` = {$store_id}
+				ORDER BY pst.`orders` DESC
 				LIMIT {$limit}"
 			);
 
@@ -1246,5 +1221,154 @@ class ModelCatalogProduct extends Model {
 		
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "product_to_category WHERE product_id = '" . (int)$product_id . "' AND category_id IN(" . implode(',', $implode) . ")");
   	    return $query->row;
+	}
+
+	/**
+	 * Get all facets with names and product count
+	 * Use same $data array as getProducts() method
+	 * @param mixed $data
+	 * @return array of filter type, group, values, names and product count
+	 */
+	public function getFilters($data = []) : array {
+		$result 	= []; // Data to be returned
+		$filters 	= []; // Input filters to be cleared and casted to integers
+		$facets		= []; // Array of sanitized strings to be used in SQL request
+		$store_id 		= (int) $this->config->get('config_store_id');
+		$language_id  = (int) $this->config->get('config_language_id');
+
+		// Facet filters
+		foreach ($data as $filterKey => $filterData) {
+			if (str_starts_with($filterKey, 'filter_') && !empty($filterData)) {
+				$filters[$filterKey] = $filterData;
+			}
+		}
+
+		if (empty($filters)) {
+			return $result;
+		}
+
+		foreach ($filters as $filterKey => $filter) {
+				
+			// Sanitize and unique facet ids
+			$filterIds = array_values(
+				array_unique(
+					array_map(
+						'intval', 
+						explode(',', $filter)
+					)
+				)
+			);
+
+			$facetTypes = [
+				'filter_category_id'   		=> 1,
+				'filter_filter'        		=> 2,
+				'filter_option'        		=> 3,
+				'filter_attribute'     		=> 4,
+				'filter_manufacturer_id'	=> 5,
+				'filter_tag_id'           => 6,
+				'filter_supplier_id'      => 7,
+				'filter_is_available'  		=> 8,
+				'filter_has_discount'  		=> 9,
+				'filter_is_featured'   		=> 10,
+			];
+
+			if (isset($facetTypes[$filterKey])) {
+				$type = $facetTypes[$filterKey];
+				foreach ($filterIds as $filterId) {
+					$facets[] = "SELECT {$filterId} AS facet_value_id, {$type} AS facet_type";
+				}
+			}
+		}
+		
+		$sql = "
+			WITH selected_facets AS (
+				" . implode(" UNION ALL ", $facets) . "
+			),
+			
+			filtered_products AS (
+				SELECT f.product_id
+				FROM " . DB_PREFIX . "product_facet_index f
+				JOIN selected_facets sf
+					ON sf.facet_value_id = f.facet_value_id
+				AND sf.facet_type    = f.facet_type
+				WHERE f.store_id = {$store_id}
+				GROUP BY f.product_id
+				HAVING COUNT(DISTINCT f.facet_type) = (SELECT COUNT(DISTINCT facet_type) FROM selected_facets)
+				ORDER BY NULL
+			)
+
+			SELECT
+				f.facet_type,
+				f.facet_group_id,
+				f.facet_value_id,
+				COUNT(*) AS product_count,
+				COALESCE(cd.name, fd.name, ovd.name, ad.name, md.name) AS facet_name,
+				COALESCE(fgd.name, od.name, agd.name) AS facet_group_name
+				
+			FROM " . DB_PREFIX . "product_facet_index f
+
+			/* Conditional JOINs for names. If facet type does not match then JOIN is not executed */
+			LEFT JOIN " . DB_PREFIX . "category_description cd
+				ON f.facet_type = 1
+				AND cd.category_id = f.facet_value_id
+				AND cd.language_id = {$language_id}
+				AND cd.store_id = {$store_id}
+
+			LEFT JOIN " . DB_PREFIX . "filter_group_description fgd
+				ON f.facet_type = 2
+				AND fgd.filter_group_id = f.facet_group_id
+				AND fgd.language_id = {$language_id}
+				AND fgd.store_id = {$store_id}
+
+			LEFT JOIN " . DB_PREFIX . "filter_description fd 
+				ON f.facet_type = 2
+				AND fd.filter_id = f.facet_value_id
+				AND fd.language_id = {$language_id}
+				AND fd.store_id = {$store_id}
+			
+			LEFT JOIN " . DB_PREFIX . "option_description od
+				ON f.facet_type = 3
+				AND od.option_id = f.facet_group_id
+				AND od.language_id = {$language_id}
+				AND od.store_id = {$store_id}
+
+			LEFT JOIN " . DB_PREFIX . "option_value_description ovd
+				ON f.facet_type = 3
+				AND ovd.option_value_id = f.facet_value_id
+				AND ovd.language_id = {$language_id}
+				AND ovd.store_id = {$store_id}
+			
+			LEFT JOIN " . DB_PREFIX . "attribute_group_description agd
+				ON f.facet_type = 4
+				AND agd.attribute_group_id = f.facet_group_id
+				AND agd.language_id = {$language_id}
+				AND agd.store_id = {$store_id}
+
+			LEFT JOIN " . DB_PREFIX . "attribute_description ad
+				ON f.facet_type = 4
+				AND ad.attribute_id = f.facet_value_id
+				AND ad.language_id = {$language_id}
+				AND ad.store_id = {$store_id}
+
+			LEFT JOIN " . DB_PREFIX . "manufacturer md
+				ON f.facet_type = 5
+				AND md.manufacturer_id = f.facet_value_id
+
+			WHERE f.store_id = {$store_id}
+			/* EXIST condition makes semi-JOIN and allows to avoid second table scan */
+			AND EXISTS (
+					SELECT 1
+					FROM filtered_products fp
+					WHERE fp.product_id = f.product_id
+			)
+			
+			GROUP BY
+				f.facet_type,
+				f.facet_group_id,
+				f.facet_value_id
+		";
+
+		$result = $this->db->query($sql)->rows;
+		return $result;
 	}
 }
