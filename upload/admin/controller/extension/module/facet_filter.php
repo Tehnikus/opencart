@@ -12,35 +12,6 @@ class ControllerExtensionModuleFacetFilter extends Controller {
 		$this->load->model('setting/setting');
 
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
-
-			// Delete previous cache
-			$store_id = $this->session->data['store_id'];
-			$this->load->model('localisation/language');
-			$languages = $this->model_localisation_language->getLanguages();
-
-			// Delete existing category cache
-			foreach ($this->request->post['module_facet_filter_settings']['category'] ?? [] as $category_id => $category) {
-				foreach ($languages as $language) {
-					$language_id = $language['language_id'];
-					$cacheName = "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . "00.filters_{$category_id}";
-					$this->cache->delete($cacheName);
-				}
-			}
-
-			// Delete category cache if category was removed from settings
-			$settings = $this->config->get('module_facet_filter_settings');
-			if (isset($settings['settings']['category'])) {
-				foreach ($settings['settings']['category'] as $category_id => $category) {
-					if (!isset($this->request->post['module_facet_filter_settings']['category'][$category_id])) {
-						foreach ($languages as $language) {
-							$language_id = $language['language_id'];
-							$cacheName = "category.store_{$store_id}.language_{$language_id}." . (floor($category_id / 100)) . "00.filters_{$category_id}";
-							$this->cache->delete($cacheName);
-						}
-					}
-				}
-			}
-
 			// Save new settings
 			$this->model_setting_setting->editSetting('module_facet_filter', $this->request->post, (int) $this->session->data['store_id']);
 			// Show success message
@@ -55,12 +26,14 @@ class ControllerExtensionModuleFacetFilter extends Controller {
 		// Form data
 		$data['module_facet_filter_status'] = $this->request->post['module_facet_filter_status'] ?? $this->config->get('module_facet_filter_status');
 		$data['settings'] 									= $this->request->post['module_facet_filter_settings'] ?? $this->config->get('module_facet_filter_settings');
+		$data['pageTypes'] 								  = ['category', 'manufacturer', 'special', 'search'];
+		$data['facetTypes'] 								= ['category_id', 'filter', 'option', 'attribute', 'manufacturer_id', 'is_available', 'has_discount', 'is_featured']; // Add ['tag_id', 'supplier_id'] when ready
 		$data['user_token'] 								= $this->session->data['user_token'];
 
 		// Get category name for saved categories
-		if (isset($data['settings']['category'])) {
+		if (isset($data['settings']['distinct_categories'])) {
 			$this->load->model('catalog/category');
-			foreach ($data['settings']['category'] as $category_id => &$category) {
+			foreach ($data['settings']['distinct_categories'] as $category_id => &$category) {
 				$categoryData 		= $this->model_catalog_category->getCategory($category_id);
 				$category['name'] = $categoryData['name'];
 			}
@@ -83,5 +56,16 @@ class ControllerExtensionModuleFacetFilter extends Controller {
 		}
 
 		return !$this->error;
+	}
+
+	public function fetchRebuildFacetIndex() {
+		$storeId	= (int) $this->session->data['store_id'];
+
+		$this->load->model('catalog/product');
+		$this->model_catalog_product->buildFacetIndex(product_id: null, store_id: $storeId);
+		$this->model_catalog_product->buildProductStats(product_id: null, store_id: $storeId);
+
+		header('Content-Type: application/json');
+		echo(json_encode(['success' => true]));
 	}
 }
