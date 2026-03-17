@@ -1097,7 +1097,7 @@ class ModelCatalogProduct extends Model {
 				) AS `name`,
 				(
 					SELECT 
-						GROUP_CONCAT(t.`name` ORDER BY t.`level` SEPARATOR '&nbsp;&#9656;&nbsp; ')
+						GROUP_CONCAT(t.`name` ORDER BY t.`level` SEPARATOR '&nbsp;&#9656;&nbsp;')
 					FROM (
 						SELECT
 							cp.`level`,
@@ -1877,7 +1877,7 @@ class ModelCatalogProduct extends Model {
 	// Build facet index
 	// Should be called before previous SQL transaction committed
 
-	public function buildFacetIndex($product_id = null, $store_id = null) : int {
+	public function buildFacetIndex($product_id = null, $store_id = null) : mixed {
 
     $product_filter = ($product_id !== null) ? " AND p2s.product_id = {$product_id}" : "";
     $store_filter   = ($store_id !== null)   ? " AND p2s.store_id = {$store_id}"   : "";
@@ -1964,6 +1964,7 @@ class ModelCatalogProduct extends Model {
 				FROM " . DB_PREFIX . "product p
 				JOIN " . DB_PREFIX . "product_to_store p2s
 					ON p2s.product_id = p.product_id
+				WHERE p.manufacturer_id <> 0
 
 				UNION ALL
 
@@ -1977,6 +1978,7 @@ class ModelCatalogProduct extends Model {
 				FROM " . DB_PREFIX . "product p
 				JOIN " . DB_PREFIX . "product_to_store p2s
 					ON p2s.product_id = p.product_id
+				WHERE p.supplier_id <> 0
 
 				UNION ALL
 
@@ -1984,12 +1986,12 @@ class ModelCatalogProduct extends Model {
 				SELECT
 					p.product_id AS product_id,
 					p2s.store_id AS store_id,
-					IF(p.quantity >= p.minimum AND p2s.is_available = 1, 1, 0) AS facet_value_id,
+					p2s.is_available AS facet_value_id,
 					0 AS facet_group_id,
 					8 AS facet_type
 				FROM " . DB_PREFIX . "product p
 				JOIN " . DB_PREFIX . "product_to_store p2s
-						ON p2s.product_id = p.product_id
+					ON p2s.product_id = p.product_id
 
 				UNION ALL
 
@@ -1997,30 +1999,31 @@ class ModelCatalogProduct extends Model {
 				SELECT
 					p.product_id AS product_id,
 					p2s.store_id AS store_id,
-					IF(
-						EXISTS(
-							SELECT 1
-							FROM " . DB_PREFIX . "product_special ps
-							WHERE ps.product_id = p.product_id
-								AND ps.store_id   = p2s.store_id
-								AND (ps.date_start='0000-00-00' OR ps.date_start < NOW())
-								AND (ps.date_end='0000-00-00' OR ps.date_end > NOW())
-						)
-						OR
-						EXISTS(
-							SELECT 1
-							FROM " . DB_PREFIX . "product_discount pd
-							WHERE pd.product_id = p.product_id
-								AND pd.store_id   = p2s.store_id
-								AND (pd.date_start='0000-00-00' OR pd.date_start < NOW())
-								AND (pd.date_end='0000-00-00' OR pd.date_end > NOW())
-						),
-					1, 0) AS facet_value_id,
+					1 AS facet_value_id,
 					0 AS facet_group_id,
 					9 AS facet_type
 				FROM " . DB_PREFIX . "product p
 				JOIN " . DB_PREFIX . "product_to_store p2s
 					ON p2s.product_id = p.product_id
+				WHERE (
+					EXISTS(
+						SELECT 1
+						FROM " . DB_PREFIX . "product_special ps
+						WHERE ps.product_id = p.product_id
+							AND ps.store_id   = p2s.store_id
+							AND (ps.date_start='0000-00-00' OR ps.date_start < NOW())
+							AND (ps.date_end='0000-00-00' OR ps.date_end > NOW())
+					)
+					OR
+					EXISTS(
+						SELECT 1
+						FROM " . DB_PREFIX . "product_discount pd
+						WHERE pd.product_id = p.product_id
+							AND pd.store_id   = p2s.store_id
+							AND (pd.date_start='0000-00-00' OR pd.date_start < NOW())
+							AND (pd.date_end='0000-00-00' OR pd.date_end > NOW())
+					)
+				)
 
 				UNION ALL
 
@@ -2034,6 +2037,7 @@ class ModelCatalogProduct extends Model {
 				FROM " . DB_PREFIX . "product p
 				JOIN " . DB_PREFIX . "product_to_store p2s
 					ON p2s.product_id = p.product_id
+				WHERE p2s.is_featured <> 0
 			) src
 
 			JOIN oc_product_to_store p2s
@@ -2055,7 +2059,7 @@ class ModelCatalogProduct extends Model {
     return $product_id;
 	}
 
-	public function buildProductStats($product_id = null, $store_id = null) : int {
+	public function buildProductStats($product_id = null, $store_id = null) : mixed {
 
     $product_filter = ($product_id !== null) ? " AND p2s.product_id = {$product_id}" : "";
     $store_filter   = ($store_id !== null)   ? " AND p2s.store_id = {$store_id}"   : "";
