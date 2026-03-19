@@ -77,6 +77,14 @@ class ModelCatalogProduct extends Model {
 		");
 	}
 
+	/**
+	 * Get valid discount row from all product discounts
+	 * Compares date start and end, and customer group
+	 * And returns array of discount with dates and discount value if valid row is found
+	 * @param array $rows
+	 * @param int $customerGroupId
+	 * @return array|null
+	 */
 	private function getValidDiscount(array $rows, int $customerGroupId): ?array {
     $now = time();
 
@@ -108,6 +116,11 @@ class ModelCatalogProduct extends Model {
     return $valid[0] ?? null;
 	}
 
+	/**
+	 * Get all  data of a single product and put it into cache
+	 * @param mixed $product_id
+	 * @return array|bool
+	 */
 	public function getProduct($product_id) : array|bool {
 		$product_id 				= (int) $product_id;
 		$language_id 				= (int) $this->config->get('config_language_id');
@@ -119,7 +132,10 @@ class ModelCatalogProduct extends Model {
 		$product 		= $this->cache->get($cacheName);
 		
 		if ($product) {
-			// Filter specials and discounts
+			/**
+			 * Filter specials and discounts from cached data so cache shoul not invalidate if (current time > date end)
+			 * TODO use $this->getValidDiscount() here for clarity, as these are mostly the same functions
+			 */ 
 			$now = date('Y-m-d H:i:s');
 			$product['specials'] = array_filter($product['specials'], function ($var) use ($now) {
 				return 
@@ -414,7 +430,10 @@ class ModelCatalogProduct extends Model {
 			return false;
 		}
 
-		// Decode data
+		/**
+		 * Decode JSON aggregated data
+		 * Faster then bouncing requests to get separate product data and easier to store cached data
+		 */
 		$product['images'] 							= json_decode($product['images'] 			?? '[]', true);
 		$product['specials'] 						= json_decode($product['specials'] 		?? '[]', true);
 		$product['discounts'] 					= json_decode($product['discounts'] 	?? '[]', true);
