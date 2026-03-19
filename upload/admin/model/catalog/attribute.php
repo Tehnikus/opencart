@@ -414,13 +414,15 @@ class ModelCatalogAttribute extends Model {
 				AND store_id = '" . (int) $store_id . "'
 		")->rows;
 
-		$categories = $this->db->query("
-			SELECT
-				DISTINCT category_id
-			FROM " . DB_PREFIX . "product_to_category
-			WHERE product_id IN(" . implode(',',array_column($products, 'product_id')). ")
-				AND store_id = '" . (int) $store_id . "'
-		");
+		if (!empty($products)) {
+			$categories = $this->db->query("
+				SELECT
+					DISTINCT category_id
+				FROM " . DB_PREFIX . "product_to_category
+				WHERE product_id IN(" . implode(',',array_column($products, 'product_id')). ")
+					AND store_id = '" . (int) $store_id . "'
+			");
+		}
 
 		foreach ($languages as $language) {
 			$language_id = $language['language_id'];
