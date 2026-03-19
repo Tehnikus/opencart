@@ -257,7 +257,7 @@ class ModelCatalogOption extends Model {
 
 			// Delete facet index
 			$this->db->query("
-				DELETE FROM " . DB_PREFIX . "product_facet_index
+				DELETE FROM " . DB_PREFIX . "facet_index
 				WHERE facet_type = 3
 					AND facet_group_id = " . $option_id . " 
 					AND facet_value_id IN(" . implode(',', array_column($option_values, 'option_value_id')) . ")
@@ -292,7 +292,7 @@ class ModelCatalogOption extends Model {
 
 				// Delete facet index
 				$this->db->query("
-					DELETE FROM " . DB_PREFIX . "product_facet_index
+					DELETE FROM " . DB_PREFIX . "facet_index
 					WHERE facet_type = 3
 						AND facet_group_id = " . (int) $option_id . " 
 						AND facet_value_id IN(" . implode(',', array_column($option_values, 'option_value_id')) . ")

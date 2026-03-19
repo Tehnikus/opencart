@@ -7,7 +7,7 @@ class ModelCatalogProduct extends Model {
 		parent::__construct($registry);
 		/**
 		 * Allowed sort orders and corresponding SQL queries
-		 * Main table to sort products is product_stats
+		 * Main table to sort products is facet_sort
 		 */ 
 		$this->sortOrders = [
 			'sort_order'			=> 'pst.`sort_order` ASC',
@@ -69,7 +69,7 @@ class ModelCatalogProduct extends Model {
 		$this->db->query("UPDATE " . DB_PREFIX . "product SET viewed = (viewed + 1) WHERE product_id = '" . (int)$product_id . "'");
 
 		$this->db->query("
-			INSERT INTO " . DB_PREFIX . "product_stats (product_id, store_id, views, date_last_view)
+			INSERT INTO " . DB_PREFIX . "facet_sort (product_id, store_id, views, date_last_view)
 			VALUES ('" . (int) $product_id . "', '" . $this->config->get('config_store_id') . "', 1, NOW())
 			ON DUPLICATE KEY UPDATE 
 				views = (views + 1),
@@ -409,7 +409,7 @@ class ModelCatalogProduct extends Model {
 				) AS length_class
 
 			FROM " . DB_PREFIX . "product_to_store p2s
-			LEFT JOIN " . DB_PREFIX . "product_stats pst
+			LEFT JOIN " . DB_PREFIX . "facet_sort pst
 				ON 	pst.`product_id` = p2s.`product_id`
 				AND pst.`store_id` 	 = p2s.`store_id`
 			JOIN " . DB_PREFIX . "product p
@@ -573,13 +573,13 @@ class ModelCatalogProduct extends Model {
 		// $sql = "
 		// 	SELECT 
 		// 		product_id
-		// 	FROM " . DB_PREFIX . "product_facet_index
+		// 	FROM " . DB_PREFIX . "facet_index
 		// 	WHERE " . implode(" AND ", $where) . "
 		// 	GROUP BY product_id
 		// 	HAVING COUNT(DISTINCT facet_type, facet_group_id) = (
 		// 		SELECT 
 		// 			COUNT(DISTINCT facet_type, facet_group_id)
-		// 		FROM " . DB_PREFIX . "product_facet_index
+		// 		FROM " . DB_PREFIX . "facet_index
 		// 		WHERE " . implode(" AND ", $where) . "
 		// 		ORDER BY NULL
 		// 	)
@@ -591,7 +591,7 @@ class ModelCatalogProduct extends Model {
 			WITH facet_temp (`product_id`, `facet_type`, `facet_group_id`) AS (
 				SELECT
 					`product_id`, `facet_type`, `facet_group_id`
-				FROM " . DB_PREFIX . "product_facet_index
+				FROM " . DB_PREFIX . "facet_index
 				WHERE " . implode(" AND ", $where) . "
 				ORDER BY NULL
 			),
@@ -605,7 +605,7 @@ class ModelCatalogProduct extends Model {
 			SELECT 
 				f.`product_id`
 			FROM facet_temp f
-			LEFT JOIN " . DB_PREFIX . "product_stats pst
+			LEFT JOIN " . DB_PREFIX . "facet_sort pst
 				ON  pst.`product_id` = f.`product_id`
 				AND pst.`store_id` 	 = {$store_id}
 
@@ -667,7 +667,7 @@ class ModelCatalogProduct extends Model {
 	// 							+ COALESCE(pst.`rating_avg`, 0) * LOG(pst.`review_count` + 1) * 2
 	// 							+ LOG(pst.`views` + 1)
 	// 						)
-	// 					FROM " . DB_PREFIX . "product_stats pst
+	// 					FROM " . DB_PREFIX . "facet_sort pst
 	// 					WHERE pst.`product_id` = p2s2.product_id
 	// 						AND pst.`store_id` = p2s2.store_id
 	// 				) AS `trends`
@@ -959,7 +959,7 @@ class ModelCatalogProduct extends Model {
 	// 			AND pd.`store_id` 		= '" . (int) $this->config->get('config_store_id') . "'
 
 	// 		-- Sort joins
-	// 		JOIN " . DB_PREFIX . "product_stats pst
+	// 		JOIN " . DB_PREFIX . "facet_sort pst
 	// 			ON pst.`product_id` = p2s2.`product_id`
 	// 			AND pst.`store_id`  = p2s2.`store_id`
 	// 		-- Conditions
@@ -1009,7 +1009,7 @@ class ModelCatalogProduct extends Model {
 			$query = $this->db->query("
 				SELECT 
 					pst.`product_id`
-				FROM " . DB_PREFIX . "product_stats pst
+				FROM " . DB_PREFIX . "facet_sort pst
 				JOIN " . DB_PREFIX . "product_to_store p2s
 					ON  p2s.`store_id` = pst.store_id
 					AND p2s.`status` 	 = 1
@@ -1043,7 +1043,7 @@ class ModelCatalogProduct extends Model {
 			$query = $this->db->query("
 				SELECT 
 					pst.`product_id`
-				FROM " . DB_PREFIX . "product_stats pst
+				FROM " . DB_PREFIX . "facet_sort pst
 				JOIN " . DB_PREFIX . "product_to_store p2s
 					ON 	p2s.`store_id` = pst.store_id
 					AND p2s.`status` 	 = 1

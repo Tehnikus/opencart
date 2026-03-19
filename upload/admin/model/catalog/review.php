@@ -15,7 +15,7 @@ class ModelCatalogReview extends Model {
 		");
 
 		$this->db->query("
-			INSERT INTO " . DB_PREFIX . "product_stats (product_id, store_id, review_count, rating_avg, date_last_review)
+			INSERT INTO " . DB_PREFIX . "facet_sort (product_id, store_id, review_count, rating_avg, date_last_review)
 			VALUES ('" . (int) $data['product_id'] . "', '" . (int) $data['store_id'] . "', 1, '" . (int) $data['rating'] . "', NOW())
 			ON DUPLICATE KEY UPDATE 
 				review_count = (
@@ -64,7 +64,7 @@ class ModelCatalogReview extends Model {
 		");
 
 		$this->db->query("
-			INSERT INTO " . DB_PREFIX . "product_stats (product_id, store_id, review_count, rating_avg, date_last_review)
+			INSERT INTO " . DB_PREFIX . "facet_sort (product_id, store_id, review_count, rating_avg, date_last_review)
 			VALUES ('" . (int) $data['product_id'] . "', '" . (int) $data['store_id'] . "', 1, '" . (int) $data['rating'] . "', NOW())
 			ON DUPLICATE KEY UPDATE 
 				review_count = (
@@ -103,7 +103,7 @@ class ModelCatalogReview extends Model {
 		
 
 		$this->db->query("
-			UPDATE " . DB_PREFIX . "product_stats ps
+			UPDATE " . DB_PREFIX . "facet_sort ps
 			SET
 				ps.review_count = (
 					SELECT 

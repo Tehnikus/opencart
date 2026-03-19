@@ -871,7 +871,7 @@ class ModelCatalogProduct extends Model {
 			'product_attribute',
 			'product_description',
 			'product_discount',
-			'product_facet_index',
+			'facet_index',
 			'product_filter',
 			'product_image',
 			'product_option',
@@ -879,7 +879,7 @@ class ModelCatalogProduct extends Model {
 			'product_related',
 			'product_reward',
 			'product_special',
-			'product_stats',
+			'facet_sort',
 			'product_to_category',
 			'product_to_download',
 			'product_to_layout',
@@ -1188,7 +1188,7 @@ class ModelCatalogProduct extends Model {
 			LEFT JOIN " . DB_PREFIX . "product_to_store p2s 
 				ON 	p2s.`product_id` 	= p.`product_id`
 				AND p2s.`store_id` 		= '" . (int) $this->session->data['store_id'] . "'
-			LEFT JOIN " . DB_PREFIX . "product_stats pst
+			LEFT JOIN " . DB_PREFIX . "facet_sort pst
 				ON 	pst.`product_id` = p.`product_id`
 				AND pst.`store_id` 		= '" . (int) $this->session->data['store_id'] . "'
 
@@ -1884,18 +1884,18 @@ class ModelCatalogProduct extends Model {
 
 		if ($product_id || $store_id) {
 			$this->db->query("
-				DELETE FROM " . DB_PREFIX . "product_facet_index
+				DELETE FROM " . DB_PREFIX . "facet_index
 				WHERE 1
 					" . (($product_id !== null) ? " AND product_id = {$product_id}" : "") . "
 					" . (($store_id !== null) ? " AND store_id = {$store_id}" : "") . "
 			");
 		} else {
-			$this->db->query("TRUNCATE TABLE " . DB_PREFIX . "product_facet_index");
+			$this->db->query("TRUNCATE TABLE " . DB_PREFIX . "facet_index");
 		}
 
     $sql = "
 
-			INSERT INTO " . DB_PREFIX . "product_facet_index
+			INSERT INTO " . DB_PREFIX . "facet_index
 			(product_id, store_id, facet_value_id, facet_group_id, facet_type)
 
 			SELECT
@@ -2066,17 +2066,17 @@ class ModelCatalogProduct extends Model {
 
 		if ($product_id || $store_id) {
 			$this->db->query("
-				DELETE FROM " . DB_PREFIX . "product_stats
+				DELETE FROM " . DB_PREFIX . "facet_sort
 				WHERE 1
 					" . (($product_id !== null) ? " AND product_id = {$product_id}" : "") . "
 					" . (($store_id !== null) ? " AND store_id = {$store_id}" : "") . "
 			");
 		} else {
-			$this->db->query("TRUNCATE TABLE " . DB_PREFIX . "product_stats");
+			$this->db->query("TRUNCATE TABLE " . DB_PREFIX . "facet_sort");
 		}
 
 		$this->db->query("
-			INSERT INTO " . DB_PREFIX . "product_stats (
+			INSERT INTO " . DB_PREFIX . "facet_sort (
 				`product_id`,
 				`store_id`,
 				`views`,

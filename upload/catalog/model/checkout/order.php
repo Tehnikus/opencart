@@ -18,7 +18,7 @@ class ModelCheckoutOrder extends Model {
 
 				// Update product stats
 				$this->db->query("
-					INSERT INTO " . DB_PREFIX . "product_stats (`product_id`, `store_id`, `orders`, `date_last_order`)
+					INSERT INTO " . DB_PREFIX . "facet_sort (`product_id`, `store_id`, `orders`, `date_last_order`)
 					VALUES (
 						'" . (int) $product['product_id'] . "', 
 						'" . (int) $data['store_id'] . "', 
@@ -84,7 +84,7 @@ class ModelCheckoutOrder extends Model {
 
 			// Update product stats
 			$this->db->query("
-				INSERT INTO " . DB_PREFIX . "product_stats (`product_id`, `store_id`, `orders`, `date_last_order`)
+				INSERT INTO " . DB_PREFIX . "facet_sort (`product_id`, `store_id`, `orders`, `date_last_order`)
 				VALUES (
 					'" . (int) $product['product_id'] . "',
 					'" . (int) $data['store_id'] . "',
@@ -167,7 +167,7 @@ class ModelCheckoutOrder extends Model {
     // Decrease product sales stats
     foreach ($products as $product) {
 			$this->db->query("
-				INSERT INTO " . DB_PREFIX . "product_stats (`product_id`, `store_id`, `orders`)
+				INSERT INTO " . DB_PREFIX . "facet_sort (`product_id`, `store_id`, `orders`)
 				VALUES (
 					'" . (int) $product['product_id'] . "',
 					'" . $store_id . "',

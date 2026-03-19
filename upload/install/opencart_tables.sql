@@ -2076,19 +2076,35 @@ CREATE TABLE `oc_product_price` (
   PRIMARY KEY (`product_id`, `currency_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-DROP TABLE IF EXISTS `oc_product_facet_index`;
-CREATE TABLE `oc_product_facet_index` (
+DROP TABLE IF EXISTS `oc_facet_index`;
+CREATE TABLE `oc_facet_index` (
   `product_id`      INT NOT NULL,
   `store_id`        INT NOT NULL,
-  `facet_type`      ENUM('category', 'filter', 'option', 'attribute', 'manufacturer', 'tag', 'supplier', 'is_available', 'has_discount', 'is_featured'),
+  `facet_type`      ENUM('category_id', 'filter', 'option', 'attribute', 'manufacturer_id', 'tag_id', 'supplier_id', 'is_available', 'has_discount', 'is_featured') NOT NULL,
   `facet_value_id`  INT NOT NULL,  -- Id of category/filter/option/attribute/manufacturer
   `facet_group_id`  INT NOT NULL,  -- Parent group of facet_value_id: filter group id for filters, parent category id for categories, etc. Zero if not applicable (manufacturer, has_discount)
   PRIMARY KEY (`facet_value_id`, `facet_type`, `store_id`, `product_id`, `facet_group_id`),
-  KEY `getProducts` (`facet_value_id`, `facet_type`, `store_id`, `product_id`, `facet_group_id`)
+  KEY `getProducts` (`facet_value_id`, `facet_type`, `store_id`, `product_id`, `facet_group_id`),
+  KEY `facetEngine` (`store_id`,  `facet_type`, `facet_value_id`, `product_id`, `facet_group_id`),
+  KEY `facetProduct` (`product_id`, `store_id`,  `facet_type`, `facet_value_id`, `facet_group_id`)
 ) ENGINE=InnoDB;
 
-DROP TABLE IF EXISTS `oc_product_stats`;
-CREATE TABLE `oc_product_stats` (
+DROP TABLE IF EXISTS `oc_facet_name`;
+CREATE TABLE oc_facet_name (
+  `name`              VARCHAR(255) NOT NULL,
+  `group_name`        VARCHAR(255) DEFAULT NULL,
+  `facet_type`        ENUM('category_id', 'filter', 'option', 'attribute', 'manufacturer_id', 'tag_id', 'supplier_id', 'is_available', 'has_discount', 'is_featured') NOT NULL,
+  `facet_value_id`    INT NOT NULL,
+  `facet_group_id`    INT NOT NULL DEFAULT 0,
+  `language_id`       INT NOT NULL DEFAULT 1,
+  `store_id`          INT NOT NULL DEFAULT 0,
+  `sort_order`        INT DEFAULT 0,
+  `group_sort_order`  INT DEFAULT 0,
+  PRIMARY KEY (`facet_value_id`, `facet_group_id`, `facet_type`, `language_id`, `store_id`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `oc_facet_sort`;
+CREATE TABLE `oc_facet_sort` (
   `product_id`        INT NOT NULL,
   `store_id`          INT NOT NULL DEFAULT '0',
   `views`             INT NOT NULL DEFAULT '0',       -- Sort by views desc
@@ -2108,7 +2124,6 @@ CREATE TABLE `oc_product_stats` (
   `date_last_order`   DATETIME DEFAULT NULL,        
   `date_last_review`  DATETIME DEFAULT NULL,
   `date_last_view`    DATETIME DEFAULT NULL,
-  
   PRIMARY KEY (`product_id`,`store_id`)
 ) ENGINE=InnoDB;
 
