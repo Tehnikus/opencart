@@ -495,8 +495,6 @@ class ModelCatalogProduct extends Model {
 		$products 	= [];
 		$sortOrders = $this->getSortOrders(); // Allowed sort orders
 
-		echo '<pre>' . htmlspecialchars(print_r($data, true)) . '</pre>';
-
 		// Facet filters
 		foreach ($data as $filterKey => $filterData) {
 			if (str_starts_with($filterKey, 'filter_') && !empty($filterData)) {
@@ -507,14 +505,7 @@ class ModelCatalogProduct extends Model {
 		foreach ($filters as $filterKey => $filter) {
 			
 			// Sanitize and unique facet ids
-			$filterIds = array_values(
-				array_unique(
-					array_map(
-						'intval', 
-						explode(',', $filter)
-					)
-				)
-			);
+			$filterIds = array_values(array_unique(array_map('intval', explode(',', $filter))));
 
 			if ($filterKey === 'filter_category_id') {
 				$facets[] = "(facet_value_id IN(" . implode(',', $filterIds) .") AND facet_type = 1)";
