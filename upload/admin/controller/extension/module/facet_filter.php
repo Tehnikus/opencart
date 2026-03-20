@@ -61,9 +61,10 @@ class ControllerExtensionModuleFacetFilter extends Controller {
 	public function fetchRebuildFacetIndex() {
 		$storeId	= (int) $this->session->data['store_id'];
 
-		$this->load->model('catalog/product');
-		$this->model_catalog_product->buildFacetIndex(product_id: null, store_id: $storeId);
-		$this->model_catalog_product->buildProductStats(product_id: null, store_id: $storeId);
+		$this->load->model('catalog/facet');
+		$this->model_catalog_facet->buildFacetIndex(product_id: null, store_id: $storeId);
+		$this->model_catalog_facet->buildFacetSorts(product_id: null, store_id: $storeId);
+		$this->model_catalog_facet->buildFacetNames(facet_value_id: null, facet_group_id: null, facet_type: null, language_id: null, store_id: $storeId);
 
 		header('Content-Type: application/json');
 		echo(json_encode(['success' => true]));

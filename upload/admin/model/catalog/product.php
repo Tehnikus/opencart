@@ -345,12 +345,13 @@ class ModelCatalogProduct extends Model {
 				}
 			}
 
-			// Build facet cache
-			$this->buildFacetIndex($product_id, $this->session->data['store_id']);
-			$this->buildProductStats($product_id, $this->session->data['store_id']);
-
 			// Commit DB queries
 			$this->db->query("COMMIT");
+			
+			// Add product to facet filter index
+			$this->load->model('catalog/facet');
+			$this->model_catalog_facet->buildFacetIndex($product_id, $this->session->data['store_id']);
+			$this->model_catalog_facet->buildFacetSorts($product_id, $this->session->data['store_id']);
 
 			// Delete cache
 			$this->deleteCache($product_id, $this->session->data['store_id']);
@@ -812,12 +813,13 @@ class ModelCatalogProduct extends Model {
 					$this->db->query("INSERT INTO " . DB_PREFIX . "product_to_layout SET `product_id` = '" . (int)$product_id . "', `store_id` = '" . (int)$store_id . "', `layout_id` = '" . (int)$layout_id . "'");
 				}
 			}
-			
-			// Build facet cache
-			$this->buildFacetIndex($product_id, $this->session->data['store_id']);
-			$this->buildProductStats($product_id, $this->session->data['store_id']);
 
 			$this->db->query("COMMIT");
+			
+			// Add product to facet filter index
+			$this->load->model('catalog/facet');
+			$this->model_catalog_facet->buildFacetIndex($product_id, $this->session->data['store_id']);
+			$this->model_catalog_facet->buildFacetSorts($product_id, $this->session->data['store_id']);
 
 			// Delete cache
 			$this->deleteCache($product_id, $this->session->data['store_id']);
@@ -1815,8 +1817,11 @@ class ModelCatalogProduct extends Model {
 
 		// Delete cache
 		$this->deleteCache($product_id, (int) $this->session->data['store_id']);
-		$this->buildFacetIndex($product_id, (int) $this->session->data['store_id']);
-		$this->buildProductStats($product_id, (int) $this->session->data['store_id']);
+
+		// Add product to facet filter index
+		$this->load->model('catalog/facet');
+		$this->model_catalog_facet->buildFacetIndex($product_id, $this->session->data['store_id']);
+		$this->model_catalog_facet->buildFacetSorts($product_id, $this->session->data['store_id']);
 
 		return (int) $newStatus;
 	}
@@ -1868,325 +1873,17 @@ class ModelCatalogProduct extends Model {
 
 		// Delete cache
 		$this->deleteCache($product_id, (int) $this->session->data['store_id']);
-		$this->buildFacetIndex($product_id, (int) $this->session->data['store_id']);
-		$this->buildProductStats($product_id, (int) $this->session->data['store_id']);
+		
+		// Add product to facet filter index
+		$this->load->model('catalog/facet');
+		$this->model_catalog_facet->buildFacetIndex($product_id, $this->session->data['store_id']);
+		$this->model_catalog_facet->buildFacetSorts($product_id, $this->session->data['store_id']);
 
 		return (int) $newIsAvailable;
 	}
 
 	// Build facet index
 	// Should be called before previous SQL transaction committed
-
-	public function buildFacetIndex($product_id = null, $store_id = null) : mixed {
-
-    $product_filter = ($product_id !== null) ? " AND p2s.product_id = {$product_id}" : "";
-    $store_filter   = ($store_id !== null)   ? " AND p2s.store_id = {$store_id}"   : "";
-
-		if ($product_id || $store_id) {
-			$this->db->query("
-				DELETE FROM " . DB_PREFIX . "facet_index
-				WHERE 1
-					" . (($product_id !== null) ? " AND product_id = {$product_id}" : "") . "
-					" . (($store_id !== null) ? " AND store_id = {$store_id}" : "") . "
-			");
-		} else {
-			$this->db->query("TRUNCATE TABLE " . DB_PREFIX . "facet_index");
-		}
-
-    $sql = "
-
-			INSERT INTO " . DB_PREFIX . "facet_index
-			(product_id, store_id, facet_value_id, facet_group_id, facet_type)
-
-			SELECT
-				src.product_id,
-				src.store_id,
-				src.facet_value_id,
-				src.facet_group_id,
-				src.facet_type
-
-			FROM (
-
-				/* CATEGORIES */
-				SELECT
-					p2c.product_id AS product_id,
-					p2c.store_id AS store_id,
-					p2c.category_id AS facet_value_id,
-					COALESCE(c2s.parent_id,0) AS facet_group_id,
-					1 AS facet_type
-				FROM " . DB_PREFIX . "product_to_category p2c
-				LEFT JOIN " . DB_PREFIX . "category_to_store c2s
-					ON c2s.category_id = p2c.category_id
-					AND c2s.store_id   = p2c.store_id
-
-				UNION ALL
-
-				/* FILTERS */
-				SELECT
-					pf.product_id AS product_id,
-					pf.store_id AS store_id,
-					pf.filter_id AS facet_value_id,
-					pf.filter_group_id AS facet_group_id,
-					2 AS facet_type
-				FROM " . DB_PREFIX . "product_filter pf
-
-				UNION ALL
-
-				/* OPTIONS */
-				SELECT
-					pov.product_id AS product_id,
-					pov.store_id AS store_id,
-					pov.option_value_id AS facet_value_id,
-					pov.option_id AS facet_group_id,
-					3 AS facet_type
-				FROM " . DB_PREFIX . "product_option_value pov
-
-				UNION ALL
-
-				/* ATTRIBUTES */
-				SELECT
-					pa.product_id AS product_id,
-					pa.store_id AS store_id,
-					pa.attribute_id AS facet_value_id,
-					pa.attribute_group_id AS facet_group_id,
-					4 AS facet_type
-				FROM " . DB_PREFIX . "product_attribute pa
-
-				UNION ALL
-
-				/* MANUFACTURER */
-				SELECT
-					p.product_id AS product_id,
-					p2s.store_id AS store_id,
-					p.manufacturer_id AS facet_value_id,
-					0 AS facet_group_id,
-					5 AS facet_type
-				FROM " . DB_PREFIX . "product p
-				JOIN " . DB_PREFIX . "product_to_store p2s
-					ON p2s.product_id = p.product_id
-				WHERE p.manufacturer_id <> 0
-
-				UNION ALL
-
-				/* SUPPLIER */
-				SELECT
-					p.product_id AS product_id,
-					p2s.store_id AS store_id,
-					p.supplier_id AS facet_value_id,
-					0 AS facet_group_id,
-					7 AS facet_type
-				FROM " . DB_PREFIX . "product p
-				JOIN " . DB_PREFIX . "product_to_store p2s
-					ON p2s.product_id = p.product_id
-				WHERE p.supplier_id <> 0
-
-				UNION ALL
-
-				/* AVAILABILITY */
-				SELECT
-					p.product_id AS product_id,
-					p2s.store_id AS store_id,
-					p2s.is_available AS facet_value_id,
-					0 AS facet_group_id,
-					8 AS facet_type
-				FROM " . DB_PREFIX . "product p
-				JOIN " . DB_PREFIX . "product_to_store p2s
-					ON p2s.product_id = p.product_id
-
-				UNION ALL
-
-				/* DISCOUNT */
-				SELECT
-					p.product_id AS product_id,
-					p2s.store_id AS store_id,
-					1 AS facet_value_id,
-					0 AS facet_group_id,
-					9 AS facet_type
-				FROM " . DB_PREFIX . "product p
-				JOIN " . DB_PREFIX . "product_to_store p2s
-					ON p2s.product_id = p.product_id
-				WHERE (
-					EXISTS(
-						SELECT 1
-						FROM " . DB_PREFIX . "product_special ps
-						WHERE ps.product_id = p.product_id
-							AND ps.store_id   = p2s.store_id
-							AND (ps.date_start='0000-00-00' OR ps.date_start < NOW())
-							AND (ps.date_end='0000-00-00' OR ps.date_end > NOW())
-					)
-					OR
-					EXISTS(
-						SELECT 1
-						FROM " . DB_PREFIX . "product_discount pd
-						WHERE pd.product_id = p.product_id
-							AND pd.store_id   = p2s.store_id
-							AND (pd.date_start='0000-00-00' OR pd.date_start < NOW())
-							AND (pd.date_end='0000-00-00' OR pd.date_end > NOW())
-					)
-				)
-
-				UNION ALL
-
-				/* FEATURED */
-				SELECT
-					p.product_id AS product_id,
-					p2s.store_id AS store_id,
-					p2s.is_featured AS facet_value_id,
-					0 AS facet_group_id,
-					10 AS facet_type
-				FROM " . DB_PREFIX . "product p
-				JOIN " . DB_PREFIX . "product_to_store p2s
-					ON p2s.product_id = p.product_id
-				WHERE p2s.is_featured <> 0
-			) src
-
-			JOIN oc_product_to_store p2s
-				ON p2s.product_id = src.product_id
-				AND p2s.store_id = src.store_id
-				AND p2s.status = 1
-			WHERE 1
-				{$product_filter}
-				{$store_filter}
-
-			ON DUPLICATE KEY UPDATE
-				facet_group_id = src.facet_group_id,
-				facet_value_id = src.facet_value_id,
-				facet_type		 = src.facet_type
-		";
-
-    $this->db->query($sql);
-
-    return $product_id;
-	}
-
-	public function buildProductStats($product_id = null, $store_id = null) : mixed {
-
-    $product_filter = ($product_id !== null) ? " AND p2s.product_id = {$product_id}" : "";
-    $store_filter   = ($store_id !== null)   ? " AND p2s.store_id = {$store_id}"   : "";
-
-		if ($product_id || $store_id) {
-			$this->db->query("
-				DELETE FROM " . DB_PREFIX . "facet_sort
-				WHERE 1
-					" . (($product_id !== null) ? " AND product_id = {$product_id}" : "") . "
-					" . (($store_id !== null) ? " AND store_id = {$store_id}" : "") . "
-			");
-		} else {
-			$this->db->query("TRUNCATE TABLE " . DB_PREFIX . "facet_sort");
-		}
-
-		$this->db->query("
-			INSERT INTO " . DB_PREFIX . "facet_sort (
-				`product_id`,
-				`store_id`,
-				`views`,
-				`orders`,
-				`returns`,
-				`sort_order`,
-				`review_count`,
-				`rating_avg`,
-				`date_last_review`,
-				`current_price`,
-				`is_available`,
-				`is_featured`,
-				`has_discount`,
-				`date_added`,
-				`date_last_order`,
-				`date_last_view`
-			)
-		
-			SELECT
-				p.`product_id`,
-				p2s.`store_id`,
-				COALESCE(p.viewed, 0) AS `views`,
-				COALESCE(o.orders, 0) AS `orders`,
-				0 AS `returns`,
-				p2s.`sort_order`,
-				COALESCE(r.`review_count`, 0),
-				COALESCE(r.`rating_avg`, 0),
-				r.`date_last_review`,
-				COALESCE(ps.`price`, pd.`price`, p2s.`price`, p.`price`) AS `current_price`,
-				IF(p.`status` = 1 AND p.`quantity` > 0, 1, 0) AS `is_available`,
-				p2s.`is_featured` AS `is_featured`,
-				IF(ps.`price` IS NOT NULL OR pd.`price` IS NOT NULL, 1, 0) AS `has_discount`,
-				p.`date_added`,
-				o.`date_last_order`,
-				NULL
-			FROM " . DB_PREFIX . "product p
-			JOIN " . DB_PREFIX . "product_to_store p2s
-				ON p2s.`product_id` = p.`product_id`
-		
-			LEFT JOIN (
-				SELECT
-					op.`product_id`,
-					o.`store_id`,
-					SUM(op.`quantity`) `orders`,
-					MAX(o.`date_added`) `date_last_order`
-				FROM " . DB_PREFIX . "order_product op
-				JOIN " . DB_PREFIX . "order o
-					ON o.`order_id` = op.`order_id`
-				GROUP BY
-					op.`product_id`,
-					o.`store_id`
-			) o
-			ON o.`product_id` = p.`product_id`
-			AND o.`store_id` = p2s.`store_id`
-		
-			LEFT JOIN (
-				SELECT
-					r.`product_id`,
-					r.`store_id`,
-					COUNT(*) AS `review_count`,
-					AVG(r.`rating`) AS `rating_avg`,
-					MAX(r.`date_added`) AS date_last_review
-				FROM " . DB_PREFIX . "review r
-				WHERE r.`status` = 1
-				GROUP BY
-					r.`product_id`,
-					r.`store_id`
-			) r
-			ON r.`product_id` = p.`product_id`
-			AND r.`store_id` = p2s.`store_id`
-		
-			LEFT JOIN (
-				SELECT
-					`product_id`,
-					`store_id`,
-					MIN(`price`) AS `price`
-				FROM " . DB_PREFIX . "product_special
-				WHERE
-					(`date_start` = '0000-00-00' OR `date_start` < NOW())
-					AND (`date_end` = '0000-00-00' OR `date_end` > NOW())
-				GROUP BY
-					`product_id`,
-					`store_id`
-			) ps
-			ON ps.`product_id` = p.`product_id`
-			AND ps.`store_id` = p2s.`store_id`
-		
-			LEFT JOIN (
-				SELECT
-					`product_id`,
-					`store_id`,
-					MIN(`price`) `price`
-				FROM " . DB_PREFIX . "product_discount
-				WHERE
-					(`date_start` = '0000-00-00' OR `date_start` < NOW())
-					AND (`date_end` = '0000-00-00' OR `date_end` > NOW())
-				GROUP BY
-					`product_id`,
-					`store_id`
-			) pd
-			ON pd.`product_id` = p.`product_id`
-			AND pd.`store_id` = p2s.`store_id`
-			WHERE 1 
-			{$product_filter}
-			{$store_filter}
-			AND p2s.status = 1
-		");
-
-		return $product_id;
-	}
 
 	// Delete cache
 	public function deleteCache($product_id, $store_id = null) : void {
