@@ -356,40 +356,47 @@ class ModelCatalogAttributeGroup extends Model {
 		return $result;
 	}
 
-		public function deleteCache($attribute_group_id, $store_id = null) : void {
-					
-			if ($store_id === null) {
-				$store_id = $this->session->data['store_id'];
-			}
+	public function deleteCache($attribute_group_id, $store_id = null) : void {
+		
+		$products 	= [];
+		$categories = [];
 
-			$this->load->model('localisation/language');
-			$languages = $this->model_localisation_language->getLanguages();
+		if ($store_id === null) {
+			$store_id = $this->session->data['store_id'];
+		}
 
-			$products = $this->db->query("
+		$this->load->model('localisation/language');
+		$languages = $this->model_localisation_language->getLanguages();
+
+		$products = $this->db->query("
+			SELECT
+				DISTINCT product_id
+			FROM " . DB_PREFIX . "product_attribute
+			WHERE attribute_group_id = '" . $attribute_group_id . "'
+				AND store_id = '" . (int) $store_id . "'
+		")->rows;
+
+		if (!empty($products)) {
+			$categories = $this->db->query("
 				SELECT
-					DISTINCT product_id
-				FROM " . DB_PREFIX . "product_attribute
-				WHERE attribute_group_id = '" . $attribute_group_id . "'
+					DISTINCT category_id
+				FROM " . DB_PREFIX . "product_to_category
+				WHERE product_id IN(" . implode(',',array_column($products, 'product_id')). ")
 					AND store_id = '" . (int) $store_id . "'
 			")->rows;
+		}
 
+		foreach ($languages as $language) {
+			$language_id = $language['language_id'];
+			// Pproduct cache
 			if (!empty($products)) {
-				$categories = $this->db->query("
-					SELECT
-						DISTINCT category_id
-					FROM " . DB_PREFIX . "product_to_category
-					WHERE product_id IN(" . implode(',',array_column($products, 'product_id')). ")
-						AND store_id = '" . (int) $store_id . "'
-				");
-			}
-
-			foreach ($languages as $language) {
-				$language_id = $language['language_id'];
-				// Pproduct cache
 				foreach ($products as $product) {
 					$productCacheName 	= "product.store_{$store_id}.language_{$language_id}." . (floor($product['product_id'] / 100)) . "00.product_" . $product['product_id'];
 					$this->cache->delete($productCacheName);
 				}
+			}
+
+			if (!empty($categories)) {
 				foreach ($categories as $category) {
 					$category_id = (int) $category['category_id'];
 
@@ -400,3 +407,5 @@ class ModelCatalogAttributeGroup extends Model {
 			}
 		}
 	}
+
+}
