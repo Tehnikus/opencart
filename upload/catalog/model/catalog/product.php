@@ -485,6 +485,7 @@ class ModelCatalogProduct extends Model {
 	}
 
 	public function getProducts($data = []) : array {
+		$data 			= array_filter($data); // Remove empty array entries 
 		$store_id 	= (int) $this->config->get('config_store_id');
 		$filters 		= [];
 		$facets 		= [];
@@ -559,32 +560,16 @@ class ModelCatalogProduct extends Model {
 		}
 
 		if (isset($data['start']) || isset($data['limit'])) {
-			if ($data['start'] < 0) {
+			if (!isset($data['start']) || $data['start'] < 0) {
 				$data['start'] = 0;
 			}
 
-			if ($data['limit'] < 1) {
+			if (!isset($data['limit']) || $data['limit'] < 1) {
 				$data['limit'] = 20;
 			}
 
 			$limit = " LIMIT " . (int) $data['start'] . "," . (int) $data['limit'];
 		}
-
-		// $sql = "
-		// 	SELECT 
-		// 		product_id
-		// 	FROM " . DB_PREFIX . "facet_index
-		// 	WHERE " . implode(" AND ", $where) . "
-		// 	GROUP BY product_id
-		// 	HAVING COUNT(DISTINCT facet_type, facet_group_id) = (
-		// 		SELECT 
-		// 			COUNT(DISTINCT facet_type, facet_group_id)
-		// 		FROM " . DB_PREFIX . "facet_index
-		// 		WHERE " . implode(" AND ", $where) . "
-		// 		ORDER BY NULL
-		// 	)
-		// 	ORDER BY NULL
-		// ";
 
 		// Main query. Get product ids, sort, limit
 		$sql = "
