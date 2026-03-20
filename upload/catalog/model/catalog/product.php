@@ -1254,87 +1254,172 @@ class ModelCatalogProduct extends Model {
 
 	/**
 	 * Get all facets with names and product count
+	 * This method counts products that will be displayed if facet is applied, like [filter [+3]] or [filter [-2]]
 	 * Use same $data array as getProducts() method
 	 * @param mixed $data
 	 * @return array of filter type, group, values, names and product count
 	 */
 	public function getFilters($data = []) : array {
-		$result 	= []; // Data to be returned
-		$filters 	= []; // Input filters to be cleared and casted to integers
-		$facets		= []; // Array of sanitized strings to be used in SQL request
-		$store_id 		= (int) $this->config->get('config_store_id');
-		$language_id  = (int) $this->config->get('config_language_id');
+		$facetTypes  = $this->getFacetTypes(); 													// Allowed facet types
+		$store_id    = (int) $this->config->get('config_store_id'); 		// Current store id
+		$language_id = (int) $this->config->get('config_language_id');	// Current language id
 
-		// Facet filters
-		foreach ($data as $filterKey => $filterData) {
-			if (str_starts_with($filterKey, 'filter_') && !empty($filterData)) {
-				$filters[$filterKey] = $filterData;
+		// Get current page to get base product set 
+		$path 				= $this->request->get['category_id'] ?? $this->request->get['path'] ?? '';
+		$category_id 	= explode('_', (string) $path);
+		$category_id 	= end($category_id);
+		$base_facet = [
+			'facet_type' => 1,
+			'facet_value_id' => $category_id,
+		];
+		// Set base facet to filter base product set on this page
+		$base_facet_type  = (int) $base_facet['facet_type'];     // Page type, category = 1, manufacturer = 5, has_discount = 9, is_featured = 10
+		$base_facet_value = (int) $base_facet['facet_value_id']; // Page id if applicable, i.e. category_id. If not applicable then 0 
+
+		// Get selected facets
+		$selected_facets = [];
+		foreach ($data as $key => $ids) {
+			if (!isset($facetTypes[$key])) continue;
+			$type = (int)$facetTypes[$key];
+			$ids = array_values(array_unique(array_map('intval', explode(',', $ids))));
+			foreach ($ids as $id) {
+				$selected_facets[] = "SELECT " . (int)$id . " AS facet_value_id, {$type} AS facet_type";
 			}
 		}
 
-		if (empty($filters)) {
-			return $result;
+		// Two different variants when no facet selected (base page like category)
+		// And when some facets are selected
+		if (!empty($selected_facets)) {
+			$selected_facets_sql = implode(" UNION ALL ", $selected_facets);
+		} else {
+			$selected_facets_sql = '';
 		}
 
-		foreach ($filters as $filterKey => $filter) {
-				
-			// Sanitize and unique facet ids
-			$filterIds = array_values(
-				array_unique(
-					array_map(
-						'intval', 
-						explode(',', $filter)
-					)
+		// Create SQL 
+		if ($selected_facets_sql === '') {
+			// First variant
+			// No selected facets: current_products = base_products
+			// Simple request
+			$sql = "
+				WITH
+				-- current_products == base_products when no selection
+				current_products AS (
+					SELECT DISTINCT b.product_id
+					FROM " . DB_PREFIX . "facet_index b
+					WHERE b.store_id = {$store_id}
+						AND b.facet_type = {$base_facet_type}
+						AND b.facet_value_id = {$base_facet_value}
+				),
+
+				facet_counts AS (
+						SELECT
+							f.facet_type,
+							f.facet_group_id,
+							f.facet_value_id,
+							COUNT(DISTINCT f.product_id) AS base_count,
+							COUNT(DISTINCT CASE WHEN cp.product_id IS NOT NULL THEN f.product_id END) AS current_count
+						FROM " . DB_PREFIX . "facet_index f
+						LEFT JOIN current_products cp ON cp.product_id = f.product_id
+						WHERE f.store_id = {$store_id}
+							AND EXISTS (
+								SELECT 1 FROM " . DB_PREFIX . "facet_index b
+								WHERE b.product_id = f.product_id
+									AND b.store_id = {$store_id}
+									AND b.facet_type = {$base_facet_type}
+									AND b.facet_value_id = {$base_facet_value}
+							)
+						GROUP BY f.facet_type, f.facet_group_id, f.facet_value_id
 				)
-			);
+				SELECT
+					fc.*,
+					0 AS group_selected, -- no groups selected
+					tp.total_current
+				FROM facet_counts fc
+				CROSS JOIN (SELECT COUNT(*) AS total_current FROM current_products) tp
+			";
+		} else {
+			// Second variant, when some facets are selected
+			$sql = "
+				WITH
+				selected_facets AS (
+					{$selected_facets_sql}
+				),
 
-			$facetTypes = [
-				'filter_category_id'   		=> 1,
-				'filter_filter'        		=> 2,
-				'filter_option'        		=> 3,
-				'filter_attribute'     		=> 4,
-				'filter_manufacturer_id'	=> 5,
-				'filter_tag_id'           => 6,
-				'filter_supplier_id'      => 7,
-				'filter_is_available'  		=> 8,
-				'filter_has_discount'  		=> 9,
-				'filter_is_featured'   		=> 10,
-			];
+				selected_groups_count AS (
+					SELECT COUNT(DISTINCT f2.facet_type, f2.facet_group_id) AS cnt
+					FROM " . DB_PREFIX . "facet_index f2
+					JOIN selected_facets sf2
+						ON sf2.facet_value_id = f2.facet_value_id
+					AND sf2.facet_type      = f2.facet_type
+					WHERE f2.store_id = {$store_id}
+				),
 
-			if (isset($facetTypes[$filterKey])) {
-				$type = $facetTypes[$filterKey];
-				foreach ($filterIds as $filterId) {
-					$facets[] = "SELECT {$filterId} AS facet_value_id, {$type} AS facet_type";
-				}
-			}
+				current_products AS (
+					SELECT f.product_id
+					FROM " . DB_PREFIX . "facet_index f
+					JOIN selected_facets sf
+						ON sf.facet_value_id = f.facet_value_id
+					AND sf.facet_type      = f.facet_type
+					WHERE f.store_id = {$store_id}
+					GROUP BY f.product_id
+					HAVING COUNT(DISTINCT f.facet_type, f.facet_group_id) = (SELECT cnt FROM selected_groups_count)
+				),
+
+				selected_groups AS (
+					SELECT DISTINCT f.facet_type, f.facet_group_id
+					FROM " . DB_PREFIX . "facet_index f
+					JOIN selected_facets sf
+						ON sf.facet_value_id = f.facet_value_id
+					AND sf.facet_type      = f.facet_type
+					WHERE f.store_id = {$store_id}
+				),
+
+				facet_counts AS (
+					SELECT
+						f.facet_type,
+						f.facet_group_id,
+						f.facet_value_id,
+						COUNT(DISTINCT f.product_id) AS base_count,
+						COUNT(DISTINCT CASE WHEN cp.product_id IS NOT NULL THEN f.product_id END) AS current_count
+					FROM " . DB_PREFIX . "facet_index f
+					LEFT JOIN current_products cp ON cp.product_id = f.product_id
+					WHERE f.store_id = {$store_id}
+						AND EXISTS (
+							SELECT 1 FROM " . DB_PREFIX . "facet_index b
+							WHERE b.product_id     = f.product_id
+								AND b.store_id       = {$store_id}
+								AND b.facet_type     = {$base_facet_type}
+								AND b.facet_value_id = {$base_facet_value}
+						)
+					GROUP BY f.facet_type, f.facet_group_id, f.facet_value_id
+				)
+
+				SELECT
+					fc.*,
+					fn.name 										AS facet_name,
+					fn.group_name 							AS facet_group_name,
+					fn.sort_order 							AS facet_sort_order,
+					fn.group_sort_order 				AS facet_group_sort_order,
+					(sg.facet_type IS NOT NULL) AS group_selected,
+					tp.total_current
+				FROM facet_counts fc
+				LEFT JOIN " . DB_PREFIX . "facet_name fn 
+					ON  fn.facet_value_id = fc.facet_value_id
+					AND fn.facet_group_id = fc.facet_group_id
+					AND fn.facet_type 		= fc.facet_type
+					AND fn.language_id 		= {$language_id}
+					AND fn.store_id 			= {$store_id}
+				LEFT JOIN selected_groups sg
+					ON sg.facet_type = fc.facet_type
+				AND sg.facet_group_id = fc.facet_group_id
+				CROSS JOIN (SELECT COUNT(*) AS total_current FROM current_products) tp
+			";
 		}
-		
-		$sql = "
-			WITH selected_facets AS (
-				" . implode(" UNION ALL ", $facets) . "
-			),
-			
-			filtered_products AS (
-				SELECT f.product_id
-				FROM " . DB_PREFIX . "product_facet_index f
-				JOIN selected_facets sf
-					ON sf.facet_value_id = f.facet_value_id
-				AND sf.facet_type    = f.facet_type
-				WHERE f.store_id = {$store_id}
-				GROUP BY f.product_id
-				HAVING COUNT(DISTINCT f.facet_type) = (SELECT COUNT(DISTINCT facet_type) FROM selected_facets)
-				ORDER BY NULL
-			)
 
-			SELECT
-				f.facet_type,
-				f.facet_group_id,
-				f.facet_value_id,
-				COUNT(*) AS product_count,
-				COALESCE(cd.name, fd.name, ovd.name, ad.name, md.name) AS facet_name,
-				COALESCE(fgd.name, od.name, agd.name) AS facet_group_name
-				
-			FROM " . DB_PREFIX . "product_facet_index f
+		$query = $this->db->query($sql);
+		$rows = $query->rows;
+		return $rows;
+	}
 
 			/* Conditional JOINs for names. If facet type does not match then JOIN is not executed */
 			LEFT JOIN " . DB_PREFIX . "category_description cd
