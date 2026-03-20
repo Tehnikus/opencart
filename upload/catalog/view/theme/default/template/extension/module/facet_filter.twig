@@ -10,14 +10,15 @@
         {% endfor %}
       </select>
     </div>
-    <div> 
+    <div class="facetFilter"> 
       {% for filter_set_name, filter_set in filter_sets %}
         {% for key, filter_group in filter_set %}
           <h4>{{filter_group.group_name}}</h4>
           {% for filter_val in filter_group.filters %}
             <a href="{{ filter_val.href }}">
               <input type="checkbox" data-filter-type="{{ filter_set_name }}" value="{{ filter_val.filter_id }}" {% if filter_val.filter_id in requests[filter_set_name] %} checked="checked" {% endif %} />
-              {{ filter_val.name }}
+              <span class="facetName">{{ filter_val.name }}</span>
+              <span class="productCount">({{ filter_val.product_count }})</span>
             </a>
           {% endfor %}
         {% endfor %}
