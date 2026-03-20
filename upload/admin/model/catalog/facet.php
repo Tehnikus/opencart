@@ -1,6 +1,6 @@
 <?php
 Class ModelCatalogFacet extends Model {
-  public function buildFacetIndex($product_id = null, $store_id = null) : mixed {
+  public function buildFacetIndex($product_id = null, $facet_value_id = null, $facet_group_id = null, $facet_type = null, $store_id = null) : void {
     $where = [];
     $where[] = "1";
     if ($product_id !== null) {
@@ -9,15 +9,20 @@ Class ModelCatalogFacet extends Model {
     if ($store_id !== null) {
       $where[] = "src.store_id = " . (int) $store_id . "";
     }
-
-    if ($product_id || $store_id) {
-      $this->db->query("
-        DELETE FROM " . DB_PREFIX . "facet_index src
-        WHERE " . implode(" AND ", $where) . "
-      ");
-    } else {
-      $this->db->query("TRUNCATE TABLE " . DB_PREFIX . "facet_index");
+    if ($facet_value_id !== null) {
+      $where[] = "src.facet_value_id = " . (int) $facet_value_id . "";
     }
+    if ($facet_group_id !== null) {
+      $where[] = "src.facet_group_id = " . (int) $facet_group_id . "";
+    }
+    if ($facet_type !== null) {
+      $where[] = "src.facet_type = " . (int) $facet_type . "";
+    }
+
+    $this->db->query("
+      DELETE FROM " . DB_PREFIX . "facet_index src
+      WHERE " . implode(" AND ", $where) . "
+    ");
 
     $sql = "
 
@@ -177,7 +182,6 @@ Class ModelCatalogFacet extends Model {
     $this->db->query("ANALYZE TABLE " . DB_PREFIX . "facet_index");
     $this->db->query("FLUSH TABLE " . DB_PREFIX . "facet_index");
 
-    return $product_id;
   }
 
   public function buildFacetSorts($product_id = null, $store_id = null) : mixed {
