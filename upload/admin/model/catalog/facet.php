@@ -184,8 +184,7 @@ Class ModelCatalogFacet extends Model {
 
   }
 
-  public function buildFacetSorts($product_id = null, $store_id = null) : mixed {
-
+  public function buildFacetSorts($product_id = null, $store_id = null) : void {
     $where = [];
     $where[] = "1";
     if ($product_id !== null) {
@@ -369,10 +368,9 @@ Class ModelCatalogFacet extends Model {
     $this->db->query("ANALYZE TABLE " . DB_PREFIX . "facet_sort");
     $this->db->query("FLUSH TABLE " . DB_PREFIX . "facet_sort");
 
-    return $product_id;
   }
 
-  public function buildFacetNames($facet_value_id = null, $facet_group_id = null, $facet_type = null, $language_id = null, $store_id = null) : void {
+  public function buildFacetNames($facet_value_id = null, $facet_group_id = null, $facet_type = null, $store_id = null) : void {
     $where = [];
 
     $where[] = "1";
@@ -384,9 +382,6 @@ Class ModelCatalogFacet extends Model {
     }
     if ($facet_type !== null) {
       $where[] = "src.facet_type = " . (int) $facet_type . "";
-    }
-    if ($language_id !== null) {
-      $where[] = "src.language_id = " . (int) $language_id . "";
     }
     if ($store_id !== null) {
       $where[] = "src.store_id = " . (int) $store_id . "";
