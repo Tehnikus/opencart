@@ -62,9 +62,9 @@ class ControllerExtensionModuleFacetFilter extends Controller {
 		$storeId	= (int) $this->session->data['store_id'];
 
 		$this->load->model('catalog/facet');
-		$this->model_catalog_facet->buildFacetIndex(product_id: null, store_id: $storeId);
-		$this->model_catalog_facet->buildFacetSorts(product_id: null, store_id: $storeId);
-		$this->model_catalog_facet->buildFacetNames(facet_value_id: null, facet_group_id: null, facet_type: null, language_id: null, store_id: $storeId);
+		$this->model_catalog_facet->buildFacetIndex(store_id: $storeId);
+		$this->model_catalog_facet->buildFacetSorts(store_id: $storeId);
+		$this->model_catalog_facet->buildFacetNames(store_id: $storeId);
 
 		header('Content-Type: application/json');
 		echo(json_encode(['success' => true]));
