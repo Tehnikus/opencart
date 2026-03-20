@@ -44,6 +44,12 @@ class ModelCatalogAttribute extends Model {
 			}
 	
 			$this->db->query("COMMIT");
+
+			// Rebuild facet indexes
+			$this->load->model('catalog/facet');
+			$store_id = (int) $this->session->data['store_id'];
+			$this->model_catalog_facet->buildFacetNames(facet_value_id: $attribute_id, facet_type: 4, store_id: $store_id);
+			$this->model_catalog_facet->buildFacetIndex(facet_value_id: $attribute_id, facet_type: 4, store_id: $store_id);
 			
 			return (int) $attribute_id;
 			
@@ -130,6 +136,12 @@ class ModelCatalogAttribute extends Model {
 
 			$this->db->query("COMMIT");
 
+			// Rebuild facet indexes
+			$this->load->model('catalog/facet');
+			$store_id = (int) $this->session->data['store_id'];
+			$this->model_catalog_facet->buildFacetNames(facet_value_id: $attribute_id, facet_type: 4, store_id: $store_id);
+			$this->model_catalog_facet->buildFacetIndex(facet_value_id: $attribute_id, facet_type: 4, store_id: $store_id);
+
 			// Delete cache
 			$this->deleteCache($attribute_id);
 
@@ -191,6 +203,12 @@ class ModelCatalogAttribute extends Model {
 			}
 
 			$this->db->query("COMMIT");
+
+			// Rebuild facet indexes
+			$this->load->model('catalog/facet');
+			$store_id = (int) $this->session->data['store_id'];
+			$this->model_catalog_facet->buildFacetNames(facet_value_id: $attribute_id, facet_type: 4, store_id: $store_id);
+			$this->model_catalog_facet->buildFacetIndex(facet_value_id: $attribute_id, facet_type: 4, store_id: $store_id);
 			
 			// Delete cache
 			$this->deleteCache($attribute_id);

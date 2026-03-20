@@ -153,6 +153,12 @@ class ModelCatalogCategory extends Model {
 			}
 			
 			$this->db->query("COMMIT");
+
+			// Rebuild facet indexes
+			$this->load->model('catalog/facet');
+			$store_id = (int) $this->session->data['store_id'];
+			$this->model_catalog_facet->buildFacetNames(facet_value_id: $category_id, facet_type: 1, store_id: $store_id);
+			$this->model_catalog_facet->buildFacetIndex(facet_value_id: $category_id, facet_type: 1, store_id: $store_id);
 			
 			// Delete cache
 			// While new category itself does not has cache yet, this method also clears it's parent category cache to update child categories 
@@ -453,6 +459,12 @@ class ModelCatalogCategory extends Model {
 	
 			$this->db->query("COMMIT");
 
+			// Rebuild facet indexes
+			$this->load->model('catalog/facet');
+			$store_id = (int) $this->session->data['store_id'];
+			$this->model_catalog_facet->buildFacetNames(facet_value_id: $category_id, facet_type: 1, store_id: $store_id);
+			$this->model_catalog_facet->buildFacetIndex(facet_value_id: $category_id, facet_type: 1, store_id: $store_id);
+
 			// Delete cache
 			$this->deleteCache($category_id);
 
@@ -567,6 +579,12 @@ class ModelCatalogCategory extends Model {
 				");
 			}
 	
+			// Rebuild facet indexes
+			$this->load->model('catalog/facet');
+			$store_id = (int) $this->session->data['store_id'];
+			$this->model_catalog_facet->buildFacetNames(facet_value_id: $category_id, facet_type: 1, store_id: $store_id);
+			$this->model_catalog_facet->buildFacetIndex(facet_value_id: $category_id, facet_type: 1, store_id: $store_id);
+
 			if ($useTransaction) {
 				$this->db->query("COMMIT");
 			}
@@ -905,6 +923,12 @@ class ModelCatalogCategory extends Model {
 		")->row;
 
 		$newStatus = $query['status'];
+
+		// Rebuild facet indexes
+		$this->load->model('catalog/facet');
+		$store_id = (int) $this->session->data['store_id'];
+		$this->model_catalog_facet->buildFacetNames(facet_value_id: $category_id, facet_type: 1, store_id: $store_id);
+		$this->model_catalog_facet->buildFacetIndex(facet_value_id: $category_id, facet_type: 1, store_id: $store_id);
 		
 		$this->deleteCache($category_id);
 		

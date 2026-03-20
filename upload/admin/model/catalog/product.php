@@ -350,8 +350,8 @@ class ModelCatalogProduct extends Model {
 			
 			// Add product to facet filter index
 			$this->load->model('catalog/facet');
-			$this->model_catalog_facet->buildFacetIndex($product_id, $this->session->data['store_id']);
-			$this->model_catalog_facet->buildFacetSorts($product_id, $this->session->data['store_id']);
+			$this->model_catalog_facet->buildFacetIndex(product_id: (int) $product_id, store_id: (int) $this->session->data['store_id']);
+			$this->model_catalog_facet->buildFacetSorts(product_id: (int) $product_id, store_id: (int) $this->session->data['store_id']);
 
 			// Delete cache
 			$this->deleteCache($product_id, $this->session->data['store_id']);
@@ -818,8 +818,8 @@ class ModelCatalogProduct extends Model {
 			
 			// Add product to facet filter index
 			$this->load->model('catalog/facet');
-			$this->model_catalog_facet->buildFacetIndex($product_id, $this->session->data['store_id']);
-			$this->model_catalog_facet->buildFacetSorts($product_id, $this->session->data['store_id']);
+			$this->model_catalog_facet->buildFacetIndex(product_id: (int) $product_id, store_id: (int) $this->session->data['store_id']);
+			$this->model_catalog_facet->buildFacetSorts(product_id: (int) $product_id, store_id: (int) $this->session->data['store_id']);
 
 			// Delete cache
 			$this->deleteCache($product_id, $this->session->data['store_id']);
@@ -873,7 +873,6 @@ class ModelCatalogProduct extends Model {
 			'product_attribute',
 			'product_description',
 			'product_discount',
-			'facet_index',
 			'product_filter',
 			'product_image',
 			'product_option',
@@ -881,14 +880,15 @@ class ModelCatalogProduct extends Model {
 			'product_related',
 			'product_reward',
 			'product_special',
-			'facet_sort',
 			'product_to_category',
 			'product_to_download',
 			'product_to_layout',
 			'product_to_store',
 			'product_recurring',
 			'review',
-			'coupon_product'
+			'coupon_product',
+			'facet_index',
+			'facet_sort',
 		];
 
 		// Delete cache
@@ -1814,14 +1814,14 @@ class ModelCatalogProduct extends Model {
 		")->row;
 
 		$newStatus = $query['status'];
+	
+		// Add product to facet filter index
+		$this->load->model('catalog/facet');
+		$this->model_catalog_facet->buildFacetIndex(product_id: (int) $product_id, store_id: (int) $this->session->data['store_id']);
+		$this->model_catalog_facet->buildFacetSorts(product_id: (int) $product_id, store_id: (int) $this->session->data['store_id']);
 
 		// Delete cache
 		$this->deleteCache($product_id, (int) $this->session->data['store_id']);
-
-		// Add product to facet filter index
-		$this->load->model('catalog/facet');
-		$this->model_catalog_facet->buildFacetIndex($product_id, $this->session->data['store_id']);
-		$this->model_catalog_facet->buildFacetSorts($product_id, $this->session->data['store_id']);
 
 		return (int) $newStatus;
 	}
@@ -1876,8 +1876,8 @@ class ModelCatalogProduct extends Model {
 		
 		// Add product to facet filter index
 		$this->load->model('catalog/facet');
-		$this->model_catalog_facet->buildFacetIndex($product_id, $this->session->data['store_id']);
-		$this->model_catalog_facet->buildFacetSorts($product_id, $this->session->data['store_id']);
+		$this->model_catalog_facet->buildFacetIndex(product_id: (int) $product_id, store_id: (int) $this->session->data['store_id']);
+		$this->model_catalog_facet->buildFacetSorts(product_id: (int) $product_id, store_id: (int) $this->session->data['store_id']);
 
 		return (int) $newIsAvailable;
 	}

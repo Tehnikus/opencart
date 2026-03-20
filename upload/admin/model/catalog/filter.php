@@ -86,6 +86,12 @@ class ModelCatalogFilter extends Model {
 
 			$this->db->query("COMMIT");
 
+			// Rebuild facet indexes
+			$this->load->model('catalog/facet');
+			$store_id = (int) $this->session->data['store_id'];
+			$this->model_catalog_facet->buildFacetNames(facet_group_id: $filter_group_id, facet_type: 2, store_id: $store_id);
+			$this->model_catalog_facet->buildFacetIndex(facet_group_id: $filter_group_id, facet_type: 2, store_id: $store_id);
+
 			return $filter_group_id;
 
 		} catch (\Throwable $e) {
@@ -235,6 +241,12 @@ class ModelCatalogFilter extends Model {
 
 			$this->db->query("COMMIT");
 
+			// Rebuild facet indexes
+			$this->load->model('catalog/facet');
+			$store_id = (int) $this->session->data['store_id'];
+			$this->model_catalog_facet->buildFacetNames(facet_group_id: $filter_group_id, facet_type: 2, store_id: $store_id);
+			$this->model_catalog_facet->buildFacetIndex(facet_group_id: $filter_group_id, facet_type: 2, store_id: $store_id);
+
 			return $filter_group_id;
 
 		} catch (\Throwable $e) {
@@ -352,6 +364,12 @@ class ModelCatalogFilter extends Model {
 			}
 
 			$this->db->query("COMMIT");
+
+			// Rebuild facet indexes
+			$this->load->model('catalog/facet');
+			$store_id = (int) $this->session->data['store_id'];
+			$this->model_catalog_facet->buildFacetNames(facet_group_id: $filter_group_id, facet_type: 2, store_id: $store_id);
+			$this->model_catalog_facet->buildFacetIndex(facet_group_id: $filter_group_id, facet_type: 2, store_id: $store_id);
 
 			return true;
 

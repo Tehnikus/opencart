@@ -40,6 +40,11 @@ class ModelCatalogAttributeGroup extends Model {
 				}
 			}
 
+			// Rebuild facet indexes
+			$this->load->model('catalog/facet');
+			$store_id = (int) $this->session->data['store_id'];
+			$this->model_catalog_facet->buildFacetNames(facet_group_id: $attribute_group_id, facet_type: 4, store_id: $store_id);
+
 			$this->db->query("COMMIT");
 
 			return $attribute_group_id;
@@ -126,6 +131,11 @@ class ModelCatalogAttributeGroup extends Model {
 
 			// Delete cache
 			$this->deleteCache($attribute_group_id);
+			
+			// Rebuild facet indexes
+			$this->load->model('catalog/facet');
+			$store_id = (int) $this->session->data['store_id'];
+			$this->model_catalog_facet->buildFacetNames(facet_group_id: $attribute_group_id, facet_type: 4, store_id: $store_id);
 
 			return $attribute_group_id;
 			
@@ -200,6 +210,11 @@ class ModelCatalogAttributeGroup extends Model {
 
 			// Delete cache
 			$this->deleteCache($attribute_group_id);
+
+			// Rebuild facet indexes
+			$this->load->model('catalog/facet');
+			$store_id = (int) $this->session->data['store_id'];
+			$this->model_catalog_facet->buildFacetNames(facet_group_id: $attribute_group_id, facet_type: 4, store_id: $store_id);
 			
 			return true;
 			
@@ -357,7 +372,7 @@ class ModelCatalogAttributeGroup extends Model {
 	}
 
 	public function deleteCache($attribute_group_id, $store_id = null) : void {
-		
+
 		$products 	= [];
 		$categories = [];
 
