@@ -539,4 +539,128 @@ Class ModelCatalogFacet extends Model {
     $this->db->query("FLUSH TABLE " . DB_PREFIX . "facet_name");
 
   }
+
+  public function cleanupFacetIndex(?int $store_id = null): void {
+
+    $storeWhere = $store_id !== null ? "AND fi.store_id = " . (int)$store_id : "";
+
+    // 1. Delete removed products or those that are turned off (not displayed)
+    $this->db->query("
+        DELETE fi
+        FROM " . DB_PREFIX . "facet_index fi
+        LEFT JOIN " . DB_PREFIX . "product_to_store p2s
+          ON p2s.product_id = fi.product_id
+          AND p2s.store_id = fi.store_id
+        WHERE (p2s.product_id IS NULL OR p2s.status = 0)
+        $storeWhere
+    ");
+
+    // 2. Delete categories
+    $this->db->query("
+        DELETE fi
+        FROM " . DB_PREFIX . "facet_index fi
+        LEFT JOIN " . DB_PREFIX . "category_to_store c2s
+          ON c2s.category_id = fi.facet_value_id
+          AND c2s.store_id fi.store_id
+        WHERE fi.facet_type = 1
+        AND (c2s.category_id IS NULL OR c2s.status = 0)
+        $storeWhere
+    ");
+
+    // 3. Filters
+    $this->db->query("
+        DELETE fi
+        FROM " . DB_PREFIX . "facet_index fi
+        LEFT JOIN " . DB_PREFIX . "filter f
+          ON f.filter_id = fi.facet_value_id
+          AND f.store_id = fi.store_id
+        WHERE fi.facet_type = 2
+        AND f.filter_id IS NULL
+        $storeWhere
+    ");
+
+    // 4. Option values
+    $this->db->query("
+        DELETE fi
+        FROM " . DB_PREFIX . "facet_index fi
+        LEFT JOIN " . DB_PREFIX . "option_value ov
+          ON ov.option_value_id = fi.facet_value_id
+          AND ov.store_id = fi.store_id
+        WHERE fi.facet_type = 3
+        AND ov.option_value_id IS NULL
+        $storeWhere
+    ");
+
+    // 5. Attributes
+    $this->db->query("
+        DELETE fi
+        FROM " . DB_PREFIX . "facet_index fi
+        LEFT JOIN " . DB_PREFIX . "attribute_to_store a
+          ON a.attribute_id = fi.facet_value_id
+          AND a.store_id = fi.store_id
+        WHERE fi.facet_type = 4
+        AND a.attribute_id IS NULL
+        $storeWhere
+    ");
+
+    // 6. Manufacturers
+    $this->db->query("
+        DELETE fi
+        FROM " . DB_PREFIX . "facet_index fi
+        LEFT JOIN " . DB_PREFIX . "manufacturer_to_store m
+          ON m.manufacturer_id = fi.facet_value_id
+          AND m.store_id = fi.store_id
+        WHERE fi.facet_type = 5
+        AND m.manufacturer_id IS NULL
+        $storeWhere
+    ");
+
+    // 7. Suppliers (TODO...)
+    $this->db->query("
+        DELETE fi
+        FROM " . DB_PREFIX . "facet_index fi
+        LEFT JOIN " . DB_PREFIX . "supplier_to_store s
+          ON s.supplier_id = fi.facet_value_id
+          AND s.store_id = fi.store_id
+        WHERE fi.facet_type = 7
+        AND s.supplier_id IS NULL
+        $storeWhere
+    ");
+
+    // 8. Discounts (if products doesn't have discount)
+    $this->db->query("
+        DELETE fi
+        FROM " . DB_PREFIX . "facet_index fi
+        WHERE fi.facet_type = 9
+        AND NOT EXISTS (
+          SELECT 1
+          FROM " . DB_PREFIX . "product_special ps
+          WHERE ps.product_id = fi.product_id
+            AND ps.store_id = fi.store_id
+            AND (ps.date_start = '0000-00-00' OR ps.date_start < NOW())
+            AND (ps.date_end = '0000-00-00' OR ps.date_end > NOW())
+        )
+        AND NOT EXISTS (
+          SELECT 1
+          FROM " . DB_PREFIX . "product_discount pd
+          WHERE pd.product_id = fi.product_id
+            AND pd.store_id = fi.store_id
+            AND (pd.date_start = '0000-00-00' OR pd.date_start < NOW())
+            AND (pd.date_end = '0000-00-00' OR pd.date_end > NOW())
+        )
+        $storeWhere
+    ");
+
+    // 9. Featured
+    $this->db->query("
+      DELETE fi
+      FROM " . DB_PREFIX . "facet_index fi
+      LEFT JOIN " . DB_PREFIX . "product_to_store p2s
+        ON p2s.product_id = fi.product_id
+        AND p2s.store_id = fi.store_id
+      WHERE fi.facet_type = 10
+      AND (p2s.is_featured = 0 OR p2s.is_featured IS NULL)
+      $storeWhere
+    ");
+  }
 }
