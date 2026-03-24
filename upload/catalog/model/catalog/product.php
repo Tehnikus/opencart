@@ -943,6 +943,7 @@ class ModelCatalogProduct extends Model {
 		
 		foreach ($data as $key => $ids) {
 			if (!isset($facetTypes[$key])) continue;
+			if ($facetTypes[$key] == $base_facet_type && $ids == $base_facet_value_id) continue;
 
 			$type = (int) $facetTypes[$key];
 			$ids = array_values(array_unique(array_map('intval', explode(',', $ids))));
