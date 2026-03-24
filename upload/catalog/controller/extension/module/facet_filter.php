@@ -75,7 +75,7 @@ class ControllerExtensionModuleFacetFilter extends Controller {
 						);
 					}
 					
-					$id = (int) $filter_item['filter_id'];
+					$id = (int) $filter_item['facet_id'];
 					
 					if (in_array($id, $current, true)) {
 						// remove
@@ -146,6 +146,7 @@ class ControllerExtensionModuleFacetFilter extends Controller {
 				continue;
 			}
 
+			// Apply settings - skip facets that are not in $settings array
 			if (!isset($settings[$row['facet_type']]) || $settings[$row['facet_type']] !== '1') {
 				continue;
 			}
@@ -158,11 +159,11 @@ class ControllerExtensionModuleFacetFilter extends Controller {
 		
 			// Add missing facets and groups names
 			if ($group_name === null) {
-				if ($type === 'category') {
-					// Categories have own name but don't have parent group 
+				if ($type === 'category_id') {
+					// Categories have own name but may not have parent group 
 					$group_name = $this->language->get('group_category');
 				}
-				if ($type === 'manufacturer') {
+				if ($type === 'manufacturer_id') {
 					// Manufacturers have own name but don't have parent group 
 					$group_name = $this->language->get('group_manufacturer');
 				}
@@ -183,17 +184,27 @@ class ControllerExtensionModuleFacetFilter extends Controller {
 			// Create group if not exists
 			if (!isset($filterSets[$type][$group])) {
 				$filterSets[$type][$group] = [
-					'group_name' => $group_name,
-					'filter_group_id' => $group,
+					'group_name' 				=> $group_name,
+					'filter_group_id' 	=> $group,
+					'group_is_selected' => $row['group_is_selected'],
+					'group_sort_order'	=> $row['group_sort_order'],
 					'filters' => []
 				];
-			}
+			}	
 	
-			// Add filters
-			$filterSets[$type][$group]['filters'][] = [
-				'filter_id' => $row['facet_value_id'],
-				'name'      => $facet_name
+			// Each facet with product count
+			$facet = [
+				'facet_id' 		 	 	=> $row['facet_value_id'],
+				'facet_type'     	 	=> $row['facet_type'],
+				'facet_group_id' 	 	=> $row['facet_group_id'],
+				'facet_name'      	=> $facet_name,
+				'facet_sort_order' 	=> $row['facet_sort_order'],
+				'current_count' 		=> $row['current_count'] ?? 0,
+				'facet_is_selected' => $row['facet_is_selected'],
 			];
+			$filterSets[$type][$group]['filters'][] = $facet;
+
+			usort(array: $filterSets[$type][$group]['filters'], callback: fn ($a, $b) =>  $a['facet_sort_order'] <=> $b['facet_sort_order']);
 		}
 		
 		foreach ($filterSets as $type => $groups) {
@@ -202,123 +213,4 @@ class ControllerExtensionModuleFacetFilter extends Controller {
 
 		return $filterSets;
 	}
-
-
-	// private function getFilterSets2() : array {
-	// 	$filterSets = [];
-
-	// 	$this->load->model('extension/module/facet_filter');
-	// 	$this->load->language('extension/module/facet_filter');
-	// 	$settings = $this->config->get('module_facet_filter_settings');
-
-
-	// 	$route = (string) $this->request->get['route'];
-	// 	$path = $this->request->get['category_id'] ?? $this->request->get['path'] ?? '';
-	// 	$category_id = explode('_', (string) $path);
-	// 	$category_id = end($category_id) ?? null;
-
-	// 	// Switch case for different page types
-	// 	switch ($route) {
-	// 		case 'product/category':
-	// 			// Check if category exists
-
-	// 			$category_exists = $this->model_extension_module_facet_filter->categoryExists($category_id);
-	// 			if (!$category_exists) {
-	// 				return [];
-	// 			}
-	// 			// Get category products
-	// 			$products = $this->model_extension_module_facet_filter->getCategoryProducts($category_id);
-	// 			// Get category filters
-	// 			$filters = $this->model_extension_module_facet_filter->getCategoryFilters($category_id);
-	// 		break;
-
-	// 		case 'product/special':
-	// 			// Get special products
-	// 			$products = $this->model_extension_module_facet_filter->getSpecialProducts();
-	// 			// Get filters
-	// 			$filters = $this->model_extension_module_facet_filter->getFiltersByProductSet($products);
-	// 		break;
-
-	// 		case 'product/search':
-	// 			// Get search products
-	// 			$this->load->model('catalog/product');
-	// 			$products = [];
-				
-	// 			$searchProducts = $this->model_catalog_product->getProducts([
-	// 				'filter_name' => $this->request->get['search'] ?? null,
-	// 				'filter_description' => $this->request->get['description'] ?? false
-	// 			]) ?? [];
-
-	// 			foreach ($searchProducts as $product) {
-	// 				$products[] = $product['product_id'];
-	// 			}
-	// 			// Get filters
-	// 			$filters = $this->model_extension_module_facet_filter->getFiltersByProductSet($products);
-	// 		break;
-			
-	// 		default:
-	// 		return [];
-	// 	}
-	
-	// 	$options 				= $this->model_extension_module_facet_filter->getOptionsByProductSet($products);
-	// 	$attributes 		= $this->model_extension_module_facet_filter->getAttributesByProductSet($products);
-	// 	$manufacturers 	= $this->model_extension_module_facet_filter->getManufacturersByProductSet($products);
-
-	// 	// Interface data
-	// 	// Category settings
-	// 	if ($route === 'product/category' && $category_id) {
-	// 		if (isset($settings['category'][$category_id])) {
-	// 			// Individual category settings
-	// 			$filterSets = [
-	// 				'filter'						=> (isset($settings['category'][$category_id]['show_filters'])) 			? $filters : [],
-	// 				'option' 						=> (isset($settings['category'][$category_id]['show_options'])) 			? $options : [], 			
-	// 				'attribute' 				=> (isset($settings['category'][$category_id]['show_attributes'])) 		? $attributes : [], 	
-	// 				'manufacturer_id' 	=> (isset($settings['category'][$category_id]['show_manufacturers'])) ? $manufacturers : [],
-	// 			];
-	// 		} else {
-	// 			// Default category settings
-	// 			$filterSets = [
-	// 				'filter'						=> (isset($settings['default']['show_filters'])) 			 ? $filters : [],
-	// 				'option' 						=> (isset($settings['default']['show_options'])) 			 ? $options : [], 			
-	// 				'attribute' 				=> (isset($settings['default']['show_attributes'])) 	 ? $attributes : [], 	
-	// 				'manufacturer_id' 	=> (isset($settings['default']['show_manufacturers'])) ? $manufacturers : [],
-	// 			];
-	// 		}
-	// 	}
-		
-	// 	// Special/discount products
-	// 	if ($route === 'product/special') {
-	// 		$filterSets = [
-	// 			'filter'						=> (isset($settings['special']['show_filters'])) 				? $filters : [],
-	// 			'option' 						=> (isset($settings['special']['show_options'])) 				? $options : [], 			
-	// 			'attribute' 				=> (isset($settings['special']['show_attributes'])) 		? $attributes : [], 	
-	// 			'manufacturer_id' 	=> (isset($settings['special']['show_manufacturers'])) 	? $manufacturers : [],
-	// 		];
-	// 	}
-
-	// 	// Search page
-	// 	if ($route === 'product/search') {
-	// 		$filterSets = [
-	// 			'filter'						=> (isset($settings['search']['show_filters'])) 				? $filters : [],
-	// 			'option' 						=> (isset($settings['search']['show_options'])) 				? $options : [], 			
-	// 			'attribute' 				=> (isset($settings['search']['show_attributes'])) 		  ? $attributes : [], 	
-	// 			'manufacturer_id' 	=> (isset($settings['search']['show_manufacturers'])) 	? $manufacturers : [],
-	// 		];
-	// 	}
-
-	// 	// Manufacturer page
-	// 	if ($route === 'product/manufacturer') {
-	// 		$filterSets = [
-	// 			'filter'						=> (isset($settings['manufacturer']['show_filters'])) 				? $filters : [],
-	// 			'option' 						=> (isset($settings['manufacturer']['show_options'])) 				? $options : [], 			
-	// 			'attribute' 				=> (isset($settings['manufacturer']['show_attributes'])) 		  ? $attributes : [], 	
-	// 			'manufacturer_id' 	=> (isset($settings['manufacturer']['show_manufacturers'])) 	? $manufacturers : [],
-	// 		];
-	// 	}
-		
-	// 	$filterSets = array_filter($filterSets);
-
-	// 	// echo '<pre>' . htmlspecialchars(print_r($filterSets, true)) . '</pre>';
-	// 	return $filterSets;
-	// }
 }
