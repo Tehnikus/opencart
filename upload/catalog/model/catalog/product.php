@@ -598,365 +598,6 @@ class ModelCatalogProduct extends Model {
 
 		return $products;
 	}
-
-	// public function getProducts($data = []) : array {
-	// 	$products = [];
-	// 	$where 		= [];
-	// 	$join 		= [];
-	// 	$select		= [];
-	// 	$order 		= [];
-
-	// 	// Set mandatory WHEREs
-	// 	// Connect to external query
-	// 	$where[] = "p2s.`product_id` = p2s2.`product_id`";
-	// 	// Only available products
-	// 	$where[] = "p2s.`status` = 1";
-	// 	// Only products from current store
-	// 	$where[] = "p2s.`store_id` = '" . (int) $this->config->get('config_store_id') . "'";
-
-	// 	$sort_data = array(
-	// 		'sort_order'		=> 'p2s2.`sort_order` ASC',
-	// 		'name'					=> 'pd.`name` ASC',
-	// 		'sales'					=> 'pst.`orders` DESC',
-	// 		'rating'				=> 'pst.`rating` DESC',
-	// 		'views'					=> 'pst.`views` DESC',
-	// 		'date_added'		=> 'p2s2.`date_added` DESC',
-	// 		'available'			=> 'p2s2.`available` DESC',
-	// 		'quantity'			=> 'p.`quantity` > p.`minimum` DESC, p2s2.`sort_order` ASC',
-	// 		'price_asc'			=> '(CASE WHEN special IS NOT NULL THEN special WHEN discount IS NOT NULL THEN discount ELSE p2s2.`price` END) ASC',
-	// 		'price_desc'		=> '(CASE WHEN special IS NOT NULL THEN special WHEN discount IS NOT NULL THEN discount ELSE p2s2.`price` END) DESC',
-	// 		'discounts'			=> '',
-	// 		'trends'				=> 'trends DESC',
-	// 	);
-
-	// 	// Sort
-	// 	if (isset($data['sort']) && in_array($data['sort'], array_keys($sort_data))) {
-		
-	// 		// Sort by trends
-	// 		if ($data['sort'] === 'trends') {
-	// 			// Sort subquery to get column needed for sorting
-	// 			$select[] = "
-	// 				(
-	// 					SELECT
-	// 						(
-	// 							LOG(pst.`orders` + 1) * 4
-	// 							+ COALESCE(pst.`rating_avg`, 0) * LOG(pst.`review_count` + 1) * 2
-	// 							+ LOG(pst.`views` + 1)
-	// 						)
-	// 					FROM " . DB_PREFIX . "facet_sort pst
-	// 					WHERE pst.`product_id` = p2s2.product_id
-	// 						AND pst.`store_id` = p2s2.store_id
-	// 				) AS `trends`
-	// 			";
-	// 		}
-
-	// 		// Sort by price
-	// 		if ($data['sort'] === 'price_asc' || $data['sort'] === 'price_desc' || $data['sort'] === 'discounts') {
-	// 			$select[] = "
-	// 				(
-	// 					SELECT 
-	// 						price 
-	// 					FROM " . DB_PREFIX . "product_discount pd2 
-	// 					WHERE pd2.product_id = p.product_id 
-	// 						AND pd2.customer_group_id = '" . (int)$this->config->get('config_customer_group_id') . "' 
-	// 						AND pd2.quantity = '1' 
-	// 						AND (
-	// 							(pd2.date_start = '0000-00-00' OR pd2.date_start < NOW()) 
-	// 							AND (pd2.date_end = '0000-00-00' OR pd2.date_end > NOW())
-	// 						) 
-	// 					ORDER BY pd2.priority ASC, pd2.price ASC 
-	// 					LIMIT 1
-	// 				) AS discount
-	// 			";
-	// 			$select[] = "
-	// 				(
-	// 					SELECT 
-	// 						price 
-	// 					FROM " . DB_PREFIX . "product_special ps 
-	// 					WHERE ps.product_id = p.product_id 
-	// 						AND ps.customer_group_id = '" . (int)$this->config->get('config_customer_group_id') . "' 
-	// 						AND (
-	// 							(ps.date_start = '0000-00-00' OR ps.date_start < NOW()) 
-	// 							AND (ps.date_end = '0000-00-00' OR ps.date_end > NOW())
-	// 						) 
-	// 					ORDER BY ps.priority ASC, ps.price ASC 
-	// 					LIMIT 1
-	// 				) AS special
-	// 			";
-	// 		}
-	// 	}
-
-	// 	// Start filters
-	// 	// Conditions
-	// 	// Category
-	// 	if (!empty($data['filter_category_id'])) {
-	// 		$where[] = "
-	// 			p2c.`category_id` = " . (int) $data['filter_category_id'] . "
-	// 		";
-
-	// 		$join[] = "
-	// 			JOIN " . DB_PREFIX . "product_to_category p2c
-	// 				ON p2c.`product_id` = p2s.`product_id`
-	// 				AND p2c.`store_id` = p2s.`store_id`
-	// 		";
-	// 	}
-
-	// 	if (!empty($data['filter_sub_category'])) {
-	// 		$where[] = "
-	// 			cp.`path_id` = '" . (int) $data['filter_category_id'] . "'
-	// 		";
-	// 		$join[] = "
-	// 			JOIN " . DB_PREFIX . "product_to_category p2c
-	// 				ON p2c.`product_id` = p2s.`product_id`
-	// 				AND p2c.`store_id` 	= p2s.`store_id`
-	// 			JOIN " . DB_PREFIX . "category_path cp
-	// 				ON cp.`category_id` = p2c.`category_id`
-	// 				AND pc.`store_id` 	= p2s.`store_id`
-	// 		";
-	// 	}
-
-	// 	// Facet filter
-	// 	if (!empty($data['filter_filter'])) {
-	// 		// Get filter ids by filter groups
-	// 		// Logic: (
-	// 		// 	(filter_group_1 => [ filter_1 OR filter_2 OR filter_3 ]) 
-	// 		// 		AND 
-	// 		// 	(filter_group_2 => [ filter_4 OR filter_5 OR ... ])
-	// 		// 		AND 
-	// 		// 	(filter_group_3 => [ ... ])
-	// 		// )
-
-	// 		$filters_by_group = [];
-			
-	// 		// Sanitize and unique
-	// 		$filter_ids = array_values(
-	// 			array_unique(
-	// 				array_map(
-	// 					'intval', 
-	// 					explode(',', $data['filter_filter'])
-	// 				)
-	// 			)
-	// 		);
-
-	// 		// Get filter groups
-	// 		$sql = "
-	// 			SELECT 
-	// 				`filter_id`, 
-	// 				`filter_group_id`
-	// 			FROM " . DB_PREFIX . "product_filter
-	// 			WHERE `store_id` = '" . (int) $this->config->get('config_store_id') . "'
-	// 				AND `filter_id` IN (" . implode(',', $filter_ids) .")
-	// 		";
-
-	// 		$filter_groups = $this->db->query($sql)->rows;
-
-	// 		// Group filter ids by filter group
-	// 		foreach ($filter_groups as $filter_group) {
-	// 			$filter_group_id	= (int) $filter_group['filter_group_id'];
-	// 			$filter_id 				= (int) $filter_group['filter_id'];
-
-	// 			$filters_by_group[$filter_group_id][] = $filter_id;
-	// 		}
-
-	// 		// Build EXISTS string
-	// 		foreach ($filters_by_group as $groupId => $filterIds) {
-
-	// 			$ids = implode(',', array_unique($filterIds));
-
-	// 			// Put EXISTS string to WHERE clause
-	// 			$where[] = "
-	// 				EXISTS (
-	// 					SELECT 1
-	// 					FROM " . DB_PREFIX . "product_filter pf
-	// 					WHERE pf.product_id = p2s.product_id
-	// 						AND pf.filter_group_id = {$groupId}
-	// 						AND pf.filter_id IN ({$ids})
-	// 						AND pf.store_id = '" . (int) $this->config->get('config_store_id') . "'
-	// 				)
-	// 			";
-	// 		}
-	// 	}
-
-	// 	// Options filter
-	// 	// Same as facet filter
-	// 	if (!empty($data['filter_option'])) {
-
-	// 		$options_by_group = [];
-			
-	// 		// Sanitize and unique
-	// 		$option_ids = array_values(
-	// 			array_unique(
-	// 				array_map(
-	// 					'intval', 
-	// 					explode(',', $data['filter_option'])
-	// 				)
-	// 			)
-	// 		);
-
-	// 		// Get option groups
-	// 		$sql = "
-	// 			SELECT 
-	// 				`option_value_id`, 
-	// 				`option_id`
-	// 			FROM " . DB_PREFIX . "product_option_value
-	// 			WHERE `store_id` = '" . (int) $this->config->get('config_store_id') . "'
-	// 				AND `option_value_id` IN (" . implode(',', $option_ids) .")
-	// 		";
-
-	// 		$option_groups = $this->db->query($sql)->rows;
-
-	// 		// Group option ids by option group
-	// 		foreach ($option_groups as $option_group) {
-	// 			$option_group_id	= (int) $option_group['option_id'];
-	// 			$option_id 				= (int) $option_group['option_value_id'];
-
-	// 			$options_by_group[$option_group_id][] = $option_id;
-	// 		}
-
-	// 		// Build EXISTS string
-	// 		foreach ($options_by_group as $groupId => $optionIds) {
-
-	// 			$ids = implode(',', array_unique($optionIds));
-
-	// 			// Put EXISTS string to WHERE clause
-	// 			$where[] = "
-	// 				EXISTS (
-	// 					SELECT 1
-	// 					FROM " . DB_PREFIX . "product_option_value po
-	// 					WHERE po.`product_id` = p2s.`product_id`
-	// 						AND po.`option_id` = {$groupId}
-	// 						AND po.`option_value_id` IN ({$ids})
-	// 						AND po.`store_id` = '" . (int) $this->config->get('config_store_id') . "'
-	// 				)
-	// 			";
-	// 		}
-	// 	}
-
-	// 	// Attribute filter
-	// 	// Same as facet filter
-	// 	if (!empty($data['filter_attribute'])) {
-
-	// 		$attributes_by_group = [];
-			
-	// 		// Sanitize and unique
-	// 		$attribute_ids = array_values(
-	// 			array_unique(
-	// 				array_map(
-	// 					'intval', 
-	// 					explode(',', $data['filter_attribute'])
-	// 				)
-	// 			)
-	// 		);
-
-	// 		// Get attribute groups
-	// 		$sql = "
-	// 			SELECT 
-	// 				`attribute_id`, 
-	// 				`attribute_group_id`
-	// 			FROM " . DB_PREFIX . "product_attribute
-	// 			WHERE `store_id` = '" . (int) $this->config->get('config_store_id') . "'
-	// 				AND `attribute_id` IN (" . implode(',', $attribute_ids) .")
-	// 		";
-
-	// 		$attribute_groups = $this->db->query($sql)->rows;
-
-	// 		// Group attribute ids by attribute group
-	// 		foreach ($attribute_groups as $attribute_group) {
-	// 			$attribute_group_id	= (int) $attribute_group['attribute_group_id'];
-	// 			$attribute_id 				= (int) $attribute_group['attribute_id'];
-
-	// 			$attributes_by_group[$attribute_group_id][] = $attribute_id;
-	// 		}
-
-	// 		// Build EXISTS string
-	// 		foreach ($attributes_by_group as $groupId => $attributeIds) {
-
-	// 			$ids = implode(',', array_unique($attributeIds));
-
-	// 			// Put EXISTS string to WHERE clause
-	// 			$where[] = "
-	// 				EXISTS (
-	// 					SELECT 1
-	// 					FROM " . DB_PREFIX . "product_attribute pa
-	// 					WHERE pa.`product_id` = p2s.`product_id`
-	// 						AND pa.`attribute_group_id` = {$groupId}
-	// 						AND pa.`attribute_id` IN ({$ids})
-	// 						AND pa.`store_id` = '" . (int) $this->config->get('config_store_id') . "'
-	// 				)
-	// 			";
-	// 		}
-	// 	}
-
-	// 	// Manufacturers
-	// 	if (!empty($data['filter_manufacturer_id'])) {
-	// 		$where[] = "
-	// 			p.`manufacturer_id` IN(" . $data['filter_manufacturer_id'] . ")
-	// 		";
-	// 	}
-
-	// 	// Search by name/description/model
-	// 	if (isset($data['filter_name'])) {
-	// 		$words 		= [];
-	// 		$implode 	= [];
-	// 		$orCondition = [];
-	// 		$words = explode(' ', trim(preg_replace('/\s+/', ' ', $data['filter_name'])));
-	// 		foreach ($words as $word) {
-	// 			$implode['name'][]  = "pd.`name` LIKE '%" . $this->db->escape($word) . "%'";
-	// 			$implode['model'][] = "p.`model` LIKE '%" . $this->db->escape($word) . "%'";
-	// 			if (!empty($data['filter_description'])) {
-	// 				$implode['description'][] = "pd.`description` LIKE '%" . $this->db->escape($word) . "%'";
-	// 			}
-	// 		}
-
-	// 		foreach ($implode as $searchColumn) {
-	// 			foreach ($searchColumn as $key => $searchTerm) {
-	// 				$andCondition[$key] = $searchTerm;
-	// 			}
-	// 			$orCondition[] = "(" . implode(' AND ', $andCondition) . ")";
-	// 		}
-
-	// 		$where[] = "
-	// 			(" . implode(' OR ', $orCondition) . ")
-	// 		";
-	// 	}
-	// 	// End filters
-
-	// 	// Main query
-	// 	$sql = "
-	// 		SELECT
-	// 			p.`product_id`
-	// 		FROM " . DB_PREFIX . "product p
-	// 		JOIN " . DB_PREFIX . "product_to_store p2s2
-	// 			ON p.`product_id` = p2s2.`product_id`
-	// 			AND p2s2.`store_id` = '" . (int) $this->config->get('config_store_id') . "'
-	// 		JOIN " . DB_PREFIX . "product_description pd
-	// 			ON pd.`product_id` = p.`product_id`
-	// 			AND pd.`language_id` 	= '" . (int) $this->config->get('config_language_id') . "'
-	// 			AND pd.`store_id` 		= '" . (int) $this->config->get('config_store_id') . "'
-
-	// 		-- Sort joins
-	// 		JOIN " . DB_PREFIX . "facet_sort pst
-	// 			ON pst.`product_id` = p2s2.`product_id`
-	// 			AND pst.`store_id`  = p2s2.`store_id`
-	// 		-- Conditions
-	// 		WHERE EXISTS (
-	// 			SELECT 
-	// 				1
-	// 			FROM " . DB_PREFIX . "product_to_store p2s
-	// 			" . implode(" \n ", $join) . "
-	// 			WHERE
-	// 			" . implode(" \nAND ", $where) . "
-	// 		)
-	// 	";
-
-	// 	$productRows = $this->db->query($sql)->rows;
-	// 	foreach ($productRows as $row) {
-	// 		$products[] = $this->getProduct((int) $row['product_id']);
-	// 	}
-
-	// 	return $products;
-	// }
-
 	
 	public function getProductSpecials($data = []) : array {
 		$data['filter_has_discount'] = 1;
@@ -1259,230 +900,200 @@ class ModelCatalogProduct extends Model {
 	 * @param mixed $data
 	 * @return array of filter type, group, values, names and product count
 	 */
-	public function getFilters($data = []) : array {
-		$facetTypes  = $this->getFacetTypes(); 													// Allowed facet types
-		$store_id    = (int) $this->config->get('config_store_id'); 		// Current store id
-		$language_id = (int) $this->config->get('config_language_id');	// Current language id
-
-		// Get current page to get base product set 
-		$path 				= $this->request->get['category_id'] ?? $this->request->get['path'] ?? '';
-		$category_id 	= explode('_', (string) $path);
-		$category_id 	= end($category_id);
-		$base_facet = [
-			'facet_type' => 1,
-			'facet_value_id' => $category_id,
-		];
+	public function getFilters($data = []) {
+		$store_id    				 = (int) $this->config->get('config_store_id');
+		$language_id 				 = (int) $this->config->get('config_language_id');
+		$facetTypes 				 = $this->getFacetTypes();
+		$conditions 				 = [];
+		$base_facet_type     = null; // Page type, category = 1, manufacturer = 5, has_discount = 9, is_featured = 10
+		$base_facet_value_id = null; // Page id if applicable, i.e. category_id. If not applicable then 0 
+		
 		// Set base facet to filter base product set on this page
-		$base_facet_type  = (int) $base_facet['facet_type'];     // Page type, category = 1, manufacturer = 5, has_discount = 9, is_featured = 10
-		$base_facet_value = (int) $base_facet['facet_value_id']; // Page id if applicable, i.e. category_id. If not applicable then 0 
+		if ($this->request->get['route'] === 'product/category') {
+			$path 							 = $this->request->get['category_id'] ?? $this->request->get['path'] ?? '';
+			$category_id 				 = explode('_', (string) $path);
+			$category_id 				 = end($category_id);
+			$base_facet_type 		 = 1;
+			$base_facet_value_id = (int) $category_id;
+		}
 
-		// Get selected facets
-		$selected_facets = [];
+		if ($this->request->get['route'] === 'product/manufacturer') {
+			$base_facet_type 		 = 5;
+			$base_facet_value_id = (int) $this->request->get['manufacturer_id'];
+		}
+
+		if ($this->request->get['route'] === 'product/special') {
+			$base_facet_type     = 9;
+			$base_facet_value_id = 0;
+		}
+
+		if ($this->request->get['route'] === 'product/featured') {
+			$base_facet_type     = 10;
+			$base_facet_value_id = 0;
+		}
+
+		if ($base_facet_type === null || $base_facet_value_id === null) {
+			$this->log->write("model->product->getFilters(), Unknown request: \r\n" . htmlspecialchars(print_r($this->request->get, true)));
+			return [];
+		}
+
+		// Base facet is intentionally included in selected_conditions
+		// so that base page context is part of selected_groups for AND-between-groups logic
+		$conditions[] = "(facet_type = {$base_facet_type} AND facet_value_id IN (" . $base_facet_value_id . "))";
+		
 		foreach ($data as $key => $ids) {
 			if (!isset($facetTypes[$key])) continue;
-			$type = (int)$facetTypes[$key];
+
+			$type = (int) $facetTypes[$key];
 			$ids = array_values(array_unique(array_map('intval', explode(',', $ids))));
-			foreach ($ids as $id) {
-				$selected_facets[] = "SELECT " . (int)$id . " AS facet_value_id, {$type} AS facet_type";
-			}
+
+			if (!$ids) continue;
+
+			$conditions[] = "(facet_type = {$type} AND facet_value_id IN (" . implode(',', $ids) . "))";
+
 		}
 
-		// Two different variants when no facet selected (base page like category)
-		// And when some facets are selected
-		if (!empty($selected_facets)) {
-			$selected_facets_sql = implode(" UNION ALL ", $selected_facets);
-		} else {
-			$selected_facets_sql = '';
-		}
+		$selected_conditions = $conditions ? implode(" OR ", $conditions) : "1";
 
-		// Create SQL 
-		if ($selected_facets_sql === '') {
-			// First variant
-			// No selected facets: current_products = base_products
-			// Simple request
-			$sql = "
-				WITH
-				-- current_products == base_products when no selection
-				current_products AS (
-					SELECT DISTINCT b.product_id
-					FROM " . DB_PREFIX . "facet_index b
-					WHERE b.store_id = {$store_id}
-						AND b.facet_type = {$base_facet_type}
-						AND b.facet_value_id = {$base_facet_value}
-				),
-
-				facet_counts AS (
-						SELECT
-							f.facet_type,
-							f.facet_group_id,
-							f.facet_value_id,
-							COUNT(DISTINCT f.product_id) AS base_count,
-							COUNT(DISTINCT CASE WHEN cp.product_id IS NOT NULL THEN f.product_id END) AS current_count
-						FROM " . DB_PREFIX . "facet_index f
-						LEFT JOIN current_products cp ON cp.product_id = f.product_id
-						WHERE f.store_id = {$store_id}
-							AND EXISTS (
-								SELECT 1 FROM " . DB_PREFIX . "facet_index b
-								WHERE b.product_id = f.product_id
-									AND b.store_id = {$store_id}
-									AND b.facet_type = {$base_facet_type}
-									AND b.facet_value_id = {$base_facet_value}
-							)
-						GROUP BY f.facet_type, f.facet_group_id, f.facet_value_id
-				)
+		$sql = "
+			
+			-- Base facet list for current page
+			WITH base_facet_list AS (
 				SELECT
-					fc.*,
-					0 AS group_selected, -- no groups selected
-					tp.total_current
-				FROM facet_counts fc
-				CROSS JOIN (SELECT COUNT(*) AS total_current FROM current_products) tp
-			";
-		} else {
-			// Second variant, when some facets are selected
-			$sql = "
-				WITH
-				selected_facets AS (
-					{$selected_facets_sql}
-				),
-
-				selected_groups_count AS (
-					SELECT COUNT(DISTINCT f2.facet_type, f2.facet_group_id) AS cnt
-					FROM " . DB_PREFIX . "facet_index f2
-					JOIN selected_facets sf2
-						ON sf2.facet_value_id = f2.facet_value_id
-					AND sf2.facet_type      = f2.facet_type
-					WHERE f2.store_id = {$store_id}
-				),
-
-				current_products AS (
-					SELECT f.product_id
-					FROM " . DB_PREFIX . "facet_index f
-					JOIN selected_facets sf
-						ON sf.facet_value_id = f.facet_value_id
-					AND sf.facet_type      = f.facet_type
-					WHERE f.store_id = {$store_id}
-					GROUP BY f.product_id
-					HAVING COUNT(DISTINCT f.facet_type, f.facet_group_id) = (SELECT cnt FROM selected_groups_count)
-				),
-
-				selected_groups AS (
-					SELECT DISTINCT f.facet_type, f.facet_group_id
-					FROM " . DB_PREFIX . "facet_index f
-					JOIN selected_facets sf
-						ON sf.facet_value_id = f.facet_value_id
-					AND sf.facet_type      = f.facet_type
-					WHERE f.store_id = {$store_id}
-				),
-
-				facet_counts AS (
+					i.facet_value_id,
+					i.facet_type,
+					i.facet_group_id,
+					COUNT(DISTINCT(i.product_id)) AS base_count
+				FROM " . DB_PREFIX . "facet_index i
+				WHERE EXISTS(
 					SELECT
-						f.facet_type,
-						f.facet_group_id,
-						f.facet_value_id,
-						COUNT(DISTINCT f.product_id) AS base_count,
-						COUNT(DISTINCT CASE WHEN cp.product_id IS NOT NULL THEN f.product_id END) AS current_count
-					FROM " . DB_PREFIX . "facet_index f
-					LEFT JOIN current_products cp ON cp.product_id = f.product_id
-					WHERE f.store_id = {$store_id}
-						AND EXISTS (
-							SELECT 1 FROM " . DB_PREFIX . "facet_index b
-							WHERE b.product_id     = f.product_id
-								AND b.store_id       = {$store_id}
-								AND b.facet_type     = {$base_facet_type}
-								AND b.facet_value_id = {$base_facet_value}
-						)
-					GROUP BY f.facet_type, f.facet_group_id, f.facet_value_id
+						1
+					FROM " . DB_PREFIX . "facet_index p
+					WHERE p.product_id = i.product_id
+						-- Current base page
+						AND p.facet_type     = {$base_facet_type} -- Base page type, category = 1, manufacturer = 5, has_discount = 9, is_featured = 10
+						AND p.facet_value_id = {$base_facet_value_id} -- Base facet entity id: category_id, manufacturer_id. If facet_type = has_discount, then 0
+						AND store_id         = {$store_id} -- store id condition
 				)
-
+				AND store_id = {$store_id}
+				GROUP BY i.facet_type, i.facet_group_id, i.facet_value_id
+				ORDER BY NULL
+			),
+			
+			-- Current facets selected by user
+			selected_facets AS (
 				SELECT
-					fc.*,
-					fn.name 										AS facet_name,
-					fn.group_name 							AS facet_group_name,
-					fn.sort_order 							AS facet_sort_order,
-					fn.group_sort_order 				AS facet_group_sort_order,
-					(sg.facet_type IS NOT NULL) AS group_selected,
-					tp.total_current
-				FROM facet_counts fc
-				LEFT JOIN " . DB_PREFIX . "facet_name fn 
-					ON  fn.facet_value_id = fc.facet_value_id
-					AND fn.facet_group_id = fc.facet_group_id
-					AND fn.facet_type 		= fc.facet_type
-					AND fn.language_id 		= {$language_id}
-					AND fn.store_id 			= {$store_id}
-				LEFT JOIN selected_groups sg
-					ON sg.facet_type = fc.facet_type
-				AND sg.facet_group_id = fc.facet_group_id
-				CROSS JOIN (SELECT COUNT(*) AS total_current FROM current_products) tp
-			";
-		}
-
-		$query = $this->db->query($sql);
-		$rows = $query->rows;
-		return $rows;
-	}
-
-			/* Conditional JOINs for names. If facet type does not match then JOIN is not executed */
-			LEFT JOIN " . DB_PREFIX . "category_description cd
-				ON f.facet_type = 1
-				AND cd.category_id = f.facet_value_id
-				AND cd.language_id = {$language_id}
-				AND cd.store_id = {$store_id}
-
-			LEFT JOIN " . DB_PREFIX . "filter_group_description fgd
-				ON f.facet_type = 2
-				AND fgd.filter_group_id = f.facet_group_id
-				AND fgd.language_id = {$language_id}
-				AND fgd.store_id = {$store_id}
-
-			LEFT JOIN " . DB_PREFIX . "filter_description fd 
-				ON f.facet_type = 2
-				AND fd.filter_id = f.facet_value_id
-				AND fd.language_id = {$language_id}
-				AND fd.store_id = {$store_id}
+					`facet_type`, `facet_group_id`, facet_value_id
+				FROM " . DB_PREFIX . "facet_index
+				WHERE (
+					-- Base facet AND selected facets joined with OR, example:
+					-- (facet_value_id IN(1) AND facet_type = 1)    -- base facet: type = category (1), category_id = (1)
+					-- OR (facet_value_id IN(2) AND facet_type = 5) -- selected facet: type = manufacturer (5), manufacturer_id = 2
+					-- OR (facet_value_id IN(9) AND facet_type = 2) -- selected facet: type - filter (2), filter_id - 9,10
+					{$selected_conditions}
+				) 
+				AND store_id = {$store_id} -- store id condition
+				
+				GROUP BY facet_type, facet_group_id, facet_value_id
+				ORDER BY NULL
+			),
 			
-			LEFT JOIN " . DB_PREFIX . "option_description od
-				ON f.facet_type = 3
-				AND od.option_id = f.facet_group_id
-				AND od.language_id = {$language_id}
-				AND od.store_id = {$store_id}
-
-			LEFT JOIN " . DB_PREFIX . "option_value_description ovd
-				ON f.facet_type = 3
-				AND ovd.option_value_id = f.facet_value_id
-				AND ovd.language_id = {$language_id}
-				AND ovd.store_id = {$store_id}
+			selected_groups AS (
+				SELECT DISTINCT facet_type, facet_group_id
+				FROM selected_facets
+			),
 			
-			LEFT JOIN " . DB_PREFIX . "attribute_group_description agd
-				ON f.facet_type = 4
-				AND agd.attribute_group_id = f.facet_group_id
-				AND agd.language_id = {$language_id}
-				AND agd.store_id = {$store_id}
-
-			LEFT JOIN " . DB_PREFIX . "attribute_description ad
-				ON f.facet_type = 4
-				AND ad.attribute_id = f.facet_value_id
-				AND ad.language_id = {$language_id}
-				AND ad.store_id = {$store_id}
-
-			LEFT JOIN " . DB_PREFIX . "manufacturer md
-				ON f.facet_type = 5
-				AND md.manufacturer_id = f.facet_value_id
-
-			WHERE f.store_id = {$store_id}
-			/* EXIST condition makes semi-JOIN and allows to avoid second table scan */
-			AND EXISTS (
+			count_products AS (
+				SELECT
+					b.facet_type,
+					b.facet_group_id,
+					b.facet_value_id,
+					COUNT(DISTINCT fi.product_id) AS current_count
+				FROM base_facet_list b
+			
+				-- Get product_id list for each facet from base facets list
+				INNER JOIN " . DB_PREFIX . "facet_index fi USE INDEX (facetCandidates)
+					ON  fi.facet_value_id = b.facet_value_id
+					AND fi.facet_type     = b.facet_type
+					AND fi.facet_group_id = b.facet_group_id
+					AND fi.store_id       = {$store_id}
+			
+				-- Every product MUST exist in base product list
+				INNER JOIN " . DB_PREFIX . "facet_index base_page
+					ON  base_page.product_id     = fi.product_id
+					AND base_page.facet_type     = {$base_facet_type}
+					AND base_page.facet_value_id = {$base_facet_value_id}
+					AND base_page.store_id       = {$store_id}
+			
+				-- For each selected group (except the candidate's own group):
+				-- Product MUST have at least one selected facet from this group (AND between groups)
+				WHERE NOT EXISTS (
 					SELECT 1
-					FROM filtered_products fp
-					WHERE fp.product_id = f.product_id
+					FROM selected_groups sg
+					WHERE
+						-- Skip the candidate's group.
+						NOT (sg.facet_type = b.facet_type AND sg.facet_group_id = b.facet_group_id)
+						-- Check: Does the product have at least one selected facet from this foreign group?
+						-- If NO, the product is skippet.
+						AND NOT EXISTS (
+							SELECT 1
+							FROM " . DB_PREFIX . "facet_index fi2
+							INNER JOIN selected_facets sf
+								ON  sf.facet_type     = fi2.facet_type
+								AND sf.facet_group_id = fi2.facet_group_id
+								AND sf.facet_value_id = fi2.facet_value_id
+							WHERE fi2.product_id = fi.product_id
+								AND fi2.store_id   = {$store_id}
+								AND fi2.facet_type     = sg.facet_type
+								AND fi2.facet_group_id = sg.facet_group_id
+						)
+				)
+			
+				GROUP BY b.facet_type, b.facet_group_id, b.facet_value_id
+				ORDER BY NULL
 			)
 			
-			GROUP BY
-				f.facet_type,
-				f.facet_group_id,
-				f.facet_value_id
+			SELECT
+				b.facet_value_id,
+				b.facet_type,
+				b.facet_group_id,
+				b.base_count,
+				c.current_count,
+				n.name AS facet_name,
+				n.group_name AS facet_group_name,
+				n.sort_order AS facet_sort_order,
+				n.group_sort_order AS group_sort_order,
+				CASE WHEN sf.facet_value_id IS NOT NULL THEN 1 ELSE 0 END AS facet_is_selected,
+				CASE WHEN sg.facet_group_id IS NOT NULL THEN 1 ELSE 0 END AS group_is_selected
+			FROM base_facet_list b
+			
+			-- Facet names table, doesn't affect anything, just displays facet names
+			LEFT JOIN " . DB_PREFIX . "facet_name n
+				ON n.facet_type      = b.facet_type
+				AND n.facet_group_id = b.facet_group_id
+				AND n.facet_value_id = b.facet_value_id
+				AND n.language_id    = {$language_id} -- language id condition
+				AND n.store_id       = {$store_id}    -- store id condition
+				
+			-- Join selected facets to mark them as selected
+			LEFT JOIN selected_facets sf
+				ON  sf.facet_type     = b.facet_type
+				AND sf.facet_group_id = b.facet_group_id
+				AND sf.facet_value_id = b.facet_value_id
+				
+			-- Join selected groups to mark them as selected
+			LEFT JOIN selected_groups sg
+				ON  sg.facet_type     = b.facet_type
+				AND sg.facet_group_id = b.facet_group_id
+
+			-- Count products taking in account applied facets
+			LEFT JOIN count_products c
+				ON c.facet_value_id  = b.facet_value_id
+				AND c.facet_type     = b.facet_type
+				AND c.facet_group_id = b.facet_group_id
 		";
 
-		$result = $this->db->query($sql)->rows;
-		return $result;
+		$query = $this->db->query($sql);
+		return $query->rows;
 	}
 }
