@@ -6,7 +6,7 @@
     <div>
       <select id="sortOrder">
         {% for sortOrder in sortOrders %}
-          <option value="{{ sortOrder.value }}">{{ sortOrder.name }}</option>
+          <option value="{{ sortOrder.value }}" {% if requestSort == sortOrder.value %}selected{% endif %}>{{ sortOrder.name }}</option>
         {% endfor %}
       </select>
     </div>
