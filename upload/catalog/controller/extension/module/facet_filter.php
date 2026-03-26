@@ -38,14 +38,14 @@ class ControllerExtensionModuleFacetFilter extends Controller {
 				$cachePostfix = (floor($category_id / 100)) . "00.filters_{$category_id}";
 			}
 			$cacheName 	= "{$cachePrefix}.store_{$store_id}.language_{$language_id}.{$cachePostfix}";
-			$data['filter_sets'] 	= $this->cache->get($cacheName);
-			if (!$data['filter_sets']) {
-				$data['filter_sets'] = $this->getFilterSets();
-				$this->cache->set($cacheName, $data['filter_sets']);
+			$data['facetSets'] 	= $this->cache->get($cacheName);
+			if (!$data['facetSets']) {
+				$data['facetSets'] = $this->getFacets();
+				$this->cache->set($cacheName, $data['facetSets']);
 			}
 		} else {
 			// No cache 
-			$data['filter_sets'] = $this->getFilterSets();
+			$data['facetSets'] = $this->getFacets();
 		}
 		
 		// Request data to check applied filters
@@ -91,7 +91,7 @@ class ControllerExtensionModuleFacetFilter extends Controller {
 		return $this->load->view('extension/module/facet_filter', $data);
 	}
 
-	public function getFilterSets() : array {
+	public function getFacets() : array {
 		$requestFilters = []; // Data from $this->request->get
 		$filterSets 		= []; // Result to be returned
 		$facetTypes 		= ['category_id', 'filter', 'option', 'attribute', 'manufacturer_id', 'tag_id', 'supplier_id', 'is_available', 'has_discount', 'is_featured'];
@@ -103,7 +103,7 @@ class ControllerExtensionModuleFacetFilter extends Controller {
 		$settings 			= $this->config->get('module_facet_filter_settings');
 		$settings				= $settings['distinct_categories'][$category_id] ?? $settings[$route] ?? null; // Settings by page type, default settings for categories and individual category settings
 		
-		// Only show filters on allowed page types where 
+		// Only show filters on allowed page types
 		if ($settings === null || $route === null || !in_array($route, ['category', 'manufacturer', 'special', 'latest', 'search', 'bestseller'])) {
 			return [];
 		}
@@ -182,14 +182,19 @@ class ControllerExtensionModuleFacetFilter extends Controller {
 	
 			// Each facet with product count
 			$facet = [
-				'facet_id' 		 	 	=> $row['facet_value_id'],
-				'facet_type'     	 	=> $row['facet_type'],
-				'facet_group_id' 	 	=> $row['facet_group_id'],
-				'facet_name'      	=> $facet_name,
-				'facet_sort_order' 	=> $row['facet_sort_order'],
-				'current_count' 		=> $row['current_count'] ?? 0,
-				'facet_is_selected' => $row['facet_is_selected'],
+				'facet_id' 		 	 	   => $row['facet_value_id'],
+				'facet_type'     	 	 => $row['facet_type'],
+				'facet_group_id' 	 	 => $row['facet_group_id'],
+				'facet_name'      	 => $facet_name,
+				'facet_sort_order' 	 => $row['facet_sort_order'],
+				'base_count' 				 => $row['base_count'],
+				'current_count' 		 => $row['current_count'] ?? 0,
+				'facet_is_selected'  => $row['facet_is_selected'],
+				'facet_is_available' => $row['facet_is_available']
 			];
+			// Create SEO URL for each facet
+			$facet['url'] = $this->getFacetUrl($facet);
+
 			$filterSets[$type][$group]['filters'][] = $facet;
 
 			usort(array: $filterSets[$type][$group]['filters'], callback: fn ($a, $b) =>  $a['facet_sort_order'] <=> $b['facet_sort_order']);
