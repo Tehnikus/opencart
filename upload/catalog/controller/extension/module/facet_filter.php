@@ -61,44 +61,6 @@ class ControllerExtensionModuleFacetFilter extends Controller {
 		];
 		
 		// Create SEO URL for each filter
-		foreach ($data['filter_sets'] as $filter_type_key => &$filter_type) {
-			foreach ($filter_type as &$filter_group) {
-				foreach ($filter_group['filters'] as &$filter_item) {
-					$query = $this->request->get;
-					unset($query['route']);
-					
-					$current = [];
-					
-					if (!empty($query[$filter_type_key])) {
-						$current = array_filter(
-							array_map('intval', explode(',', $query[$filter_type_key]))
-						);
-					}
-					
-					$id = (int) $filter_item['facet_id'];
-					
-					if (in_array($id, $current, true)) {
-						// remove
-						$current = array_diff($current, [$id]);
-					} else {
-						// add
-						$current[] = $id;
-					}
-					
-					$current = array_values(array_unique($current));
-					
-					sort($current);
-
-					if ($current) {
-						$query[$filter_type_key] = implode(',', $current);
-					} else {
-						unset($query[$filter_type_key]);
-					}
-					
-					$filter_item['href'] = $this->url->link($route, http_build_query($query));
-				}
-			}
-		}
 
 		return $this->load->view('extension/module/facet_filter', $data);
 	}
@@ -212,5 +174,43 @@ class ControllerExtensionModuleFacetFilter extends Controller {
 		}
 
 		return $filterSets;
+	}
+
+	// Create SEO URL for each filter
+	public function getFacetUrl(array $facet) : string {
+		
+		$query 	 			= $this->request->get;
+		$route 	 			= $query['route'];
+		$currentIds 	= [];
+		$facetId 			= (int) $facet['facet_id'];
+		$facetType 		= $facet['facet_type'];
+
+		unset($query['route']);
+
+		// Filter and unique ids
+		if (!empty($query[$facetType])) {
+			$currentIds = array_filter(array_map('intval', explode(',', $query[$facetType])));
+		}
+		
+		if (in_array($facetId, $currentIds, true)) {
+			// Remove current facet id if already present in request of facets of the same type
+			$currentIds = array_diff($currentIds, [$facetId]);
+		} else {
+			// Add current facet id if already present in request of facets of the same type
+			$currentIds[] = $facetId;
+		}
+		
+		$currentIds = array_values(array_unique($currentIds));
+		
+		// Sort ids ascending
+		sort($currentIds);
+
+		if ($currentIds) {
+			$query[$facetType] = implode(',', $currentIds);
+		} else {
+			unset($query[$facetType]);
+		}
+		
+		return $this->url->link($route, http_build_query($query));
 	}
 }
