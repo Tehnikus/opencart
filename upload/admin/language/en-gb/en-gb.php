@@ -197,6 +197,18 @@ $_['error_stores_association']      = 'Select at least on store';
 $_['error_parent']                  = 'Select parent category';
 $_['error_no_parent']               = 'No parent category';
 
+// Left column menu
+$_['text_seo'] = 'SEO';
+
+$_['text_seo_pages']          = 'SEO pages';
+$_['text_meta_editor']        = 'Meta editor';
+$_['text_seo_tags']           = 'Tags';
+$_['text_seo_keywords']       = 'Keywords';
+$_['text_sitemap_generator']  = 'Sitemap generator';
+$_['text_seo_url']            = 'SEO URLs';
+$_['text_seo_url_setting']    = 'SEO URLs settings';
+$_['text_facet_filter']       = 'Facet filter';
+
 /* When doing translations only include the matching language code */
 
 // Summernote
