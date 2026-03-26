@@ -28,3 +28,6 @@ $_['group_is_featured']   = 'Featured';
 $_['facet_is_available']  = 'Show only available for order';
 $_['facet_has_discount']  = 'Show only discounted';
 $_['facet_is_featured']   = 'Show only featured';
+
+// Buttons
+$_['button_reset_filters'] = "Reset";
