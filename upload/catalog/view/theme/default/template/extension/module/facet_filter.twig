@@ -11,7 +11,7 @@
       </select>
     </div>
     <div class="facetFilter">
-      {% for facetType, filter_set in filter_sets %}
+      <a class="btn btn-primary" href="{{ resetLink }}">{{ button_reset_filters }}</a>
         {% for key, facetGroup in filter_set %}
           <h4>{{facetGroup.group_name}}</h4>
           <div class="facetGroup">

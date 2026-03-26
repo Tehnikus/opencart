@@ -59,8 +59,34 @@ class ControllerExtensionModuleFacetFilter extends Controller {
 			'is_featured' 			=> explode(',', $this->request->get['is_featured'] ?? '') 			?? null,
 			'has_discount' 			=> explode(',', $this->request->get['has_discount'] ?? '') 			?? null,
 		];
-		
-		// Create SEO URL for each filter
+
+		// Sort requests
+		$data['requestSort'] = $this->request->get['sort'] ?? null;
+
+		// Reset link
+		$data['resetLink'] = '';
+		$resetLinkRequest = [];
+		if ($route === 'product/category') {
+			$resetLinkRequest = [
+				'path' => $this->request->get['path'] ?? null,
+				'category_id' => $this->request->get['category_id'] ?? null,
+				'sort' => $this->request->get['sort'] ?? null,
+			];
+		}
+		if ($route === 'product/manufacturer') {
+			$resetLinkRequest = [
+				'manufacturer_id' => $this->request->get['manufacturer_id'],
+				'sort' => $this->request->get['sort'] ?? null,
+			];
+		}
+		if ($route === 'product/special') {
+			$resetLinkRequest = [
+				'sort' => $this->request->get['sort'] ?? null,
+			];
+		}
+		$resetLinkRequest = array_filter($resetLinkRequest);
+		$data['resetLink'] = $this->url->link($route, http_build_query($resetLinkRequest));
+		// End reset link
 
 		return $this->load->view('extension/module/facet_filter', $data);
 	}
