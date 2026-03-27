@@ -7480,11 +7480,11 @@ CREATE TABLE `oc_seo_page_descciption` (
 DROP TABLE IF EXISTS `oc_seo_page_image_description`;
 CREATE TABLE `oc_seo_page_image_description` (
   `image_id`                INT NOT NULL,
-  `filter_page_id`          INT NOT NULL,
+  `seo_page_id`             INT NOT NULL,
   `language_id`             INT NOT NULL,
   `store_id`                INT NOT NULL,
   `description`             TEXT NOT NULL,
-  KEY (`filter_page_id`, `language_id`, `store_id`)
+  PRIMARY KEY (`seo_page_id`, `language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `oc_search_page_image_description`;
