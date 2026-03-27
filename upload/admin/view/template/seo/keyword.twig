@@ -16,6 +16,20 @@
       <button type="button" class="close" data-dismiss="alert">&times;</button>
     </div>
     {% endif %}
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-list"></i> {{ keyword_groups }}</h3>
+      </div>
+      <div class="panel-body">
+        <div id="keywordGroups" class="col-sm-12">
+          <div id="addKeywordGroupInput" class="input-group col-sm-12">
+            <input class="form-control" type="text" placeholder="{{ input_add_keyword_group }}"/><button id="addKeywordGroup" class="btn btn-success" type="button"><i class="fa fa-plus"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="panel panel-default">
       <div class="panel-heading">
         <h3 class="panel-title"><i class="fa fa-list"></i> {{ heading_title }}</h3>
