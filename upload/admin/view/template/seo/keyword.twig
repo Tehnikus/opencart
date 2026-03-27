@@ -2,7 +2,7 @@
 <div id="content">
   <div class="page-header">
     <div class="container-fluid">
-      <h1>{{ heading_title }}</h1>
+      <h1>{{ keywords_list }}</h1>
     </div>
   </div>
   <div class="container-fluid">
@@ -32,12 +32,12 @@
 
     <div class="panel panel-default">
       <div class="panel-heading">
-        <h3 class="panel-title"><i class="fa fa-list"></i> {{ heading_title }}</h3>
+        <h3 class="panel-title"><i class="fa fa-list"></i> {{ keywords_list }}</h3>
       </div>
       <div class="panel-body">
         <form action="{{ form_action }}" method="post" enctype="multipart/form-data" id="form-filter" class="fetchSaveForm">
           <div class="table-responsive tableWrapper">
-            <table id="keywordTable" class="table table-bordered table-hover">
+            <table id="keywordTable" class="keywordTable table table-bordered table-hover">
             </table>
           </div>
         </form>
@@ -77,6 +77,20 @@
 
     &:hover {
       background-color: #316dc899;
+    }
+  }
+
+  #keywordGroups {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+      & .keywordGroup {
+      display: flex;
+      gap: 1rem;
+      padding: 0 0 0 5px;
+      border-radius: 5px;
+      box-shadow: 0 0 3px #ccc;
+      overflow: hidden;
     }
   }
 </style>
