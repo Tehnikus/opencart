@@ -7449,8 +7449,36 @@ CREATE TABLE `oc_blog_category_image_description` (
   PRIMARY KEY (`blog_category_id`, `language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-DROP TABLE IF EXISTS `oc_filter_page_image_description`;
-CREATE TABLE `oc_filter_page_image_description` (
+DROP TABLE IF EXISTS `oc_seo_page_facet_index`;
+CREATE TABLE `oc_seo_page_facet_index` (
+  `seo_page_id`   INT NOT NULL,
+  `type`          TINYINT NOT NULL,
+  `value`         INT NOT NULL,
+  PRIMARY KEY     (`seo_page_id`, `type`, `value`),
+  KEY             (`type`, `value`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `oc_seo_page_descciption`;
+CREATE TABLE `oc_seo_page_descciption` (
+  `seo_page_id`       INT AUTO_INCREMENT,
+  `language_id`       INT NOT NULL,
+  `store_id`          INT NOT NULL DEFAULT '0',
+  `name`              VARCHAR(255) NOT NULL,
+  `meta_title`        VARCHAR(255) NOT NULL,
+  `meta_description`  VARCHAR(255) NOT NULL,
+  `meta_keyword`      VARCHAR(255) NOT NULL,
+  `description`       TEXT NOT NULL,
+  `seo_keywords`      TEXT NOT NULL,
+  `seo_description`   TEXT NOT NULL,
+  `faq`               TEXT NOT NULL,
+  `how_to`            TEXT NOT NULL,
+  `footer`            TEXT NOT NULL,
+  `date_modified`     DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+  PRIMARY KEY (`seo_page_id`, `language_id`, `store_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `oc_seo_page_image_description`;
+CREATE TABLE `oc_seo_page_image_description` (
   `image_id`                INT NOT NULL,
   `filter_page_id`          INT NOT NULL,
   `language_id`             INT NOT NULL,
