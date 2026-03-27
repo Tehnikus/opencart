@@ -7416,7 +7416,7 @@ CREATE TABLE `oc_category_image_description` (
   `language_id`             INT NOT NULL,
   `store_id`                INT NOT NULL,
   `description`             TEXT NOT NULL,
-  KEY (`category_id`, `language_id`, `store_id`)
+  PRIMARY KEY (`category_id`, `language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `oc_product_image_description`;
@@ -7426,7 +7426,7 @@ CREATE TABLE `oc_product_image_description` (
   `language_id`             INT NOT NULL,
   `store_id`                INT NOT NULL,
   `description`             TEXT NOT NULL,
-  KEY (`product_id`, `language_id`, `store_id`)
+  PRIMARY KEY (`product_id`, `language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `oc_blog_article_image_description`;
@@ -7436,7 +7436,7 @@ CREATE TABLE `oc_blog_article_image_description` (
   `language_id`             INT NOT NULL,
   `store_id`                INT NOT NULL,
   `description`             TEXT NOT NULL,
-  KEY (`blog_article_id`, `language_id`, `store_id`)
+  PRIMARY KEY (`blog_article_id`, `language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `oc_blog_category_image_description`;
@@ -7446,7 +7446,7 @@ CREATE TABLE `oc_blog_category_image_description` (
   `language_id`             INT NOT NULL,
   `store_id`                INT NOT NULL,
   `description`             TEXT NOT NULL,
-  KEY (`blog_category_id`, `language_id`, `store_id`)
+  PRIMARY KEY (`blog_category_id`, `language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `oc_filter_page_image_description`;
