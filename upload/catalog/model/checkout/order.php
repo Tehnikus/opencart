@@ -84,17 +84,17 @@ class ModelCheckoutOrder extends Model {
 
 			// Update product sorts
 			$this->db->query("
-				INSERT INTO " . DB_PREFIX . "facet_sort AS new
-					(`product_id`, `store_id`, `orders`, `date_last_order`)
-					VALUES (
-							'" . (int) $product['product_id'] . "',
-							'" . (int) $data['store_id'] . "',
-							'" . (int) $delta . "',
-							NOW()
-					)
+				INSERT INTO " . DB_PREFIX . "facet_sort
+				(`product_id`, `store_id`, `orders`, `date_last_order`)
+				VALUES (
+					'" . (int) $product['product_id'] . "',
+					'" . (int) $data['store_id'] . "',
+					'" . (int) $delta . "',
+					NOW()
+				) AS src
 				ON DUPLICATE KEY UPDATE
-					`orders` = COALESCE(`orders`, 0) + new.`orders`
-					`date_last_order` = new.`date_last_order`
+					`orders` = COALESCE(" . DB_PREFIX . "facet_sort.`orders`, 0) + src.`orders`,
+					`date_last_order` = src.`date_last_order`
 			");
 		}
 
@@ -169,15 +169,15 @@ class ModelCheckoutOrder extends Model {
     // Decrease product sales sorts
     foreach ($products as $product) {
 			$this->db->query("
-				INSERT INTO " . DB_PREFIX . "facet_sort AS new
+				INSERT INTO " . DB_PREFIX . "facet_sort 
 				(`product_id`, `store_id`, `orders`) 
 				VALUES (
 					'" . (int) $product['product_id'] . "',
-					'" . $store_id . "',
-					'" . (int) (-$product['quantity']) . "'
-				)
+					'" . (int) $store_id . "',
+					'" . (int) ($product['quantity']) . "'
+				) AS src
 				ON DUPLICATE KEY UPDATE
-					`orders` = COALESCE(`orders`, 0) + new.`orders`
+					`orders` = COALESCE(" . DB_PREFIX . "facet_sort.`orders`, 0) - src.`orders`
 			");
     }
 
