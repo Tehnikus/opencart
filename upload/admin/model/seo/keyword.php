@@ -123,4 +123,24 @@ class ModelSeoKeyword extends Model
 
     return $result;
   }
+
+  public function saveKeywordGroup($data) : int {
+    $this->db->query("
+      INSERT INTO " . DB_PREFIX . "seo_keyword_group
+      (`keyword_group_name`)
+      VALUES (
+        '" . $this->db->escape($data) . "'
+      )
+    ");
+    $id = $this->db->getLastId();
+    return $id;
+  }
+
+  public function deleteKeywordGroup($id) : int {
+    $this->db->query("
+      DELETE FROM " . DB_PREFIX . "seo_keyword_group
+      WHERE keyword_group_id = '" . (int) $id . "'
+    ");
+    return $this->db->getLastId();
+  }
 }
