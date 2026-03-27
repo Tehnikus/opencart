@@ -76,22 +76,39 @@ class ControllerSeoKeyword extends Controller {
     );
   }
 
-  public function fetchSaveKeywordGroups() : void {
+  public function fetchSaveKeywordGroup() : void {
     $response = [];
-    $groups   = $this->request->post['seo_keyword_groups'];
+    $group = $this->request->post['keyword_group_name'];
 
-    if (empty($groups)) {
-      $response['seo_keyword_groups'] = 0;
+    if (empty($group)) {
+      $response['keyword_group_name'] = 0;
     } else {
-      $this->load->model('seo/keywords');
-      $response['seo_keyword_groups'] = $this->model_seo_keywords->saveKeywordGroups($groups);
+      $this->load->model('seo/keyword');
+      $response['keyword_group_id'] = $this->model_seo_keyword->saveKeywordGroup($group);
     }
 
     $this->response->addHeader('Content-Type: application/json');
     $this->response->setOutput(
       json_encode(
-        $response,
-        JSON_UNESCAPED_UNICODE
+        $response
+      )
+    );
+  }
+
+  public function fetchDeleteKeywordGroup() : void {
+    $response = [];
+    $group = $this->request->post['keyword_group_id'];
+    if (empty($group)) {
+      $response['keyword_group_id'] = 0;
+    } else {
+      $this->load->model('seo/keyword');
+      $response['keyword_group_id'] = $this->model_seo_keyword->deleteKeywordGroup($group);
+    }
+
+    $this->response->addHeader('Content-Type: application/json');
+    $this->response->setOutput(
+      json_encode(
+        $response
       )
     );
   }
