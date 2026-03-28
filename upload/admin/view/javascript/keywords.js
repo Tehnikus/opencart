@@ -57,6 +57,96 @@ function appendKeywordGroup(el, target) {
   const parent = target.parentNode;
   parent.insertBefore(el, target);
 }
+
+function renderHeader(interface) {
+  const thead           = document.createElement('thead');
+  const languageOptions = [
+    ...Object.values(interface.languages).map(l => ({
+        value: l.language_id,
+        label: l.name
+      })
+    )
+  ];
+
+  const storeOptions = [
+    ...Object.values(interface.stores).map(s => ({
+      value: s.store_id,
+      label: s.name
+    }))
+  ];
+
+  const rowTypeOptions  = [{value: '', label: interface.lang.option_all_types}, {value: 'existing', label: interface.lang.option_existing}, {value: 'updatedRow', label: interface.lang.option_updated}, {value: 'newRow', label: interface.lang.option_new}, {value: 'importedRow', label: interface.lang.option_imported}];
+
+
+  // Render addRow selects
+  const addRowLanguageSelect = renderSelect(languageOptions, {addRowColumn: 'language_id'});
+  const addRowStoreSelect    = renderSelect(storeOptions,    {addRowColumn: 'store_id'});
+  
+  // Add empty values to filter selects
+  languageOptions.unshift({value: '', label: interface.lang.column_language});
+  storeOptions.unshift({value: '', label: interface.lang.column_store});
+  // Render filter selects
+  const filterLanguageSelect = renderSelect(languageOptions, {searchColumn: 'language_id'});
+  const filterStoreSelect    = renderSelect(storeOptions,    {searchColumn: 'store_id'});
+  const filterRowTypeSelect  = renderSelect(rowTypeOptions,  {searchColumn: 'rowType'});
+
+  thead.innerHTML = `
+    <tr>
+      <th style="width: auto"   class="text-center"><input type="text" class="form-control" data-search-column="keyword_text" placeholder="${interface.lang.text_search} ${interface.lang.column_seo_keyword}"></th>
+      <th style="width: auto"   class="text-center"><input type="text" class="form-control" data-search-column="keyword_url" placeholder="${interface.lang.text_search} ${interface.lang.column_url}"></th>
+      <th style="width: 180px"  class="text-center">${filterLanguageSelect.outerHTML}</th>
+      <th style="width: 180px"  class="text-center">${filterStoreSelect.outerHTML}</th>
+      <th style="width: 180px"  class="text-center">${filterRowTypeSelect.outerHTML}</th>
+      <th style="width: 180px"  class="text-center">
+        <div class="btn-group">
+          <button type="button" class="btn btn-default clearFilters" title="${interface.lang.button_clear_filters}"><i class="fa fa-times"></i></button>
+          <label class="btn btn-primary importCSV" title="${interface.lang.button_import}">
+            <i class="fa fa-cloud-upload"></i>
+            <input type="file" accept="csv" style="display: none;" name="importKeywords" />
+          </label>
+          <button type="button" class="btn btn-success saveAllKeywords" title="${interface.lang.button_save_all}"><i class="fa fa-save"></i></button>
+        </div>
+      </th>
+    </tr>
+    <tr>
+      <th class="text-center">
+        <div class="input-group">
+          <input type="text" class="form-control" data-add-row-column="keyword_text" placeholder="${interface.lang.column_add_keyword}/${interface.lang.column_edit_keyword} ${interface.lang.column_seo_keyword}">
+          <button type="button" class="btn btn-default addToBeginning"><i class="fa fa-fast-backward"></i></button>
+          <button type="button" class="btn btn-default addToEnd"><i class="fa fa-fast-forward"></i></button>
+          <button type="button" class="btn btn-warning replace"><i class="fa fa-random"></i></button>
+        </div>
+      </th>
+      <th class="text-center">
+        <div class="input-group">
+          <input type="text" class="form-control" data-add-row-column="keyword_url" placeholder="${interface.lang.column_url}">
+          <button type="button" class="btn btn-default addToBeginning"><i class="fa fa-fast-backward"></i></button>
+          <button type="button" class="btn btn-default addToEnd"><i class="fa fa-fast-forward"></i></button>
+          <button type="button" class="btn btn-warning replace"><i class="fa fa-random"></i></button>
+        </div>
+      </th>
+      <th class="text-center">
+        <div class="input-group">
+        ${addRowLanguageSelect.outerHTML}<button type="button" class="btn btn-warning replace"><i class="fa fa-random"></i></button>
+        </div>
+      </th>
+      <th class="text-center">
+        <div class="input-group">
+        ${addRowStoreSelect.outerHTML}<button type="button" class="btn btn-warning replace"><i class="fa fa-random"></i></button>
+        </div>
+      </th>
+      <th class="text-center"></th>
+      <th class="text-center">
+        <div class="btn-group">
+          <button type="button" class="btn btn-success addRow"><i class="fa fa-plus-circle"></i></button>
+        </div>
+      </th>
+    </tr>
+  `;
+
+  return thead;
+}
+
 // Render select from options list 
 function renderSelect(options, datasetAttr) {
 
