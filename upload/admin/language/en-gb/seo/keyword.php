@@ -21,6 +21,8 @@ $_['option_updated']            = 'Updated';
 $_['option_imported']           = 'Imported';
 
 $_['column_seo_keyword']        = 'Keyword';
+$_['column_add_keyword']        = 'Add';
+$_['column_edit_keyword']       = 'Edit';
 $_['column_url']                = 'URL';
 $_['column_language']           = 'Language';
 $_['column_store']              = 'Store';
