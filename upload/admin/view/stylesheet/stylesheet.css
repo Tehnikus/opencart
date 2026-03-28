@@ -1045,6 +1045,19 @@ html[dir="rtl"] .text-right {
     & .input-group-btn {
         width: auto;
     }
+    & > * {
+        border-radius: 0;
+        height: 35px
+    }
+    & > :first-child {
+        border-radius: 4px 0 0 4px
+    }
+    & > :last-child {
+        border-radius: 0 4px 4px 0
+    }
+    & > :not(:last-child) {
+        border-right: 0;
+    }
 }
 
 table td p {
