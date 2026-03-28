@@ -57,6 +57,43 @@ function appendKeywordGroup(el, target) {
   const parent = target.parentNode;
   parent.insertBefore(el, target);
 }
+
+function renderKeywords(interface, keywords) {
+  const keywordTable = new nimbleTable({
+    table: document.getElementById('keywordTable'),
+    idField:  'keyword_id',
+    pagination: {perPage: 200},
+    template: (row) => renderRow(interface, row),
+    addEventListeners: (table) => {
+      table.addEventListener('click', ()=> {
+        // console.log('Table callback fired');
+      })
+    },
+    onFilterEnd: (filteredMap) => {
+      // console.log(filteredMap);
+    }
+  });
+
+  keywords.forEach(row => {
+    row.rowType = 'existing';
+  });
+  const tableHeaderElement = renderHeader(interface);
+  keywordTable.renderHeader(tableHeaderElement);
+  keywordTable.setData(keywords);
+
+  // Copy row
+  keywordTable.tbody.addEventListener('click', e => {
+    if (e.target.closest('[data-copy-row]')) {
+      const id = Number(e.target.closest('[data-id]').dataset.id);
+      const rowData = {...keywordTable.rowMap.get(id)}; // Copy row instead of reusing it, because in JavaScript objects are reference types (assignments copy references, not the actual object)
+      delete rowData.keyword_id; // Delete values that are treated as row identifier. If not deleted, Map() will skip duplicate ids
+      delete rowData.id; // Delete values that are treated as row identifier. If not deleted, Map() will skip duplicate ids
+      rowData.rowType = 'newRow';
+      keywordTable.setData([rowData]);
+    }
+  });
+}
+
 function renderRow(interface, row) {
   const tr = document.createElement('tr');
   const rowTypeOptions  = {updatedRow: interface.lang.option_updated, newRow: interface.lang.option_new, importedRow: interface.lang.option_imported, existing: interface.lang.option_existing};
