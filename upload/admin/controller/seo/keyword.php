@@ -49,29 +49,20 @@ class ControllerSeoKeyword extends Controller {
     // Get languages and stores
     $this->load->model('localisation/language');
     $this->load->model('setting/store');
+    $this->load->model('seo/keyword');
     $stores    = $this->model_setting_store->getMultistores();
     $languages = $this->model_localisation_language->getLanguages();
-
+    $keywordGroups = $this->model_seo_keyword->getKeywordGroups();
     // Return JSON to fetch
     $this->response->addHeader('Content-Type: application/json');
     $this->response->setOutput(
       json_encode(
         [
-          'lang'      => $lang->data,
-          'stores'    => $stores,
-          'languages' => $languages,
+          'lang'          => $lang->data,
+          'stores'        => $stores,
+          'languages'     => $languages,
+          'keywordGroups' => $keywordGroups,
         ]
-      )
-    );
-  }
-
-  public function fetchGetKeywordGroups() : void {
-    $this->load->model('seo/keyword');
-    $groups = $this->model_seo_keyword->getKeywordGroups();
-    $this->response->addHeader('Content-Type: application/json');
-    $this->response->setOutput(
-      json_encode(
-        $groups
       )
     );
   }
