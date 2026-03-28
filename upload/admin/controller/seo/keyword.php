@@ -42,8 +42,8 @@ class ControllerSeoKeyword extends Controller {
   public function fetchGetInterface() : void {
     // Load new Language
     $lang = new Language();
-    // Firs load admin translation 
-    $lang->load($this->config->get('config_admin_language'));
+    // First load admin translation 
+    // $lang->load($this->config->get('config_admin_language'));
     // Then load current controller translation to overwrite same named entries with current controller translation
     $lang->load('seo/keyword');
     // Get languages and stores
@@ -129,10 +129,10 @@ class ControllerSeoKeyword extends Controller {
     $keywords = $this->request->post['keywords'];
 
     if (empty($keywords)) {
-      $response['seo_keyword_groups'] = 0;
+      $response['keyword_group_id'] = 0;
     } else {
       $this->load->model('seo/keywords');
-      $response['seo_keyword_groups'] = $this->model_seo_keywords->saveKeywords($keywords);
+      $response['keyword_group_id'] = $this->model_seo_keywords->saveKeywords($keywords);
     }
 
     $this->response->addHeader('Content-Type: application/json');
