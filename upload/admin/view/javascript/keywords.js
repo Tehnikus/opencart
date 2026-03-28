@@ -7,16 +7,20 @@ document.addEventListener('DOMContentLoaded', async ()=> {
   const addGroupBtn   = document.getElementById('addKeywordGroup');
   const groupList     = document.getElementById('addKeywordGroupInput');
 
+  // Render keyword groups
   for (const el of keywordGroups ?? {}) {
     const groupElement = renderKeywordGroup(el.keyword_group_id, el.keyword_group_name);
     appendKeywordGroup(groupElement, groupList);
   }
+  // Render nimbleTable keywords list
+  renderKeywords(interface, keywords);
 
+  // Add event listener on group add button
   addGroupBtn?.addEventListener('click', e => {
     const groupName = e.target.closest('button').previousElementSibling.value;
     if (!groupName) {return}
     addKeywordGroup(groupName, groupList);
-  })
+  });
 
 });
 
