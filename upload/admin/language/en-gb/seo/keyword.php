@@ -1,5 +1,6 @@
 <?php
 // Heading
+$_['heading_title']             = 'Keywords';
 $_['keywords_list']             = 'Keywords';
 $_['keyword_groups']            = 'Keyword groups';
 $_['button_add']                = 'Add';
@@ -26,4 +27,5 @@ $_['column_edit_keyword']       = 'Edit';
 $_['column_url']                = 'URL';
 $_['column_language']           = 'Language';
 $_['column_store']              = 'Store';
+$_['column_group']              = 'Group';
 $_['text_search']               = 'Search';
