@@ -45,14 +45,17 @@ document.addEventListener('DOMContentLoaded', async ()=> {
   // Render nimbleTable keywords list
   renderKeywords(interface, keywords);
 });
+
+// Save keyword group
+async function saveKeywordGroup(groupName, groupList) {
   const data = new FormData();
   data.append('keyword_group_name', groupName.slice(0, 100));
   let newGroup = await fetch(`index.php?route=seo/keyword/fetchSaveKeywordGroup&user_token=${user_token}`, {method: "POST", body: data}).then(r => r.json());
-  console.log(newGroup);
   let groupElement = renderKeywordGroup(newGroup.keyword_group_id, groupName);
   appendKeywordGroup(groupElement, groupList)
 }
 
+// Render keyword group element
 function renderKeywordGroup(id, name) {
   const groupElement  = document.createElement('div');
   const nameElement   = document.createElement('span');
@@ -77,11 +80,13 @@ function renderKeywordGroup(id, name) {
   return groupElement;
 }
 
+// Insert keyword group element
 function appendKeywordGroup(el, target) {
   const parent = target.parentNode;
   parent.insertBefore(el, target);
 }
 
+// Render keywords table
 function renderKeywords(interface, keywords) {
   const keywordTable = new nimbleTable({
     table: document.getElementById('keywordTable'),
@@ -118,7 +123,7 @@ function renderKeywords(interface, keywords) {
     }
   });
 
-  // Add new row event listener
+  // Add new row
   tableHeaderElement.querySelector('.addRow').addEventListener('click', (e) => {
     const newRow = e.target.closest('tr');
     addRow(keywordTable, newRow);
@@ -178,6 +183,7 @@ function renderRow(interface, row) {
   return tr;
 }
 
+// Render table haedaer
 function renderHeader(interface) {
   const thead           = document.createElement('thead');
 
@@ -262,7 +268,7 @@ function renderHeader(interface) {
       <th class="text-center"></th>
       <th class="text-center">
         <div class="btn-group">
-          <button type="button" class="btn btn-success addRow"><i class="fa fa-plus-circle"></i></button>
+          <button type="button" class="btn btn-success addRow"><i class="fa fa-plus-circle"></i>&nbsp;${interface.lang.button_add_row}</button>
         </div>
       </th>
     </tr>
