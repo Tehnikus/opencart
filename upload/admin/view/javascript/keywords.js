@@ -136,26 +136,35 @@ function renderRow(interface, row) {
     rowTypeLabel = rowTypeOptions[row.rowType];
   }
 
-  const languageOptions = [
-    ...Object.values(interface.languages).map(l => ({
-        value: l.language_id,
-        label: l.name
-      })
-    )
-  ];
+  const languageSelect  = interface.languageSelect.cloneNode(true);
+  const storeSelect     = interface.storeSelect.cloneNode(true);
+  const groupSelect     = interface.groupSelect.cloneNode(true);
+  storeSelect.name     = storeSelect.dataset.column     = 'store_id';
+  languageSelect.name  = languageSelect.dataset.column  = 'language_id';
+  groupSelect.name     = groupSelect.dataset.column     = 'keyword_group_id';
 
-  const storeOptions = [
-    ...Object.values(interface.stores).map(s => ({
-      value: s.store_id,
-      label: s.name
-    }))
-  ];
+  [...languageSelect.options].forEach(opt => {
+    if (opt.value == row.language_id) {
+      opt.setAttribute('selected', 'selected');
+    }
+  });
+  [...storeSelect.options].forEach(opt => {
+    if (opt.value == row.store_id) {
+      opt.setAttribute('selected', 'selected');
+    }
+  });
+  [...groupSelect.options].forEach(opt => {
+    if (opt.value == row.keyword_group_id) {
+      opt.setAttribute('selected', 'selected');
+    }
+  });
 
   tr.innerHTML = `
     <td><input data-column="keyword_text" name="keyword_text" value="${row.keyword_text}" class="form-control"></td>
     <td><input data-column="keyword_url"  name="keyword_url"  value="${row.keyword_url}"  class="form-control"></td>
-    <td>${renderSelect(languageOptions, {column: 'language_id'}).outerHTML}</td>
-    <td>${renderSelect(storeOptions, {column: 'store_id'}).outerHTML}</td>
+    <td>${languageSelect.outerHTML}</td>
+    <td>${storeSelect.outerHTML}</td>
+    <td>${groupSelect.outerHTML}</td>
     <td class="text-center">${rowTypeLabel}</td>
     <td class="text-center">
       <div class="btn-group">
@@ -164,15 +173,7 @@ function renderRow(interface, row) {
       </div>
     </td>
   `;
-  // Set select value
-  const langSelect = tr.querySelector('select[data-column="language_id"]');
-  langSelect.value = row.language_id || langSelect.options[0].value;
-  langSelect.name = 'language_id';
-  // Set select value
-  const storeSelect = tr.querySelector('select[data-column="store_id"]');
-  storeSelect.value = row.store_id || storeSelect.options[0].value;
-  storeSelect.name = 'store_id';
-
+  
   return tr;
 }
 
