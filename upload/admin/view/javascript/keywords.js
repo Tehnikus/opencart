@@ -114,12 +114,7 @@ function renderKeywords(interface, keywords) {
   // Copy row
   keywordTable.tbody.addEventListener('click', e => {
     if (e.target.closest('[data-copy-row]')) {
-      const id = Number(e.target.closest('[data-id]').dataset.id);
-      const rowData = {...keywordTable.rowMap.get(id)}; // Copy row instead of reusing it, because in JavaScript objects are reference types (assignments copy references, not the actual object)
-      delete rowData.keyword_id; // Delete values that are treated as row identifier. If not deleted, Map() will skip duplicate ids
-      delete rowData.id; // Delete values that are treated as row identifier. If not deleted, Map() will skip duplicate ids
-      rowData.rowType = 'newRow';
-      keywordTable.setData([rowData]);
+      copyRow(keywordTable);
     }
   });
 
