@@ -298,19 +298,27 @@ function renderSelect(options, datasetAttr) {
   return select;
 }
 
+// Add row from form
 function addRow(keywordTable, newRow) {
   const newData = {};
+  const returnFlag = false;
   newRow.querySelectorAll('input, select').forEach(element => {
-    console.log(element.value);
+    if (element.tagName === 'INPUT' && element.value === '') {
+      element.classList.add('alert-danger');
+      returnFlag = true;
+    } else {
+      element.classList.remove('alert-danger');
+    }
     newData[element.dataset.addRowColumn] = element.value || '';
   });
+  if (returnFlag) {
+    return;
+  }
   newData.rowType = 'newRow';
   const table = keywordTable.setData([newData], true);
   keywordTable.setPage(keywordTable.getTotalPages());
   table.lastChild.scrollIntoView({block: "nearest", inline: "nearest"});
-  const data = new FormData();
-  for (const key in newData) {
-    data.append(key, newData[key]);
+  saveKeyword(newData);
   }
   fetch(`index.php?route=seo/keyword/fetchSaveKeywords&user_token=${user_token}`, {method: "POST", body: data})
 }
