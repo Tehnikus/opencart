@@ -127,9 +127,47 @@ function renderKeywords(interface, keywords) {
   tableHeaderElement.querySelector('.addRow').addEventListener('click', (e) => {
     const newRow = e.target.closest('tr');
     addRow(keywordTable, newRow);
+  });
+
+  // Clear filters
+  tableHeaderElement.querySelector('.clearFilters').addEventListener('click', () => {
+    keywordTable.resetFilter();
+  });
+
+  // Replace string event listener
+  tableHeaderElement.querySelectorAll('.replace').forEach(button => {
+    button.addEventListener('click', (e) => {
+      const newRow = e.target.closest('div');
+      const newData = {};
+      newRow.querySelectorAll('input, select').forEach(element => {
+        newData[element.dataset.addRowColumn] = element.value || '';
+      });
+      updateRow(keywordTable, newData);
+    });
+  });
+
+  // Add to the beginning fo the string event listener
+  tableHeaderElement.querySelectorAll('.addToBeginning').forEach(button =>{
+    button.addEventListener('click', (e) => {
+      const newRow = e.target.closest('div');
+      const newData = {};
+      newRow.querySelectorAll('input').forEach(element => {
+        newData[element.dataset.addRowColumn] = element.value || '';
+      });
+      const items = keywordTable.filteredOrder;
+      items.forEach(id => {
+        rowVals = keywordTable.rowMap.get(id);
+        for (const key in newData) {
+          rowVals[key] = String(newData[key]) + String(rowVals[key]);
+        }
+        rowVals.rowType = 'updatedRow';
+        keywordTable.updateRow(id, rowVals, updateElement = true);
+      });
+    });
   })
 }
 
+// Render table row
 function renderRow(interface, row) {
   const tr = document.createElement('tr');
   const rowTypeOptions  = {updatedRow: interface.lang.option_updated, newRow: interface.lang.option_new, importedRow: interface.lang.option_imported, existing: interface.lang.option_existing};
