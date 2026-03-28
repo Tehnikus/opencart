@@ -57,6 +57,57 @@ function appendKeywordGroup(el, target) {
   const parent = target.parentNode;
   parent.insertBefore(el, target);
 }
+function renderRow(interface, row) {
+  const tr = document.createElement('tr');
+  const rowTypeOptions  = {updatedRow: interface.lang.option_updated, newRow: interface.lang.option_new, importedRow: interface.lang.option_imported, existing: interface.lang.option_existing};
+  let   rowTypeLabel = '';
+
+  tr.dataset.id = row.keyword_id || '';
+
+  if (row.rowType) {
+    tr.classList.add(row.rowType);
+    rowTypeLabel = rowTypeOptions[row.rowType];
+  }
+
+  const languageOptions = [
+    ...Object.values(interface.languages).map(l => ({
+        value: l.language_id,
+        label: l.name
+      })
+    )
+  ];
+
+  const storeOptions = [
+    ...Object.values(interface.stores).map(s => ({
+      value: s.store_id,
+      label: s.name
+    }))
+  ];
+
+  tr.innerHTML = `
+    <td><input data-column="keyword_text" name="keyword_text" value="${row.keyword_text}" class="form-control"></td>
+    <td><input data-column="keyword_url"  name="keyword_url"  value="${row.keyword_url}"  class="form-control"></td>
+    <td>${renderSelect(languageOptions, {column: 'language_id'}).outerHTML}</td>
+    <td>${renderSelect(storeOptions, {column: 'store_id'}).outerHTML}</td>
+    <td class="text-center">${rowTypeLabel}</td>
+    <td class="text-center">
+      <div class="btn-group">
+        <button type="button" class="btn btn-default" data-copy-row=""><i class="fa fa-copy"></i></button>
+        <button type="button" class="btn btn-danger"  data-remove-row=""><i class="fa fa-times"></i></button>
+      </div>
+    </td>
+  `;
+  // Set select value
+  const langSelect = tr.querySelector('select[data-column="language_id"]');
+  langSelect.value = row.language_id || langSelect.options[0].value;
+  langSelect.name = 'language_id';
+  // Set select value
+  const storeSelect = tr.querySelector('select[data-column="store_id"]');
+  storeSelect.value = row.store_id || storeSelect.options[0].value;
+  storeSelect.name = 'store_id';
+
+  return tr;
+}
 
 function renderHeader(interface) {
   const thead           = document.createElement('thead');
