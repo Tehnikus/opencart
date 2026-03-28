@@ -114,7 +114,7 @@ class ControllerCatalogOption extends Controller {
 		if (isset($this->request->get['sort'])) {
 			$sort = $this->request->get['sort'];
 		} else {
-			$sort = 'od.name';
+			$sort = 'name';
 		}
 
 		if (isset($this->request->get['order'])) {
@@ -173,12 +173,19 @@ class ControllerCatalogOption extends Controller {
 
 		foreach ($results as $result) {
 			$data['options'][] = array(
-				'option_id'  => $result['option_id'],
-				'name'       => $result['name'],
-				'sort_order' => $result['sort_order'],
-				'edit'       => $this->url->link('catalog/option/edit', 'user_token=' . $this->session->data['user_token'] . '&option_id=' . $result['option_id'] . $url, true)
+				'option_id'  		=> $result['option_id'],
+				'name'       		=> $result['name'],
+				'values_list'   => $result['values_list'],
+				'option_count' 	=> $result['option_count'],
+				'type' 					=> $result['type'],
+				'sort_order' 		=> $result['sort_order'],
+				'stores' 				=> $result['stores'],
+				'edit'       		=> $this->url->link('catalog/option/edit', 'user_token=' . $this->session->data['user_token'] . '&option_id=' . $result['option_id'] . $url, true)
 			);
 		}
+
+		$this->load->model('setting/store');
+		$data['stores'] = $this->model_setting_store->getMultistores();
 
 		if (isset($this->error['warning'])) {
 			$data['error_warning'] = $this->error['warning'];
@@ -212,8 +219,10 @@ class ControllerCatalogOption extends Controller {
 			$url .= '&page=' . $this->request->get['page'];
 		}
 
-		$data['sort_name'] = $this->url->link('catalog/option', 'user_token=' . $this->session->data['user_token'] . '&sort=od.name' . $url, true);
-		$data['sort_sort_order'] = $this->url->link('catalog/option', 'user_token=' . $this->session->data['user_token'] . '&sort=o.sort_order' . $url, true);
+		$data['sort_name'] = $this->url->link('catalog/option', 'user_token=' . $this->session->data['user_token'] . '&sort=name' . $url, true);
+		$data['sort_type'] = $this->url->link('catalog/option', 'user_token=' . $this->session->data['user_token'] . '&sort=o.type' . $url, true);
+		$data['sort_option_count'] = $this->url->link('catalog/option', 'user_token=' . $this->session->data['user_token'] . '&sort=option_count' . $url, true);
+		$data['sort_sort_order'] = $this->url->link('catalog/option', 'user_token=' . $this->session->data['user_token'] . '&sort=o2s.sort_order' . $url, true);
 
 		$url = '';
 
@@ -252,6 +261,12 @@ class ControllerCatalogOption extends Controller {
 			$data['error_warning'] = $this->error['warning'];
 		} else {
 			$data['error_warning'] = '';
+		}
+
+		if (isset($this->error['stores_association'])) {
+			$data['error_store_association'] = $this->error['stores_association'];
+		} else {
+			$data['error_store_association'] = '';
 		}
 
 		if (isset($this->error['name'])) {
@@ -342,8 +357,6 @@ class ControllerCatalogOption extends Controller {
 			$option_values = array();
 		}
 
-		$this->load->model('tool/image');
-
 		$data['option_values'] = array();
 
 		foreach ($option_values as $option_value) {
@@ -352,19 +365,27 @@ class ControllerCatalogOption extends Controller {
 				$thumb = $option_value['image'];
 			} else {
 				$image = '';
-				$thumb = 'no_image.png';
+				$thumb = 'no_image.webp';
 			}
 
 			$data['option_values'][] = array(
 				'option_value_id'          => $option_value['option_value_id'],
 				'option_value_description' => $option_value['option_value_description'],
 				'image'                    => $image,
-				'thumb'                    => $this->model_tool_image->resize($thumb, 100, 100),
+				'thumb'                    => HTTPS_CATALOG . 'image/' .$thumb,
 				'sort_order'               => $option_value['sort_order']
 			);
 		}
 
-		$data['placeholder'] = $this->model_tool_image->resize('no_image.png', 100, 100);
+		$data['placeholder'] = HTTPS_CATALOG . 'image/no_image.webp';
+
+		// Filter group to store association
+		$this->load->model('setting/store');
+		$data['stores'] = $this->model_setting_store->getMultistores();
+		// Current store_id to check current store checkbox in stores list
+		$data['currentStore'] = $this->session->data['store_id'];
+		$data['stores_association'] = $this->request->post['stores_association'] ?? $this->model_catalog_option->getStoresAssociation($this->request->get['option_id'] ?? null) ?? [];
+		// End store association
 
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
@@ -378,8 +399,12 @@ class ControllerCatalogOption extends Controller {
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
 
+		if (!isset($this->request->post['stores_association']) || empty($this->request->post['stores_association'])) {
+			$this->error['stores_association'] = $this->language->get('error_stores_association');
+		}
+
 		foreach ($this->request->post['option_description'] as $language_id => $value) {
-			if ((utf8_strlen($value['name']) < 1) || (utf8_strlen($value['name']) > 128)) {
+			if ((utf8_strlen($value['name']) < 1) || (utf8_strlen($value['name']) > 255)) {
 				$this->error['name'][$language_id] = $this->language->get('error_name');
 			}
 		}
@@ -391,7 +416,7 @@ class ControllerCatalogOption extends Controller {
 		if (isset($this->request->post['option_value'])) {
 			foreach ($this->request->post['option_value'] as $option_value_id => $option_value) {
 				foreach ($option_value['option_value_description'] as $language_id => $option_value_description) {
-					if ((utf8_strlen($option_value_description['name']) < 1) || (utf8_strlen($option_value_description['name']) > 128)) {
+					if ((utf8_strlen($option_value_description['name']) < 1) || (utf8_strlen($option_value_description['name']) > 255)) {
 						$this->error['option_value'][$option_value_id][$language_id] = $this->language->get('error_option_value');
 					}
 				}
@@ -408,13 +433,13 @@ class ControllerCatalogOption extends Controller {
 
 		$this->load->model('catalog/product');
 
-		foreach ($this->request->post['selected'] as $option_id) {
-			$product_total = $this->model_catalog_product->getTotalProductsByOptionId($option_id);
+		// foreach ($this->request->post['selected'] as $option_id) {
+		// 	$product_total = $this->model_catalog_product->getTotalProductsByOptionId($option_id);
 
-			if ($product_total) {
-				$this->error['warning'] = sprintf($this->language->get('error_product'), $product_total);
-			}
-		}
+		// 	if ($product_total) {
+		// 		$this->error['warning'] = sprintf($this->language->get('error_product'), $product_total);
+		// 	}
+		// }
 
 		return !$this->error;
 	}
@@ -427,12 +452,12 @@ class ControllerCatalogOption extends Controller {
 
 			$this->load->model('catalog/option');
 
-			$this->load->model('tool/image');
-
 			$filter_data = array(
-				'filter_name' => $this->request->get['filter_name'],
-				'start'       => 0,
-				'limit'       => 5
+				'filter_name' 							=> $this->request->get['filter_name'],
+				'store_id'									=> (int) $this->session->data['store_id'],
+				'start'      								=> 0,
+				'has_values' 								=> true, // Filter by option value count to hide options that have values in one store and don't have values in other stores 
+				'limit'      								=> 20
 			);
 
 			$options = $this->model_catalog_option->getOptions($filter_data);
@@ -444,11 +469,7 @@ class ControllerCatalogOption extends Controller {
 					$option_values = $this->model_catalog_option->getOptionValues($option['option_id']);
 
 					foreach ($option_values as $option_value) {
-						if (is_file(DIR_IMAGE . $option_value['image'])) {
-							$image = $this->model_tool_image->resize($option_value['image'], 50, 50);
-						} else {
-							$image = $this->model_tool_image->resize('no_image.png', 50, 50);
-						}
+						$image = ($option_value['image'] && is_file(DIR_IMAGE . $option_value['image'])) ? HTTPS_CATALOG . 'image/' . $option_value['image'] : HTTPS_CATALOG . 'image/no_image.webp';
 
 						$option_value_data[] = array(
 							'option_value_id' => $option_value['option_value_id'],

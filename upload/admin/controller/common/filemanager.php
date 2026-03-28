@@ -34,7 +34,7 @@ class ControllerCommonFileManager extends Controller {
 
 		$data['images'] = array();
 
-		$this->load->model('tool/image');
+		// $this->load->model('tool/image');
 
 		if (substr(str_replace('\\', '/', realpath($directory) . '/' . $filter_name), 0, strlen(DIR_IMAGE . 'catalog')) == str_replace('\\', '/', DIR_IMAGE . 'catalog')) {
 			// Get directories
@@ -45,7 +45,7 @@ class ControllerCommonFileManager extends Controller {
 			}
 
 			// Get files
-			$files = safe_glob($directory . '/' . $filter_name . '*.{jpg,jpeg,png,gif,webp,JPG,JPEG,PNG,GIF,WEBP}', GLOB_BRACE);
+			$files = safe_glob($directory . '/' . $filter_name . '*.{jpg,jpeg,png,gif,webp,JPG,JPEG,PNG,GIF,WEBP,svg}', GLOB_BRACE);
 
 			if (!$files) {
 				$files = array();
@@ -59,7 +59,7 @@ class ControllerCommonFileManager extends Controller {
 		$image_total = count($images);
 
 		// Split the array based on current page number and max number of items per page of 10
-		$images = array_splice($images, ($page - 1) * 16, 16);
+		$images = array_splice($images, ($page - 1) * 36, 36);
 
 		foreach ($images as $image) {
 			$name = str_split(basename($image), 14);
@@ -84,7 +84,7 @@ class ControllerCommonFileManager extends Controller {
 				);
 			} elseif (is_file($image)) {
 				$data['images'][] = array(
-					'thumb' => $this->model_tool_image->resize(utf8_substr($image, utf8_strlen(DIR_IMAGE)), 100, 100),
+					'thumb' => $server . 'image/' . utf8_substr($image, utf8_strlen(DIR_IMAGE)),
 					'name'  => implode(' ', $name),
 					'type'  => 'image',
 					'path'  => utf8_substr($image, utf8_strlen(DIR_IMAGE)),
@@ -180,7 +180,7 @@ class ControllerCommonFileManager extends Controller {
 		$pagination = new Pagination();
 		$pagination->total = $image_total;
 		$pagination->page = $page;
-		$pagination->limit = 16;
+		$pagination->limit = 36;
 		$pagination->url = $this->url->link('common/filemanager', 'user_token=' . $this->session->data['user_token'] . $url . '&page={page}', true);
 
 		$data['pagination'] = $pagination->render();

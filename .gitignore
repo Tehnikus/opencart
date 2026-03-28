@@ -7,6 +7,7 @@
 !/upload/image/no_image.jpg
 
 # Image Cache Files
+/upload/image/*
 /upload/image/cache/*
 !/upload/image/cache/index.html
 
@@ -58,3 +59,10 @@
 /upload/.idea
 /.cache/cache
 /tools
+/.vscode
+/.kanbn_boards
+TODO
+__*
+
+# Root storage
+/storage

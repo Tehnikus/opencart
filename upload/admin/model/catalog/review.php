@@ -1,57 +1,225 @@
 <?php
 class ModelCatalogReview extends Model {
 	public function addReview($data) {
-		$this->db->query("INSERT INTO " . DB_PREFIX . "review SET author = '" . $this->db->escape($data['author']) . "', product_id = '" . (int)$data['product_id'] . "', text = '" . $this->db->escape(strip_tags($data['text'])) . "', rating = '" . (int)$data['rating'] . "', status = '" . (int)$data['status'] . "', date_added = '" . $this->db->escape($data['date_added']) . "'");
+		$this->db->query("
+			INSERT INTO " . DB_PREFIX . "review 
+			SET 
+				product_id 	= '" . (int) $data['product_id'] . "', 
+				language_id = '" . (int) $data['language_id'] . "',
+				store_id 		= '" . (int) $data['store_id'] . "',
+				status 			= '" . (int) $data['status'] . "', 
+				rating 			= '" . (int) $data['rating'] . "', 
+				author 			= '" . $this->db->escape($data['author']) . "', 
+				text 				= '" . $this->db->escape(strip_tags($data['text'])) . "', 
+				date_added 	= '" . $this->db->escape($data['date_added']) . "'
+		");
+
+		$this->db->query("
+			INSERT INTO " . DB_PREFIX . "facet_sort (product_id, store_id, review_count, rating_avg, date_last_review)
+			VALUES ('" . (int) $data['product_id'] . "', '" . (int) $data['store_id'] . "', 1, '" . (int) $data['rating'] . "', NOW())
+			ON DUPLICATE KEY UPDATE 
+				review_count = (
+					SELECT 
+						COUNT(*) 
+					FROM " . DB_PREFIX . "review r1 
+					WHERE r1.product_id = '" . (int) $data['product_id'] . "'
+						AND r1.store_id 	= '" . (int) $data['store_id'] . "'
+						AND r1.status 		= '1' 
+				),
+				rating_avg = (
+					SELECT 
+						AVG(rating) AS total 
+					FROM " . DB_PREFIX . "review r1 
+					WHERE r1.product_id = '" . (int) $data['product_id'] . "'
+						AND r1.store_id 	= '" . (int) $data['store_id'] . "'
+						AND r1.status 		= '1' 
+				),
+				date_last_review = NOW()
+		");
 
 		$review_id = $this->db->getLastId();
 
-		$this->cache->delete('product');
+		// Delete cache
+		$this->load->model('catalog/product');
+		$this->model_catalog_product->deleteCache($data['product_id'], $data['store_id']);
 
 		return $review_id;
 	}
 
 	public function editReview($review_id, $data) {
-		$this->db->query("UPDATE " . DB_PREFIX . "review SET author = '" . $this->db->escape($data['author']) . "', product_id = '" . (int)$data['product_id'] . "', text = '" . $this->db->escape(strip_tags($data['text'])) . "', rating = '" . (int)$data['rating'] . "', status = '" . (int)$data['status'] . "', date_added = '" . $this->db->escape($data['date_added']) . "', date_modified = NOW() WHERE review_id = '" . (int)$review_id . "'");
+		$this->db->query("
+			UPDATE " . DB_PREFIX . "review 
+			SET 
+				product_id 	= '" . (int) $data['product_id'] . "', 
+				language_id = '" . (int) $data['language_id'] . "',
+				store_id 		= '" . (int) $data['store_id'] . "',
+				status 			= '" . (int) $data['status'] . "', 
+				rating 			= '" . (int) $data['rating'] . "', 
+				author 			= '" . $this->db->escape($data['author']) . "', 
+				text 				= '" . $this->db->escape(strip_tags($data['text'])) . "', 
+				date_added 	= '" . $this->db->escape($data['date_added']) . "',
+				date_modified = NOW() 
+			WHERE 
+				review_id = '" . (int)$review_id . "'
+		");
 
-		$this->cache->delete('product');
+		$this->db->query("
+			INSERT INTO " . DB_PREFIX . "facet_sort (product_id, store_id, review_count, rating_avg, date_last_review)
+			VALUES ('" . (int) $data['product_id'] . "', '" . (int) $data['store_id'] . "', 1, '" . (int) $data['rating'] . "', NOW())
+			ON DUPLICATE KEY UPDATE 
+				review_count = (
+					SELECT 
+						COUNT(*) 
+					FROM " . DB_PREFIX . "review r1 
+					WHERE r1.product_id = '" . (int) $data['product_id'] . "'
+						AND r1.store_id 	= '" . (int) $data['store_id'] . "'
+						AND r1.status 		= '1' 
+				),
+				rating_avg = (
+					SELECT 
+						AVG(rating) AS total 
+					FROM " . DB_PREFIX . "review r1 
+					WHERE r1.product_id = '" . (int) $data['product_id'] . "'
+						AND r1.store_id 	= '" . (int) $data['store_id'] . "'
+						AND r1.status 		= '1' 
+				),
+				date_last_review = NOW()
+		");
+
+		// Delete cache
+		$this->load->model('catalog/product');
+		$this->model_catalog_product->deleteCache($data['product_id'], $data['store_id']);
 	}
 
 	public function deleteReview($review_id) {
-		$this->db->query("DELETE FROM " . DB_PREFIX . "review WHERE review_id = '" . (int)$review_id . "'");
 
-		$this->cache->delete('product');
+		$reviewData = $this->db->query("
+			SELECT
+				*
+			FROM " . DB_PREFIX . "review
+			WHERE review_id = '" . (int) $review_id . "'
+			LIMIT 1
+		")->row;
+		
+
+		$this->db->query("
+			UPDATE " . DB_PREFIX . "facet_sort ps
+			SET
+				ps.review_count = (
+					SELECT 
+						COUNT(*) 
+					FROM " . DB_PREFIX . "review r1 
+					WHERE r1.product_id = '" . (int) $reviewData['product_id'] . "'
+						AND r1.store_id 	= '" . (int) $reviewData['store_id'] . "'
+						AND r1.status 		= '1' 
+				),
+				ps.rating_avg = (
+					SELECT 
+						AVG(rating) AS total 
+					FROM " . DB_PREFIX . "review r1 
+					WHERE r1.product_id = '" . (int) $reviewData['product_id'] . "'
+						AND r1.store_id 	= '" . (int) $reviewData['store_id'] . "'
+						AND r1.status 		= '1' 
+				)
+			WHERE ps.product_id = '" . (int) $reviewData['product_id'] . "'
+				AND ps.store_id = '" . (int) $reviewData['store_id'] . "'
+		");
+
+		$this->db->query("
+			DELETE FROM " . DB_PREFIX . "review 
+			WHERE review_id = '" . (int) $review_id . "'
+		");
+
+
+		// Delete cache
+		$this->load->model('catalog/product');
+		$this->model_catalog_product->deleteCache($reviewData['product_id'], $reviewData['store_id']);
 	}
 
 	public function getReview($review_id) {
-		$query = $this->db->query("SELECT DISTINCT *, (SELECT pd.name FROM " . DB_PREFIX . "product_description pd WHERE pd.product_id = r.product_id AND pd.language_id = '" . (int)$this->config->get('config_language_id') . "') AS product FROM " . DB_PREFIX . "review r WHERE r.review_id = '" . (int)$review_id . "'");
+		$query = $this->db->query("
+			SELECT 
+				*, 
+				(
+					SELECT pd.name FROM " . DB_PREFIX . "product_description pd 
+					WHERE pd.product_id = r.product_id 
+					AND pd.language_id = '" . (int)$this->config->get('config_language_id') . "'
+					AND pd.store_id = r.store_id
+				) AS product 
+			FROM " . DB_PREFIX . "review r 
+			WHERE r.review_id = '" . (int)$review_id . "'
+		");
 
 		return $query->row;
 	}
 
 	public function getReviews($data = array()) {
-		$sql = "SELECT r.review_id, pd.name, r.author, r.rating, r.status, r.date_added FROM " . DB_PREFIX . "review r LEFT JOIN " . DB_PREFIX . "product_description pd ON (r.product_id = pd.product_id) WHERE pd.language_id = '" . (int)$this->config->get('config_language_id') . "'";
 
+		$where = [];
+
+		$where[] = "r1.review_id = r.review_id";
+		$where[] = "pd.store_id = '" . (int) $this->session->data['store_id'] . "'";
+
+		if (!empty($data['filter_language'])) {
+			$where[] = " r1.language_id = '" . (int) $data['filter_language'] . "' ";
+		}
+
+		if (isset($data['filter_store']) && $data['filter_store'] !== '') {
+			$where[] = " r1.store_id = '" . (int) $data['filter_store'] . "' ";
+		}
+		
 		if (!empty($data['filter_product'])) {
-			$sql .= " AND pd.name LIKE '" . $this->db->escape($data['filter_product']) . "%'";
+			$where[] = " pd.name LIKE '%" . $this->db->escape($data['filter_product']) . "%'";
 		}
 
 		if (!empty($data['filter_author'])) {
-			$sql .= " AND r.author LIKE '" . $this->db->escape($data['filter_author']) . "%'";
+			$where[] = " r1.author LIKE '%" . $this->db->escape($data['filter_author']) . "%'";
 		}
 
 		if (isset($data['filter_status']) && $data['filter_status'] !== '') {
-			$sql .= " AND r.status = '" . (int)$data['filter_status'] . "'";
+			$where[] = " r1.status = '" . (int)$data['filter_status'] . "'";
 		}
 
 		if (!empty($data['filter_date_added'])) {
-			$sql .= " AND DATE(r.date_added) = DATE('" . $this->db->escape($data['filter_date_added']) . "')";
+			$where[] = " DATE(r1.date_added) = DATE('" . $this->db->escape($data['filter_date_added']) . "')";
 		}
 
+		$sql = "
+			SELECT 
+				r.review_id, 
+				(
+					SELECT 
+						pd.name 
+					FROM " . DB_PREFIX . "product_description pd 
+					WHERE pd.product_id = r.product_id 
+					ORDER BY 
+						FIELD(pd.store_id, '" . (int) $this->session->data['store_id'] ."') DESC,
+						FIELD(pd.language_id, '" . (int) $this->config->get('config_language_id') . "') DESC
+						LIMIT 1
+				) AS `name`,
+				r.author, 
+				r.rating, 
+				r.status, 
+				r.store_id,
+				r.language_id,
+				r.date_added 
+			FROM " . DB_PREFIX . "review r 
+			WHERE EXISTS (
+				SELECT 1
+				FROM " . DB_PREFIX . "review r1
+				JOIN " . DB_PREFIX . "product_description pd
+					ON pd.product_id = r1.product_id
+				WHERE " . implode(' AND ', $where) . "
+			)
+		";
+
 		$sort_data = array(
-			'pd.name',
+			'name',
 			'r.author',
 			'r.rating',
 			'r.status',
+			'r.language_id',
+			'r.store_id',
 			'r.date_added'
 		);
 

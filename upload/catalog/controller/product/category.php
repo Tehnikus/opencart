@@ -9,16 +9,16 @@ class ControllerProductCategory extends Controller {
 
 		$this->load->model('tool/image');
 
-		if (isset($this->request->get['filter'])) {
-			$filter = $this->request->get['filter'];
-		} else {
-			$filter = '';
-		}
+
+		$filter 					= $this->request->get['filter'] 					?? null;
+		$option 					= $this->request->get['option'] 					?? null;
+		$attribute 				= $this->request->get['attribute'] 				?? null;
+		$manufacturer_id 	= $this->request->get['manufacturer_id'] 	?? null;
 
 		if (isset($this->request->get['sort'])) {
 			$sort = $this->request->get['sort'];
 		} else {
-			$sort = 'p.sort_order';
+			$sort = 'sort_order';
 		}
 
 		if (isset($this->request->get['order'])) {
@@ -150,12 +150,15 @@ class ControllerProductCategory extends Controller {
 			$data['products'] = array();
 
 			$filter_data = array(
-				'filter_category_id' => $category_id,
-				'filter_filter'      => $filter,
-				'sort'               => $sort,
-				'order'              => $order,
-				'start'              => ($page - 1) * $limit,
-				'limit'              => $limit
+				'filter_category_id' 			=> $category_id,
+				'filter_filter'      			=> $filter,
+				'filter_option' 					=> $option,
+				'filter_attribute' 				=> $attribute,
+				'filter_manufacturer_id' 	=> $manufacturer_id,
+				'sort'               			=> $sort,
+				'order'              			=> $order,
+				'start'              			=> ($page - 1) * $limit,
+				'limit'              			=> $limit
 			);
 
 			$product_total = $this->model_catalog_product->getTotalProducts($filter_data);
@@ -199,7 +202,7 @@ class ControllerProductCategory extends Controller {
 					'product_id'  => $result['product_id'],
 					'thumb'       => $image,
 					'name'        => $result['name'],
-					'description' => utf8_substr(trim(strip_tags(html_entity_decode($result['description'], ENT_QUOTES, 'UTF-8'))), 0, $this->config->get('theme_' . $this->config->get('config_theme') . '_product_description_length')) . '..',
+					'description' => utf8_substr(trim(strip_tags(html_entity_decode($result['description'], ENT_QUOTES, 'UTF-8'))), 0, $this->config->get('theme_' . $this->config->get('config_theme') . '_product_description_length')),
 					'price'       => $price,
 					'special'     => $special,
 					'tax'         => $tax,
@@ -223,8 +226,8 @@ class ControllerProductCategory extends Controller {
 
 			$data['sorts'][] = array(
 				'text'  => $this->language->get('text_default'),
-				'value' => 'p.sort_order-ASC',
-				'href'  => $this->url->link('product/category', 'path=' . $this->request->get['path'] . '&sort=p.sort_order&order=ASC' . $url)
+				'value' => 'sort_order-ASC',
+				'href'  => $this->url->link('product/category', 'path=' . $this->request->get['path'] . '&sort=sort_order&order=ASC' . $url)
 			);
 
 			$data['sorts'][] = array(
