@@ -370,4 +370,25 @@ function copyRow(keywordTable) {
   keywordTable.setData([rowData]);
   saveKeyword(rowData);
 }
+
+// Save keyword to DB
+function saveKeyword(data) {
+  const body = new FormData();
+  for (const key in data) {
+    body.append(key, data[key]);
+  }
+  fetch(`index.php?route=seo/keyword/fetchSaveKeywords&user_token=${user_token}`, {method: "POST", body})
+}
+
+// Replace value in rows
+function updateRow(keywordTable, newData) {
+  const items = keywordTable.filteredOrder;
+  items.forEach(id => {
+    rowVals = keywordTable.rowMap.get(id);
+    for (const key in newData) {
+      rowVals[key] = String(newData[key]);
+    }
+    rowVals.rowType = 'updatedRow';
+    keywordTable.updateRow(id, rowVals, updateElement = true);
+  });
 }
