@@ -2,29 +2,49 @@ import('./nimbleTable.js');
 
 document.addEventListener('DOMContentLoaded', async ()=> {
   const interface     = await fetch(`index.php?route=seo/keyword/fetchGetInterface&user_token=${user_token}`).then(r => r.json());
-  const keywordGroups = await fetch(`index.php?route=seo/keyword/fetchGetKeywordGroups&user_token=${user_token}`).then(r => r.json());
   const keywords      = await fetch(`index.php?route=seo/keyword/fetchGetKeywords&user_token=${user_token}`).then(r => r.json());
   const addGroupBtn   = document.getElementById('addKeywordGroup');
   const groupList     = document.getElementById('addKeywordGroupInput');
 
   // Render keyword groups
-  for (const el of keywordGroups ?? {}) {
+  for (const el of interface.keywordGroups) {
     const groupElement = renderKeywordGroup(el.keyword_group_id, el.keyword_group_name);
     appendKeywordGroup(groupElement, groupList);
   }
-  // Render nimbleTable keywords list
-  renderKeywords(interface, keywords);
-
+  
   // Add event listener on group add button
   addGroupBtn?.addEventListener('click', e => {
     const groupName = e.target.closest('button').previousElementSibling.value;
     if (!groupName) {return}
-    addKeywordGroup(groupName, groupList);
+    saveKeywordGroup(groupName, groupList);
   });
 
-});
+  interface.languageSelect = renderSelect([
+    ...Object.values(interface.languages).map(l => ({
+        value: l.language_id,
+        label: l.name
+      })
+    )
+  ]);
+  interface.storeSelect = renderSelect([
+    ...Object.values(interface.stores).map(l => ({
+        value: l.store_id,
+        label: l.name
+      })
+    )
+  ]);
+  interface.groupSelect = renderSelect([
+    ...Object.values(interface.keywordGroups).map(l => ({
+        value: l.keyword_group_id,
+        label: l.keyword_group_name
+      })
+    )
+  ]);
 
-async function addKeywordGroup(groupName, groupList) {
+
+  // Render nimbleTable keywords list
+  renderKeywords(interface, keywords);
+});
   const data = new FormData();
   data.append('keyword_group_name', groupName.slice(0, 100));
   let newGroup = await fetch(`index.php?route=seo/keyword/fetchSaveKeywordGroup&user_token=${user_token}`, {method: "POST", body: data}).then(r => r.json());
