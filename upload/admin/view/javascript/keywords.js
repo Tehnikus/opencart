@@ -319,6 +319,16 @@ function addRow(keywordTable, newRow) {
   keywordTable.setPage(keywordTable.getTotalPages());
   table.lastChild.scrollIntoView({block: "nearest", inline: "nearest"});
   saveKeyword(newData);
-  }
-  fetch(`index.php?route=seo/keyword/fetchSaveKeywords&user_token=${user_token}`, {method: "POST", body: data})
+}
+
+// copy existing row
+function copyRow(keywordTable) {
+  const id = Number(e.target.closest('[data-id]').dataset.id);
+  const rowData = {...keywordTable.rowMap.get(id)}; // Copy row instead of reusing it, because in JavaScript objects are reference types (assignments copy references, not the actual object)
+  delete rowData.keyword_id; // Delete values that are treated as row identifier. If not deleted, Map() will skip duplicate ids
+  delete rowData.id; // Delete values that are treated as row identifier. If not deleted, Map() will skip duplicate ids
+  rowData.rowType = 'newRow';
+  keywordTable.setData([rowData]);
+  saveKeyword(rowData);
+}
 }
