@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async ()=> {
   addGroupBtn?.addEventListener('click', e => {
     const groupName = e.target.closest('button').previousElementSibling.value;
     if (!groupName) {return}
-    saveKeywordGroup(groupName, groupList);
+    saveKeywordGroup(groupName, groupList, interface);
   });
 
   interface.languageSelect = renderSelect([
@@ -47,11 +47,16 @@ document.addEventListener('DOMContentLoaded', async ()=> {
 });
 
 // Save keyword group
-async function saveKeywordGroup(groupName, groupList) {
+async function saveKeywordGroup(groupName, groupList, interface) {
   const data = new FormData();
   data.append('keyword_group_name', groupName.slice(0, 100));
   let newGroup = await fetch(`index.php?route=seo/keyword/fetchSaveKeywordGroup&user_token=${user_token}`, {method: "POST", body: data}).then(r => r.json());
   let groupElement = renderKeywordGroup(newGroup.keyword_group_id, groupName);
+  // Add new group to filter select, add row select and each row group select 
+  document.querySelectorAll('[data-search-column="keyword_group_id"], [data-add-row-column="keyword_group_id"], [data-column="keyword_group_id"]').forEach(select => {
+    select.add(Object.assign(document.createElement('option'), {value: newGroup.keyword_group_id, textContent: groupName}));
+  });
+  interface.groupSelect.add(Object.assign(document.createElement('option'), {value: newGroup.keyword_group_id, textContent: groupName}));
   appendKeywordGroup(groupElement, groupList)
 }
 
