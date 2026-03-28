@@ -96,6 +96,12 @@ function renderKeywords(interface, keywords) {
       keywordTable.setData([rowData]);
     }
   });
+
+  // Add new row event listener
+  tableHeaderElement.querySelector('.addRow').addEventListener('click', (e) => {
+    const newRow = e.target.closest('tr');
+    addRow(keywordTable, newRow);
+  })
 }
 
 function renderRow(interface, row) {
@@ -259,4 +265,21 @@ function renderSelect(options, datasetAttr) {
   });
 
   return select;
+}
+
+function addRow(keywordTable, newRow) {
+  const newData = {};
+  newRow.querySelectorAll('input, select').forEach(element => {
+    console.log(element.value);
+    newData[element.dataset.addRowColumn] = element.value || '';
+  });
+  newData.rowType = 'newRow';
+  const table = keywordTable.setData([newData], true);
+  keywordTable.setPage(keywordTable.getTotalPages());
+  table.lastChild.scrollIntoView({block: "nearest", inline: "nearest"});
+  const data = new FormData();
+  for (const key in newData) {
+    data.append(key, newData[key]);
+  }
+  fetch(`index.php?route=seo/keyword/fetchSaveKeywords&user_token=${user_token}`, {method: "POST", body: data})
 }

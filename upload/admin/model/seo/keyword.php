@@ -52,6 +52,14 @@ class ModelSeoKeyword extends Model
       return false;
     }
 
+    foreach ($rows as $rowKey => $row) {
+      foreach($row as $key => $string) {
+        if (!in_array($key, ['keyword_id', 'keyword_text', 'keyword_url', 'group', 'language_id', 'store_id'])) {
+          unset($rows[$rowKey][$key]);
+        }
+      }
+    }
+
     // Column names
     $columns = array_keys($rows[0]);
 

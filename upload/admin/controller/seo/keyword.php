@@ -126,13 +126,13 @@ class ControllerSeoKeyword extends Controller {
 
   public function fetchSaveKeywords() : void {
     $response = [];
-    $keywords = $this->request->post['keywords'];
+    $keywords = $this->request->post;
 
     if (empty($keywords)) {
       $response['keyword_group_id'] = 0;
     } else {
-      $this->load->model('seo/keywords');
-      $response['keyword_group_id'] = $this->model_seo_keywords->saveKeywords($keywords);
+      $this->load->model('seo/keyword');
+      $response['keyword_group_id'] = $this->model_seo_keyword->saveData([$keywords]);
     }
 
     $this->response->addHeader('Content-Type: application/json');
