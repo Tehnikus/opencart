@@ -57,3 +57,24 @@ function appendKeywordGroup(el, target) {
   const parent = target.parentNode;
   parent.insertBefore(el, target);
 }
+// Render select from options list 
+function renderSelect(options, datasetAttr) {
+
+  const select = document.createElement('select');
+  select.className = 'form-control';
+
+  if (datasetAttr) {
+    Object.entries(datasetAttr).forEach(([k, v]) => {
+      select.dataset[k] = v;
+    });
+  }
+
+  options.forEach(opt => {
+    const option = document.createElement('option');
+    option.value = opt.value;
+    option.textContent = opt.label;
+    select.appendChild(option);
+  });
+
+  return select;
+}
