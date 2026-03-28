@@ -179,42 +179,41 @@ function renderRow(interface, row) {
 
 function renderHeader(interface) {
   const thead           = document.createElement('thead');
-  const languageOptions = [
-    ...Object.values(interface.languages).map(l => ({
-        value: l.language_id,
-        label: l.name
-      })
-    )
-  ];
 
-  const storeOptions = [
-    ...Object.values(interface.stores).map(s => ({
-      value: s.store_id,
-      label: s.name
-    }))
-  ];
+  // Create filter selects
+  const languageSelect  = interface.languageSelect.cloneNode(true);
+  const storeSelect     = interface.storeSelect.cloneNode(true);
+  const groupSelect     = interface.groupSelect.cloneNode(true);
+  // Add empty values to filter selects
+  languageSelect.add(Object.assign(document.createElement('option'), {value: '', textContent: interface.lang.column_language}), languageSelect.options[0]);
+  storeSelect.add(Object.assign(document.createElement('option'), {value: '', textContent: interface.lang.column_store}), storeSelect.options[0]);
+  groupSelect.add(Object.assign(document.createElement('option'), {value: '', textContent: interface.lang.column_group}), groupSelect.options[0]);
 
+  // Set dataset
+  languageSelect.dataset.searchColumn = 'language_id';
+  storeSelect.dataset.searchColumn    = 'store_id';
+  groupSelect.dataset.searchColumn    = 'keyword_group_id';
+
+  // Row type select options 
   const rowTypeOptions  = [{value: '', label: interface.lang.option_all_types}, {value: 'existing', label: interface.lang.option_existing}, {value: 'updatedRow', label: interface.lang.option_updated}, {value: 'newRow', label: interface.lang.option_new}, {value: 'importedRow', label: interface.lang.option_imported}];
-
+  const filterRowTypeSelect  = renderSelect(rowTypeOptions,  {searchColumn: 'rowType'});
 
   // Render addRow selects
-  const addRowLanguageSelect = renderSelect(languageOptions, {addRowColumn: 'language_id'});
-  const addRowStoreSelect    = renderSelect(storeOptions,    {addRowColumn: 'store_id'});
+  const addRowLangSelect  = interface.languageSelect.cloneNode(true);
+  const addRowStoreSelect = interface.storeSelect.cloneNode(true);
+  const addRowGroupSelect = interface.groupSelect.cloneNode(true);
+  addRowLangSelect.dataset.addRowColumn   = 'language_id';
+  addRowStoreSelect.dataset.addRowColumn  = 'store_id';
+  addRowGroupSelect.dataset.addRowColumn  = 'keyword_group_id';
   
-  // Add empty values to filter selects
-  languageOptions.unshift({value: '', label: interface.lang.column_language});
-  storeOptions.unshift({value: '', label: interface.lang.column_store});
-  // Render filter selects
-  const filterLanguageSelect = renderSelect(languageOptions, {searchColumn: 'language_id'});
-  const filterStoreSelect    = renderSelect(storeOptions,    {searchColumn: 'store_id'});
-  const filterRowTypeSelect  = renderSelect(rowTypeOptions,  {searchColumn: 'rowType'});
 
   thead.innerHTML = `
     <tr>
       <th style="width: auto"   class="text-center"><input type="text" class="form-control" data-search-column="keyword_text" placeholder="${interface.lang.text_search} ${interface.lang.column_seo_keyword}"></th>
       <th style="width: auto"   class="text-center"><input type="text" class="form-control" data-search-column="keyword_url" placeholder="${interface.lang.text_search} ${interface.lang.column_url}"></th>
-      <th style="width: 180px"  class="text-center">${filterLanguageSelect.outerHTML}</th>
-      <th style="width: 180px"  class="text-center">${filterStoreSelect.outerHTML}</th>
+      <th style="width: 180px"  class="text-center">${languageSelect.outerHTML}</th>
+      <th style="width: 180px"  class="text-center">${storeSelect.outerHTML}</th>
+      <th style="width: 180px"  class="text-center">${groupSelect.outerHTML}</th>
       <th style="width: 180px"  class="text-center">${filterRowTypeSelect.outerHTML}</th>
       <th style="width: 180px"  class="text-center">
         <div class="btn-group">
@@ -246,12 +245,17 @@ function renderHeader(interface) {
       </th>
       <th class="text-center">
         <div class="input-group">
-        ${addRowLanguageSelect.outerHTML}<button type="button" class="btn btn-warning replace"><i class="fa fa-random"></i></button>
+         ${addRowLangSelect.outerHTML}<button type="button" class="btn btn-warning replace"><i class="fa fa-random"></i></button>
         </div>
       </th>
       <th class="text-center">
         <div class="input-group">
-        ${addRowStoreSelect.outerHTML}<button type="button" class="btn btn-warning replace"><i class="fa fa-random"></i></button>
+         ${addRowStoreSelect.outerHTML}<button type="button" class="btn btn-warning replace"><i class="fa fa-random"></i></button>
+        </div>
+      </th>
+      <th class="text-center">
+        <div class="input-group">
+         ${addRowGroupSelect.outerHTML}<button type="button" class="btn btn-warning replace"><i class="fa fa-random"></i></button>
         </div>
       </th>
       <th class="text-center"></th>
