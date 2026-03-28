@@ -95,6 +95,12 @@ function renderKeywords(interface, keywords) {
     },
     onFilterEnd: (filteredMap) => {
       // console.log(filteredMap);
+    },
+    onRowDelete: async (row) => {
+      // Delete rows from DB
+      const body = new FormData();
+      body.append('keywords[]', row.keyword_id);
+      await fetch(`index.php?route=seo/keyword/fetchDeleteKeywords&user_token=${user_token}`, {method: "POST", body});
     }
   });
 
