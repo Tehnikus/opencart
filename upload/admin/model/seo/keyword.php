@@ -52,28 +52,27 @@ class ModelSeoKeyword extends Model
       return false;
     }
 
-    foreach ($rows as $rowKey => $row) {
-      foreach($row as $key => $string) {
-        if (!in_array($key, ['keyword_id', 'keyword_text', 'keyword_url', 'group', 'language_id', 'store_id'])) {
-          unset($rows[$rowKey][$key]);
-        }
-      }
-    }
-
     // Column names
-    $columns = array_keys($rows[0]);
+    $columns = ['keyword_id', 'keyword_text', 'keyword_url', 'keyword_group_id', 'language_id', 'store_id'];
 
     // Escape values
     $escapedRows = [];
-    foreach ($rows as $row) {
-      $escaped = array_map(function ($value) {
-        if (is_null($value))
-          return "NULL";
-        if (is_numeric($value))
-          return (string) (int) $value;
-        return "'" . $this->db->escape($value) . "'";
-      }, array_values($row));
 
+    foreach ($rows as $row) {
+      $escaped = [];
+    
+      foreach ($columns as $col) {
+        $value = $row[$col] ?? null;
+    
+        if (is_null($value)) {
+          $escaped[] = "NULL";
+        } elseif (is_numeric($value)) {
+          $escaped[] = (string)(int)$value;
+        } else {
+          $escaped[] = "'" . $this->db->escape($value) . "'";
+        }
+      }
+    
       $escapedRows[] = "(" . implode(", ", $escaped) . ")";
     }
 
@@ -81,9 +80,9 @@ class ModelSeoKeyword extends Model
     $sql = "
       INSERT INTO `" . DB_PREFIX . "seo_keyword` 
         (`" . implode("`, `", $columns) . "`) 
-        VALUES " . implode(", ", $escapedRows) . " AS new_vals
-        ON DUPLICATE KEY UPDATE " . implode(", ", array_map(function ($col) {
-      return "`$col` = new_vals.`$col`";
+      VALUES " . implode(", ", $escapedRows) . "
+      ON DUPLICATE KEY UPDATE " . implode(", ", array_map(function ($col) {
+        return "`$col` = VALUES(`$col`)";
     }, $columns));
 
     $this->db->query($sql);
