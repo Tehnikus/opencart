@@ -156,6 +156,20 @@ function renderKeywords(interface, keywords) {
   // Clear filters
   tableHeaderElement.querySelector('.clearFilters').addEventListener('click', () => {
     keywordTable.resetFilter();
+    keywordTable.setData(keywords); // Set data in case find duplicate was used to return to original state
+  });
+
+  // Find duplicates
+  tableHeaderElement.querySelector('.findDuplicates').addEventListener('click', () => {
+    const keywordIds = keywordTable.filteredOrder;
+    const rows = []
+    keywordIds.forEach(id => {
+      rows.push(keywordTable.getRow(id))
+    });
+
+    const duplicates = findDuplicates(rows);
+    keywordTable.clearData();
+    keywordTable.setData(duplicates);
   });
 
   // Replace string event listener
@@ -543,4 +557,19 @@ function importCSV(input, keywordTable) {
   }
 
   input.value = ''; // Clear input value. This fixes bug when same file selected twice and parser didn't do anything
+}
+
+// Find duplicate keywords
+function findDuplicates(data) {
+  const map = new Map();
+
+  data.forEach(item => {
+    const key = item.keyword_text.trim().toLowerCase();
+    map.set(key, (map.get(key) || 0) + 1);
+  });
+
+  return data.filter(item => {
+    const key = item.keyword_text.trim().toLowerCase();
+    return map.get(key) > 1;
+  });
 }
