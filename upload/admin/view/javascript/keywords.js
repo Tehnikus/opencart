@@ -204,6 +204,26 @@ function renderKeywords(interface, keywords) {
     });
   });
 
+  // Add to the beginning fo the string event listener
+  tableHeaderElement.querySelectorAll('.addToEnd').forEach(button =>{
+    button.addEventListener('click', (e) => {
+      const newRow = e.target.closest('div');
+      const newData = {};
+      newRow.querySelectorAll('input').forEach(element => {
+        newData[element.dataset.addRowColumn] = element.value || '';
+      });
+      const items = keywordTable.filteredOrder;
+      items.forEach(id => {
+        rowVals = keywordTable.rowMap.get(id);
+        for (const key in newData) {
+          rowVals[key] = String(rowVals[key]) + String(newData[key]);
+        }
+        rowVals.rowType = 'updatedRow';
+        keywordTable.updateRow(id, rowVals, updateElement = true);
+      });
+    });
+  });
+
   // Import CSV
   tableHeaderElement.querySelector('.importCSV > input').addEventListener('input', (e) => {
     importCSV(e.target, keywordTable);
