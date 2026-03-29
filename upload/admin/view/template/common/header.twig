@@ -80,7 +80,6 @@
       const userToken = "{{ user_token }}"
       try {
         const response = await fetch(`index.php?route=setting/store/fetchSetCurrentStoreId&user_token=${userToken}&store_id=${currentStoreId}`).then(r => r.json());
-        console.log(response);
       } catch(e) {
         console.error(e)
       }
