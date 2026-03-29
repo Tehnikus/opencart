@@ -104,9 +104,9 @@ function renderKeywords(interface, keywords) {
     template: (row) => renderRow(interface, row),
     addEventListeners: (table) => {
       table.addEventListener('change', e => {
+        // Save rows when any row input changed by user
         if (e.target.closest('[data-id]')) {
           const tr = e.target.closest('[data-id]');
-          console.log(tr);
           const newData = {};
           newData.keyword_id = tr.dataset.id;
           newData.rowType = 'updatedRow'
@@ -118,6 +118,7 @@ function renderKeywords(interface, keywords) {
           keywordTable.updateRow(newData.keyword_id, newData, false);
           tr.className = '';
           tr.classList.add('updatedRow');
+          tr.querySelector('.rowType').innerText = interface.lang.option_updated;
         }
       })
     },
