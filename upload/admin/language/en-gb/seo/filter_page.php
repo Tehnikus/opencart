@@ -17,5 +17,13 @@ $_['error_permission']          = 'You are not permitted to edit filter page';
 $_['error_warning']             = 'Error while saving filter page';
 
 // Messages
-$_['text_success']              = "Filter page saved";
-$_['text_success_deleted']      = "Filter page deleted";
+$_['text_success']              = 'Filter page saved';
+$_['text_success_deleted']      = 'Filter page deleted';
+
+// Buttons
+$_['button_cancel']             = 'Cancel';
+$_['button_save']               = 'Save';
+
+// Tabs
+$_['tab_general']               = 'General';
+$_['tab_description']           = 'Description';

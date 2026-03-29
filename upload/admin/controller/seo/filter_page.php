@@ -11,6 +11,8 @@ class ControllerSeoFilterPage extends Controller {
   public function getList() {
     $this->load->model('setting/store');
     $this->load->model('localisation/language');
+    $this->load->model('seo/filter_page');
+    $user_token = $this->session->data['user_token'];
 
     $data = [
       'column_left'   => $this->load->controller('common/column_left'),
@@ -19,19 +21,34 @@ class ControllerSeoFilterPage extends Controller {
       'breadcrumbs'   => $this->displayBreadcrumbs(),
       'pagination'    => $this->getPaginamtion()['pagination'],
       'results'       => $this->getPaginamtion()['results'],
-      'user_token'    => $this->session->data['user_token'],
-      'add'           => $this->url->link('seo/filter_page/add', 'user_token=' . $this->session->data['user_token'], true),
-      'delete'        => $this->url->link('seo/filter_page/delete', 'user_token=' . $this->session->data['user_token'], true),
+      'user_token'    => $user_token,
+      'add'           => $this->url->link('seo/filter_page/add', 'user_token=' . $user_token, true),
+      'delete'        => $this->url->link('seo/filter_page/delete', 'user_token=' . $user_token, true),
     ];
 
     $this->response->setOutput($this->load->view('seo/filter_page_list', $data));
   }
 
   public function getForm() : void {
-    $data = [];
-    $id = $this->request->get['filter_page_id'] ?? null;
+    $this->load->model('setting/store');
+    $this->load->model('localisation/language');
+    $this->load->model('seo/filter_page');
+    
+    $data       = [];
+    $id         = $this->request->get['filter_page_id'] ?? null;
+    $user_token = $this->session->data['user_token'];
+    $url        = '&' . http_build_query(array_intersect_key($this->request->get, array_flip(['sort', 'order', 'page'])));
+
     $data = [
-      ''
+      'description'   => $this->model_seo_filter_page->getFilterPageDescriptions($id),
+      'facet'         => $this->model_seo_filter_page->getFilterPageFacets($id),
+      'column_left'   => $this->load->controller('common/column_left'),
+      'footer'        => $this->load->controller('common/footer'),
+      'header'        => $this->load->controller('common/header'),
+      'languages'     => $this->model_localisation_language->getLanguages(),
+      'stores'        => $this->model_setting_store->getMulistores(),
+      'action'        => $id ? $this->url->link('catalog/category/edit', 'user_token=' . $user_token . '&category_id=' . $id . $url, true) : $this->url->link('catalog/category/add', 'user_token=' . $user_token . $url, true),
+      'cancel'        => $this->url->link('catalog/category', 'user_token=' . $user_token . $url, true),
     ];
     $this->response->setOutput($this->load->view('seo/filter_page_form', $data));
   }
@@ -46,16 +63,7 @@ class ControllerSeoFilterPage extends Controller {
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validateForm()) {
 			$this->model_seo_filter_page->addFilterPage($this->request->post);
 			$this->session->data['success'] = $this->language->get('text_success');
-      $params = ['sort', 'order', 'page'];
-      $query = [];
-      
-      foreach ($params as $param) {
-        if (isset($this->request->get[$param])) {
-          $query[$param] = $this->request->get[$param];
-        }
-      }
-      
-      $url = $query ? '&' . http_build_query($query) : '';
+      $url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip(['sort', 'order', 'page'])));
 
 			$this->response->redirect($this->url->link('seo/filter_page', 'user_token=' . $this->session->data['user_token'] . $url, true));
 		}
@@ -75,16 +83,7 @@ class ControllerSeoFilterPage extends Controller {
 
 			$this->session->data['success'] = $this->language->get('text_success');
 
-      $params = ['sort', 'order', 'page'];
-      $query = [];
-      
-      foreach ($params as $param) {
-        if (isset($this->request->get[$param])) {
-          $query[$param] = $this->request->get[$param];
-        }
-      }
-      
-      $url = $query ? '&' . http_build_query($query) : '';
+      $url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip(['sort', 'order', 'page'])));
 
 			$this->response->redirect($this->url->link('seo/filter_page', 'user_token=' . $this->session->data['user_token'] . $url, true));
 		}
@@ -106,16 +105,7 @@ class ControllerSeoFilterPage extends Controller {
 
 			$this->session->data['success'] = $this->language->get('text_success_deleted');
 
-      $params = ['sort', 'order', 'page'];
-      $query = [];
-      
-      foreach ($params as $param) {
-        if (isset($this->request->get[$param])) {
-          $query[$param] = $this->request->get[$param];
-        }
-      }
-      
-      $url = $query ? '&' . http_build_query($query) : '';
+      $url = '&' . http_build_query(array_intersect_key($this->request->get, array_flip(['sort', 'order', 'page'])));
 
 			$this->response->redirect($this->url->link('seo/filter_page', 'user_token=' . $this->session->data['user_token'] . $url, true));
 		}
