@@ -138,10 +138,10 @@ class ControllerCommonColumnLeft extends Controller {
 
 			// SEO
 			$seo = array();
-			if ($this->user->hasPermission('access', 'seo/seo_page')) {
+			if ($this->user->hasPermission('access', 'seo/filter_page')) {
 				$seo[] = array(
 					'name'	   => $this->language->get('text_seo_pages'),
-					'href'     => $this->url->link('seo/seo_page', 'user_token=' . $this->session->data['user_token'], true),
+					'href'     => $this->url->link('seo/filter_page', 'user_token=' . $this->session->data['user_token'], true),
 					'children' => array()
 				);
 			}
