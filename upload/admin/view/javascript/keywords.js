@@ -224,6 +224,22 @@ function renderKeywords(interface, keywords) {
     });
   });
 
+  // Save all keywords
+  document.querySelector('.saveAllKeywords').addEventListener('click', async () => {
+    const rows = keywordTable.rowMap
+    const savedData = [];
+    rows.forEach((row) => {
+      savedData.push({
+        keyword_id:   row.id,
+        keyword_text: row.keyword_text,
+        keyword_url:  row.keyword_url,
+        language_id:  row.language_id,
+        store_id:     row.store_id,
+      })
+    });
+    saveKeywords(savedData);
+  });
+
   // Import CSV
   tableHeaderElement.querySelector('.importCSV > input').addEventListener('input', (e) => {
     importCSV(e.target, keywordTable);
