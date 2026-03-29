@@ -252,11 +252,11 @@ function renderRow(interface, row) {
     <td>${languageSelect.outerHTML}</td>
     <td>${storeSelect.outerHTML}</td>
     <td>${groupSelect.outerHTML}</td>
-    <td class="text-center">${rowTypeLabel}</td>
+    <td class="text-center rowType">${rowTypeLabel}</td>
     <td class="text-center">
       <div class="btn-group">
-        <button type="button" class="btn btn-default" data-copy-row=""><i class="fa fa-copy"></i></button>
-        <button type="button" class="btn btn-danger"  data-remove-row=""><i class="fa fa-times"></i></button>
+        <button type="button" class="btn btn-default" data-copy-row="" title="${interface.lang.button_copy}"><i class="fa fa-copy"></i></button>
+        <button type="button" class="btn btn-danger"  data-remove-row=""title="${interface.lang.button_delete}"><i class="fa fa-times"></i></button>
       </div>
     </td>
   `;
@@ -301,11 +301,11 @@ function renderHeader(interface) {
       <th style="width: 180px"  class="text-center">${languageSelect.outerHTML}</th>
       <th style="width: 180px"  class="text-center">${storeSelect.outerHTML}</th>
       <th style="width: 180px"  class="text-center">${groupSelect.outerHTML}</th>
-      <th style="width: 180px"  class="text-center">${filterRowTypeSelect.outerHTML}</th>
-      <th style="width: 100px"  class="text-center">
+      <th style="width: 130px"  class="text-center">${filterRowTypeSelect.outerHTML}</th>
+      <th style="width: 130px"  class="text-center">
         <div class="btn-group">
-          <button type="button" class="btn btn-default clearFilters" title="${interface.lang.button_clear_filters}"><i class="fa fa-times"></i></button>
           <button type="button" class="btn btn-default findDuplicates" title="${interface.lang.button_find_duplicates}"><i class="fa fa-search"></i></button>
+          <button type="button" class="btn btn-default clearFilters" title="${interface.lang.button_clear_filters}"><i class="fa fa-times"></i></button>
         </div>
       </th>
     </tr>
@@ -349,6 +349,7 @@ function renderHeader(interface) {
             <i class="fa fa-cloud-upload"></i>&nbsp;
             <input type="file" accept=".csv" style="display: none;" name="importKeywords" />
           </label>
+          <button type="button" class="btn btn-success saveAllKeywords" title="${interface.lang.button_save_all}"><i class="fa fa-save"></i></button>
         </div>
       </th>
     </tr>
@@ -382,7 +383,7 @@ function renderSelect(options, datasetAttr) {
 // Add row from form
 function addRow(keywordTable, newRow) {
   const newData = {};
-  const returnFlag = false;
+  let returnFlag = false;
   newRow.querySelectorAll('input, select').forEach(element => {
     if (element.tagName === 'INPUT' && element.value === '') {
       element.classList.add('alert-danger');
@@ -403,7 +404,7 @@ function addRow(keywordTable, newRow) {
 }
 
 // copy existing row
-function copyRow(keywordTable) {
+function copyRow(keywordTable, e) {
   const id = Number(e.target.closest('[data-id]').dataset.id);
   const rowData = {...keywordTable.rowMap.get(id)}; // Copy row instead of reusing it, because in JavaScript objects are reference types (assignments copy references, not the actual object)
   delete rowData.keyword_id; // Delete values that are treated as row identifier. If not deleted, Map() will skip duplicate ids
@@ -436,6 +437,7 @@ function updateRow(keywordTable, newData) {
   });
 }
 
+// Import CSV
 function importCSV(input, keywordTable) {
   // File
   const file = input.files[0];
@@ -446,7 +448,6 @@ function importCSV(input, keywordTable) {
     reader.onload = (e) => {
       // File read results
       const contents = e.target.result;
-      console.log(contents);
       // Parse as CSV data
       const parsedData = parseCSV(contents, detectDelimiter(contents));
       parsedData.forEach(row => {
