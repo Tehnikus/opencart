@@ -3,12 +3,13 @@
 $_['heading_title']             = 'Keywords';
 $_['keywords_list']             = 'Keywords';
 $_['keyword_groups']            = 'Keyword groups';
-$_['button_add_row']            = 'Add';
 $_['input_add_keyword_group']   = "Add new group";
+$_['button_add_row']            = 'Add new keyword';
 $_['button_delete']             = 'Delete';
 $_['button_import']             = 'Import CSV';
 $_['button_save_all']           = 'Save all';
 $_['button_clear_filters']      = 'Clear filters';
+$_['button_find_duplicates']    = 'Find duplicates';
 $_['button_add_tag']            = 'Add to tags';
 $_['button_replace_keywords']   = 'Replace keywords';
 
