@@ -69,7 +69,7 @@ class ControllerSeoKeyword extends Controller {
 
   public function fetchSaveKeywordGroup() : void {
     $response = [];
-    $group = $this->request->post['keyword_group_name'];
+    $group = $this->request->post['keyword_group_name'] ?? [];
 
     if (empty($group)) {
       $response['keyword_group_name'] = 0;
@@ -88,7 +88,7 @@ class ControllerSeoKeyword extends Controller {
 
   public function fetchDeleteKeywordGroup() : void {
     $response = [];
-    $group = $this->request->post['keyword_group_id'];
+    $group = $this->request->post['keyword_group_id'] ?? [];
     if (empty($group)) {
       $response['keyword_group_id'] = 0;
     } else {
