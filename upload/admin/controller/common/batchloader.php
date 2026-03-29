@@ -1,4 +1,13 @@
 <?php
+/**
+ * This controller allows to load and save data in batches with JS in admin panel
+ * To load data in JS use:
+ * const data = await loadBatch("folder/controller", "getDataFunction", {start: 0, limit: 10000}, userToken, batchSize = 200);
+ * returns array of objects
+ * To save data use:
+ * const savedResult = await saveBatch("folder/controller", "saveDataFunction", [savedData], userToken, batchSize = 200);
+ * Accepts array of objects
+ */
 class ControllerCommonBatchloader extends Controller
 {
 
@@ -17,7 +26,7 @@ class ControllerCommonBatchloader extends Controller
   }
 
 
-  public function saveBatch(){
+  public function saveBatch() {
     $this->response->addHeader('Content-Type: application/json');
 
     $model = $this->request->get['model'] ?? '';
@@ -56,7 +65,7 @@ class ControllerCommonBatchloader extends Controller
     }
   }
 
-  public function loadBatch(){
+  public function loadBatch() {
     $this->response->addHeader('Content-Type: application/json');
 
     $model = $this->request->get['model'] ?? '';
