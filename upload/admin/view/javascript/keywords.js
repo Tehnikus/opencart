@@ -51,7 +51,7 @@ async function saveKeywordGroup(groupName, groupList, interface) {
   const data = new FormData();
   data.append('keyword_group_name', groupName.slice(0, 100));
   let newGroup = await fetch(`index.php?route=seo/keyword/fetchSaveKeywordGroup&user_token=${user_token}`, {method: "POST", body: data}).then(r => r.json());
-  let groupElement = renderKeywordGroup(newGroup.keyword_group_id, groupName);
+  let groupElement = renderKeywordGroup(newGroup.keyword_group_id, groupName, interface);
   // Add new group to filter select, add row select and each row group select 
   document.querySelectorAll('[data-search-column="keyword_group_id"], [data-add-row-column="keyword_group_id"], [data-column="keyword_group_id"]').forEach(select => {
     select.add(Object.assign(document.createElement('option'), {value: newGroup.keyword_group_id, textContent: groupName}));
@@ -61,7 +61,7 @@ async function saveKeywordGroup(groupName, groupList, interface) {
 }
 
 // Render keyword group element
-function renderKeywordGroup(id, name) {
+function renderKeywordGroup(id, name, interface) {
   const groupElement  = document.createElement('div');
   const nameElement   = document.createElement('span');
   const deleteButton  = document.createElement('button');
@@ -76,6 +76,10 @@ function renderKeywordGroup(id, name) {
     deleteResponse = await fetch(`index.php?route=seo/keyword/fetchDeleteKeywordGroup&user_token=${user_token}`, {method: "POST", body: data})
     .then(r => r.json())
     .then(groupElement.remove());
+    document.querySelectorAll('[data-search-column="keyword_group_id"], [data-add-row-column="keyword_group_id"], [data-column="keyword_group_id"]').forEach(select => {
+      select.querySelector(`option[value="${id}"]`)?.remove();
+    });
+    interface.groupSelect.querySelector(`option[value="${id}"]`)?.remove();
   });
 
   groupElement.appendChild(nameElement);
