@@ -380,7 +380,7 @@ function addRow(keywordTable, newRow) {
   const table = keywordTable.setData([newData], true);
   keywordTable.setPage(keywordTable.getTotalPages());
   table.lastChild.scrollIntoView({block: "nearest", inline: "nearest"});
-  saveKeyword(newData);
+  saveKeywords([newData]);
 }
 
 // copy existing row
@@ -391,16 +391,17 @@ function copyRow(keywordTable) {
   delete rowData.id; // Delete values that are treated as row identifier. If not deleted, Map() will skip duplicate ids
   rowData.rowType = 'newRow';
   keywordTable.setData([rowData]);
-  saveKeyword(rowData);
+  saveKeywords([rowData]);
 }
 
 // Save keyword to DB
-function saveKeyword(data) {
+function saveKeywords(data) {
   const body = new FormData();
-  for (const key in data) {
-    body.append(key, data[key]);
-  }
-  fetch(`index.php?route=seo/keyword/fetchSaveKeywords&user_token=${user_token}`, {method: "POST", body})
+  body.append('keywords', JSON.stringify(data));
+
+  return fetch(`index.php?route=seo/keyword/fetchSaveKeywords&user_token=${user_token}`, {method: "POST", body})
+  .then(r => r.json())
+  .then(r => console.log(r));
 }
 
 // Replace value in rows

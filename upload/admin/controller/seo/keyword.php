@@ -116,21 +116,41 @@ class ControllerSeoKeyword extends Controller {
   }
 
   public function fetchSaveKeywords() : void {
-    $response = [];
-    $keywords = $this->request->post;
-
-    if (empty($keywords)) {
-      $response['keyword_group_id'] = 0;
-    } else {
+    $response = ['success' => false];
+    $keywords = $this->request->post['keywords'] ?? "[]";
+    $data = json_decode(html_entity_decode($keywords, ENT_QUOTES, 'UTF-8'), true);
+    
+    if (!empty($data)) {
       $this->load->model('seo/keyword');
-      $response['keyword_group_id'] = $this->model_seo_keyword->saveData([$keywords]);
+      $result = $this->model_seo_keyword->saveData($data);
+    
+      $response = [
+        'success' => (bool)$result
+      ];
     }
 
     $this->response->addHeader('Content-Type: application/json');
-    $this->response->setOutput(
-      json_encode(
-        $response
-      )
-    );
+    $this->response->setOutput(json_encode($response));
+  }
+
+  public function fetchDeleteKeywords() : void {
+    $response = [];
+    $keywords = $this->request->post['keywords'] ?? [];
+
+    $response = [
+      'success' => false
+    ];
+    
+    if (!empty($keywords) && is_array($keywords)) {
+      $this->load->model('seo/keyword');
+      $result = $this->model_seo_keyword->deleteData($keywords);
+    
+      $response = [
+        'success' => (bool)$result
+      ];
+    }
+
+    $this->response->addHeader('Content-Type: application/json');
+    $this->response->setOutput(json_encode($response));
   }
 }
