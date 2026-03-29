@@ -7499,12 +7499,12 @@ CREATE TABLE `oc_search_page_image_description` (
 
 DROP TABLE IF EXISTS `oc_seo_keyword`;
 CREATE TABLE `oc_seo_keyword` (
-  `keyword_id`      INT NOT NULL AUTO_INCREMENT,
-  `keyword_text`    VARCHAR(255) NOT NULL,
-  `keyword_url`     VARCHAR(255) NOT NULL,
-  `group`           INT NOT NULL,
-  `language_id`     INT NOT NULL,
-  `store_id`        INT NOT NULL,
+  `keyword_id`        INT NOT NULL AUTO_INCREMENT,
+  `keyword_text`      VARCHAR(255) NOT NULL,
+  `keyword_url`       VARCHAR(255) NOT NULL,
+  `keyword_group_id`  INT NOT NULL,
+  `language_id`       INT NOT NULL,
+  `store_id`          INT NOT NULL,
   PRIMARY KEY (`keyword_id`),
   KEY (`language_id`, `store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
