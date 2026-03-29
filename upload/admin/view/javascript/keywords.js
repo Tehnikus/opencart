@@ -143,7 +143,7 @@ function renderKeywords(interface, keywords) {
   // Copy row
   keywordTable.tbody.addEventListener('click', e => {
     if (e.target.closest('[data-copy-row]')) {
-      copyRow(keywordTable);
+      copyRow(keywordTable, e);
     }
   });
 
