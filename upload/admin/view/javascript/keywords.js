@@ -187,7 +187,12 @@ function renderKeywords(interface, keywords) {
         keywordTable.updateRow(id, rowVals, updateElement = true);
       });
     });
-  })
+  });
+
+  // Import CSV
+  tableHeaderElement.querySelector('.importCSV > input').addEventListener('input', (e) => {
+    importCSV(e.target, keywordTable);
+  });
 }
 
 // Render table row
@@ -274,7 +279,6 @@ function renderHeader(interface) {
   addRowStoreSelect.dataset.addRowColumn  = 'store_id';
   addRowGroupSelect.dataset.addRowColumn  = 'keyword_group_id';
   
-
   thead.innerHTML = `
     <tr>
       <th style="width: auto"   class="text-center"><input type="text" class="form-control" data-search-column="keyword_text" placeholder="${interface.lang.text_search} ${interface.lang.column_seo_keyword}"></th>
@@ -283,14 +287,10 @@ function renderHeader(interface) {
       <th style="width: 180px"  class="text-center">${storeSelect.outerHTML}</th>
       <th style="width: 180px"  class="text-center">${groupSelect.outerHTML}</th>
       <th style="width: 180px"  class="text-center">${filterRowTypeSelect.outerHTML}</th>
-      <th style="width: 180px"  class="text-center">
+      <th style="width: 100px"  class="text-center">
         <div class="btn-group">
           <button type="button" class="btn btn-default clearFilters" title="${interface.lang.button_clear_filters}"><i class="fa fa-times"></i></button>
-          <label class="btn btn-primary importCSV" title="${interface.lang.button_import}">
-            <i class="fa fa-cloud-upload"></i>
-            <input type="file" accept="csv" style="display: none;" name="importKeywords" />
-          </label>
-          <button type="button" class="btn btn-success saveAllKeywords" title="${interface.lang.button_save_all}"><i class="fa fa-save"></i></button>
+          <button type="button" class="btn btn-default findDuplicates" title="${interface.lang.button_find_duplicates}"><i class="fa fa-search"></i></button>
         </div>
       </th>
     </tr>
@@ -329,7 +329,11 @@ function renderHeader(interface) {
       <th class="text-center"></th>
       <th class="text-center">
         <div class="btn-group">
-          <button type="button" class="btn btn-success addRow"><i class="fa fa-plus-circle"></i>&nbsp;${interface.lang.button_add_row}</button>
+          <button type="button" class="btn btn-success addRow" title="${interface.lang.button_add_row}"><i class="fa fa-plus-circle"></i></button>
+          <label class="btn btn-primary importCSV" title="${interface.lang.button_import}">
+            <i class="fa fa-cloud-upload"></i>&nbsp;
+            <input type="file" accept=".csv" style="display: none;" name="importKeywords" />
+          </label>
         </div>
       </th>
     </tr>
@@ -415,4 +419,127 @@ function updateRow(keywordTable, newData) {
     rowVals.rowType = 'updatedRow';
     keywordTable.updateRow(id, rowVals, updateElement = true);
   });
+}
+
+function importCSV(input, keywordTable) {
+  // File
+  const file = input.files[0];
+
+  if (file) {
+    const reader = new FileReader();
+    // Read file
+    reader.onload = (e) => {
+      // File read results
+      const contents = e.target.result;
+      console.log(contents);
+      // Parse as CSV data
+      const parsedData = parseCSV(contents, detectDelimiter(contents));
+      parsedData.forEach(row => {
+        row.rowType = 'importedRow';
+      });
+      keywordTable.setData(parsedData);
+      saveKeywords(parsedData);
+
+    };
+    reader.readAsText(file);
+  }
+
+  function detectDelimiter(data) {
+    const firstLine = data.split(/\r?\n/)[0];
+  
+    const commaCount = (firstLine.match(/,/g) || []).length;
+    const semicolonCount = (firstLine.match(/;/g) || []).length;
+  
+    return semicolonCount > commaCount ? ';' : ',';
+  }
+
+  function normalizeHeader(header) {
+    return header
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, '_'); // "Keyword Text" => "keyword_text"
+  }
+
+  function parseCSV(data, delimiter = ',') {
+    const allowedColumns = [
+      'keyword_id',
+      'keyword_text',
+      'keyword_url',
+      'keyword_group_id',
+      'language_id',
+      'store_id'
+    ];
+    data = data.replace(/^\uFEFF/, ''); // Replace Excel-specific character
+    const rows = [];
+    let row = [];
+    let value = '';
+    let insideQuotes = false;
+
+    for (let i = 0; i < data.length; i++) {
+      const char = data[i];
+      const nextChar = data[i + 1];
+
+      if (char === '"') {
+        if (insideQuotes && nextChar === '"') {
+          value += '"';
+          i++; 
+        } else {
+          insideQuotes = !insideQuotes;
+        }
+      } else if (char === delimiter && !insideQuotes) {
+    
+        row.push(value.trim());
+        value = '';
+      } else if ((char === '\n' || char === '\r') && !insideQuotes) {
+        if (value !== '' || row.length > 0) {
+          row.push(value.trim());
+          rows.push(row);
+          row = [];
+          value = '';
+        }
+    
+        if (char === '\r' && nextChar === '\n') {
+          i++;
+        }
+      } else {
+        value += char;
+      }
+    }
+
+    if (value !== '' || row.length > 0) {
+      row.push(value.trim());
+      rows.push(row);
+    }
+    
+    const cleanRows = rows.filter(r => r.some(cell => cell.trim() !== '')); // Remove empty rows
+  
+    const headers = (cleanRows.shift() || []).map(h => normalizeHeader(h)); // Normalize headers "Keyword Text" => "keyword_text"
+  
+    return cleanRows.map(line => {
+      const obj = {};
+    
+      allowedColumns.forEach(col => {
+        obj[col] = '';
+      });
+    
+      headers.forEach((header, i) => {
+        if (!allowedColumns.includes(header)) return;
+    
+        let val = (line[i] ?? '').trim();
+    
+        if (['keyword_group_id', 'language_id', 'store_id'].includes(header)) {
+          val = parseInt(val) || 1;
+        }
+        if (['store_id'].includes(header)) {
+          val = parseInt(val) || 0;
+        }
+    
+        obj[header] = val;
+      });
+    
+      return obj;
+    });
+  }
+
+  input.value = ''; // Clear input value. This fixes bug when same file selected twice and parser didn't do anything
 }
