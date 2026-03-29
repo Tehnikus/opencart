@@ -103,8 +103,22 @@ function renderKeywords(interface, keywords) {
     pagination: {perPage: 200},
     template: (row) => renderRow(interface, row),
     addEventListeners: (table) => {
-      table.addEventListener('click', ()=> {
-        // console.log('Table callback fired');
+      table.addEventListener('change', e => {
+        if (e.target.closest('[data-id]')) {
+          const tr = e.target.closest('[data-id]');
+          console.log(tr);
+          const newData = {};
+          newData.keyword_id = tr.dataset.id;
+          newData.rowType = 'updatedRow'
+          const inputs = tr.querySelectorAll('input, select');
+          inputs.forEach(input => {
+            newData[input.dataset.column] = input.value;
+          });
+          saveKeywords([newData]);
+          keywordTable.updateRow(newData.keyword_id, newData, false);
+          tr.className = '';
+          tr.classList.add('updatedRow');
+        }
       })
     },
     onFilterEnd: (filteredMap) => {
