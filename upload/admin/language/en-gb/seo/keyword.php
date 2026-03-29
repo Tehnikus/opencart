@@ -12,6 +12,8 @@ $_['button_clear_filters']      = 'Clear filters';
 $_['button_find_duplicates']    = 'Find duplicates';
 $_['button_add_tag']            = 'Add to tags';
 $_['button_replace_keywords']   = 'Replace keywords';
+$_['button_copy']               = 'Copy keyword';
+$_['button_delete']             = 'Delete keyword';
 
 $_['option_all_stores']         = 'All stores';
 $_['option_all_languages']      = 'All languages';
