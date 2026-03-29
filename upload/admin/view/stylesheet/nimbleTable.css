@@ -18,10 +18,10 @@
       vertical-align: middle!important;
     }
     & input, & select {
-      border: 1px solid #999;
+      border: 1px solid #ccc;
       padding: 4px;
       &:hover, &:focus {
-        border-color: #666;
+        border-color: #bbb;
         box-shadow: none;
       }
     }
