@@ -162,10 +162,10 @@ class ControllerCommonColumnLeft extends Controller {
 				);
 			}
 
-			if ($this->user->hasPermission('access', 'seo/keywords')) {
+			if ($this->user->hasPermission('access', 'seo/keyword')) {
 				$seo[] = array(
 					'name'	   => $this->language->get('text_seo_keywords'),
-					'href'     => $this->url->link('seo/keywords', 'user_token=' . $this->session->data['user_token'], true),
+					'href'     => $this->url->link('seo/keyword', 'user_token=' . $this->session->data['user_token'], true),
 					'children' => array()
 				);
 			}
